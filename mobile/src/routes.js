@@ -76,11 +76,11 @@ function origin(siteUrl) {
  */
 function classify(url, siteUrl) {
   const u = String(url || '');
-  if (/^(about:|data:|blob:|javascript:)/i.test(u)) return 'web';
+  if (/^(about:|data:|blob:)/i.test(u)) return 'web';
   if (/^(tel:|sms:|mailto:|intent:)/i.test(u)) return 'dial';
   if (/^https?:\/\/accounts\.google\.com/i.test(u) || /\/accounts\/google\/login/i.test(u)) return 'google';
   const site = origin(siteUrl);
-  if (site && u.toLowerCase().startsWith(site)) return 'web';
+  if (site && origin(u) === site) return 'web';
   return 'external';
 }
 
@@ -88,7 +88,7 @@ function classify(url, siteUrl) {
 function deepLinkPath(link, siteUrl) {
   const s = String(link || '');
   const site = origin(siteUrl);
-  if (site && s.toLowerCase().startsWith(site)) return s.slice(site.length) || '/';
+  if (site && origin(s) === site) return s.slice(site.length) || '/';
   const m = /^guardian:\/\/+(.*)$/i.exec(s);
   if (m) return '/' + m[1].replace(/^\/+/, '');
   return null;
@@ -98,7 +98,7 @@ function deepLinkPath(link, siteUrl) {
 function pathOf(url, siteUrl) {
   const site = origin(siteUrl);
   const u = String(url || '');
-  if (site && u.toLowerCase().startsWith(site)) {
+  if (site && origin(u) === site) {
     const rest = u.slice(site.length).split(/[?#]/)[0];
     return rest || '/';
   }

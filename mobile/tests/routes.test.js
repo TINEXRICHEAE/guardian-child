@@ -4,6 +4,13 @@ const { activeTab, classify, deepLinkPath, forEmulator, pathOf, tabsFor } = requ
 
 const SITE = 'http://192.168.1.20:8001';
 
+test('lookalike domains cannot become internal links or practice links', () => {
+  const site = 'https://guardian.example.org';
+  assert.equal(classify(site + '.evil.test/p/token', site), 'external');
+  assert.equal(deepLinkPath(site + '.evil.test/p/token', site), null);
+  assert.equal(pathOf(site + '.evil.test/me/', site), '/');
+});
+
 test('each role gets its own five tabs', () => {
   assert.deepStrictEqual(tabsFor('child').map((t) => t.key), ['home', 'check', 'lessons', 'report', 'help']);
   assert.deepStrictEqual(tabsFor('parent').map((t) => t.key), ['family', 'news', 'check', 'alerts', 'settings']);

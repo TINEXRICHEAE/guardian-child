@@ -68,8 +68,10 @@ module.exports = {
       intentFilters: linkFilters,
     },
     plugins: [
-      // Allows plain http while Guardian runs on a laptop; remove once the site is on https.
-      ['expo-build-properties', { android: { usesCleartextTraffic: !https } }],
+      './plugins/with-short-native-paths',
+      // The server is chosen on device; LAN development connections can use HTTP.
+      ['expo-build-properties', { android: { usesCleartextTraffic: true } }],
+      ['expo-image-picker', { cameraPermission: 'Take a photo of a message to check whether it is safe.', microphonePermission: false }],
     ],
     extra: { siteUrl, prefixes },
   },
