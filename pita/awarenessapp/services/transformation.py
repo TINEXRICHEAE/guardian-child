@@ -88,22 +88,22 @@ def _engagement_schema(engagement_type: str) -> str:
         'link': (
             'Provide a single real, publicly accessible URL relevant to this topic.\n'
             'First scan the RAW CONTENT above for any http/https URL, if found, use it.\n'
-            'If no URL is present, identify the best authoritative public resource\n'
-            '(CISA advisory, NIST publication, CERT report, official news article) and supply its real URL.\n'
+            'If no URL is present, identify the best authoritative public resource for Ugandan families\n'
+            '(for example the Uganda Communications Commission, UNICEF Uganda or an official news article) and supply its real URL.\n'
             '{\n'
             '  "url": "https://...",\n'
-            '  "label": "Descriptive link title (e.g. \'CISA Advisory: Insider Threat Mitigation\')"\n'
+            '  "label": "Descriptive link title (e.g. \'UCC: How to spot Mobile Money scams\')"\n'
             '}'
         ),
         'article': (
-            'Rewrite the topic as a clear, engaging article for a non-technical reader.\n'
+            'Rewrite the topic as a clear, engaging article for a Ugandan parent or guardian.\n'
             'Use plain language, short paragraphs, no jargon. Include:\n'
             '  - brief introduction explaining the threat\n'
             '  - key findings or behaviours observed\n'
-            '  - real-world impact on individuals and organisations\n'
+            '  - how it reaches children (SMS, WhatsApp, social media, games) and what it costs families\n'
             '  - practical takeaways\n'
             'Cite the original source/author/organisation found in the RAW CONTENT, or the most\n'
-            'relevant official source (CERT, CISA, NIST) if none is identifiable.\n'
+            'relevant official source (UCC, Uganda Police, UNICEF, CERT) if none is identifiable.\n'
             '{\n'
             '  "summary": "Full article text (300-500 words, well-paragraphed)",\n'
             '  "source": "Name of the original organisation, author, or publication",\n'
@@ -111,21 +111,21 @@ def _engagement_schema(engagement_type: str) -> str:
             '}'
         ),
         'scenario': (
-            'Describe a realistic workplace situation where this threat could occur,\n'
-            'and state the correct employee response.\n'
+            'Describe a realistic situation in a Ugandan family where a child meets this scam,\n'
+            'and state the correct response for the child and the parent.\n'
             '{\n'
-            '  "scenario": "Realistic 3-5 sentence workplace situation",\n'
+            '  "scenario": "Realistic 3-5 sentence situation at home, at school or online",\n'
             '  "correct_action": "Clear, step-by-step correct response"\n'
             '}'
         ),
         'policy': (
-            'Identify the most relevant GRC framework control for this threat\n'
-            '(e.g. NIST SP 800-53, ISO/IEC 27001, CIS Controls, GDPR, SOC 2, HIPAA).\n'
+            'Identify the most relevant Ugandan law, regulation or official guidance for this scam\n'
+            '(e.g. the Computer Misuse Act, the Data Protection and Privacy Act, the Children Act, UCC consumer guidance).\n'
             '{\n'
-            '  "policy_name": "Framework + specific control (e.g. \'NIST SP 800-53: AC-2 Account Management\')",\n'
-            '  "framework": "Full framework name (e.g. \'NIST SP 800-53 Rev 5\')",\n'
-            '  "applicability": "2-3 sentences explaining how this control applies to the threat",\n'
-            '  "consequences": "Organisational and personal consequences if ignored",\n'
+            '  "policy_name": "Law or guidance + the relevant part (e.g. \'Computer Misuse Act 2011: electronic fraud\')",\n'
+            '  "framework": "Full name of the law or guidance",\n'
+            '  "applicability": "2-3 sentences explaining how it protects children and families from this scam",\n'
+            '  "consequences": "What can happen to a child or family if the warning is ignored",\n'
             '  "remediations": "Concrete step-by-step remediation actions",\n'
             '  "reference": "Official URL of the framework document"\n'
             '}'
@@ -135,38 +135,37 @@ def _engagement_schema(engagement_type: str) -> str:
 
 
 def _build_prompt(raw: RawContent) -> str:
-    threat_labels = {
-        'compromised': 'Compromised Insider (credentials/system compromise)',
-        'negligent': 'Negligent Insider (accidental data exposure / weak passwords)',
-        'malicious': 'Malicious Insider (intentional sabotage / data theft)',
-        'third_party': 'Third-Party / Vendor Risk (ISO/NIST supply-chain threats)',
-    }
-    threat_label = threat_labels.get(raw.source.threat_type, raw.source.threat_type)
-
+    from ..models import SCAM_CATEGORY_CHOICES
+    category = dict(SCAM_CATEGORY_CHOICES).get(raw.source.threat_type, raw.source.threat_type)
     schema = _engagement_schema(raw.engagement_type)
 
-    return f"""You are a senior cybersecurity awareness specialist.
-Transform the raw security intelligence below into a structured insider-threat awareness message for non-technical employees.
+    return f"""You write online-safety guidance for Ugandan families: parents and guardians of children aged 8 to 17.
+The guidance is published by Guardian with Uganda's child online-safety regulators (the Uganda Communications
+Commission, the Ministry of Gender, Labour and Social Development and the Uganda Police Child and Family Protection
+Unit). Transform the raw intelligence below into a structured awareness message for parents.
 
-INSIDER THREAT TYPE: {threat_label}
-ENGAGEMENT TYPE (pre-selected by admin): {raw.engagement_type}
+SCAM CATEGORY: {category}
+ENGAGEMENT TYPE (pre-selected by the analyst): {raw.engagement_type}
 
-RAW CONTENT (sumy-extracted summary):
+RAW CONTENT (extracted summary):
 {raw.summary}
 
-━━━ OUTPUT RULES ━━━
+=== OUTPUT RULES ===
 Return a single raw JSON object, NO markdown fences, NO comments, NO trailing commas.
+Write for families, never for a company: do not mention employees, organisations, supervisors, security teams or
+company policies. When the reader should report something, name the Uganda Police Child and Family Protection Unit,
+the Uganda Communications Commission (UCC), the platform where it happened, or Sauti 116 (free child helpline).
 The engagement type has already been decided: {raw.engagement_type}. Do NOT include an "engagement_type" key in your response.
 
 Return EXACTLY this structure:
 {{
-  "title": "Short, punchy headline relevant to the topic (max 12 words)",
-  "risk": "1-2 sentences explaining concretely why this threat matters to an ordinary employee",
-  "action": "2-3 specific, numbered steps the employee should take immediately",
+  "title": "Short, clear headline for parents (max 12 words)",
+  "risk": "1-2 sentences explaining concretely how this scam reaches children in Uganda and why it matters",
+  "action": ["3 short, specific steps a parent and child should take", "...", "..."],
   "engagement_data": <follow the schema below exactly>
 }}
 
-━━━ ENGAGEMENT_DATA SCHEMA FOR: {raw.engagement_type.upper()} ━━━
+=== ENGAGEMENT_DATA SCHEMA FOR: {raw.engagement_type.upper()} ===
 {schema}"""
 
 
@@ -176,7 +175,7 @@ def _generate_json(prompt: str) -> tuple[dict | None, str]:
     Returns (data, provider). data is None when every provider failed.
     """
     r = ai_client.generate(prompt, as_json=True, max_tokens=3000,
-                           system='You write cyber-safety awareness content. Reply with one JSON object only. ' + NO_EM_DASH_RULE)
+                           system='You write online-safety guidance for Ugandan families. Reply with one JSON object only. ' + NO_EM_DASH_RULE)
     if r.get('status') == 'ok' and isinstance(r.get('data'), dict):
         meta = r.get('meta', {})
         return no_em_dash(r['data']), f"guardian-ai:{meta.get('backend')}@{meta.get('host')}"
@@ -223,7 +222,7 @@ def transform_raw_content(raw: RawContent, admin_user) -> AwarenessContent | Non
         threat_type=raw.source.threat_type,
         title=data.get('title', 'Untitled Awareness Content'),
         risk=data.get('risk', ''),
-        action=data.get('action', ''),
+        action=_action_text(data.get('action', '')),
         engagement_type=engagement_type,
         engagement_data=data.get('engagement_data'),
         status=AwarenessContent.STATUS_PENDING,
@@ -238,6 +237,13 @@ def transform_raw_content(raw: RawContent, admin_user) -> AwarenessContent | Non
     raw.save(update_fields=['processed'])
     logger.info(f"Transformed RawContent #{raw.pk} → AwarenessContent #{content.pk}")
     return content
+
+
+def _action_text(value) -> str:
+    """Store actions as numbered lines, whatever shape the model returned (list, list-looking text or prose)."""
+    from safety.templatetags.app_ui import as_steps
+    steps = as_steps(value)
+    return '\n'.join(f'{i}. {step}' for i, step in enumerate(steps, 1)) if steps else str(value or '')
 
 
 def _create_quiz_from_data(content: AwarenessContent, engagement_data: dict, admin_user):

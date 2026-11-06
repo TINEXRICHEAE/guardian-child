@@ -1,17 +1,16 @@
-{% extends "app/child_base.html" %}
+{% extends "app/child_base.html" %}{% load app_ui %}
 {% block title %}My lessons{% endblock %}
 {% block child_content %}
 <h1 class="text-2xl md:text-3xl font-bold mb-1">My lessons</h1>
 <p class="text-on-surface-variant mb-6">Short lessons about the scams going around right now. Each one has a quick quiz.</p>
 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-    {% for p in packs %}
+    {% for row in rows %}{% with p=row.pack v=row.v %}
     <a href="{% url 'lesson' p.pk %}" class="block bg-white border border-outline p-5 hover:border-teal">
-        <h2 class="text-lg font-bold mb-1">{{ p.child_title }}</h2>
-        <p class="text-sm text-on-surface-variant mb-2">{{ p.child_story|truncatechars:140 }}</p>
+        <h2 class="text-lg font-bold mb-1">{{ v.child_title|fill:name }}</h2>
+        <p class="text-sm text-on-surface-variant mb-2">{{ v.child_story|fill:name|truncatechars:140 }}</p>
         <span class="text-xs font-semibold {% if p.child_quiz_id in done %}text-teal{% else %}text-on-surface-variant{% endif %}">{% if p.child_quiz_id in done %}Quiz done ✓{% else %}Read and take the quiz &rarr;{% endif %}</span>
     </a>
-    {% empty %}<div class="bg-white border border-outline p-6 text-sm text-on-surface-variant">No lessons yet. Check back soon.</div>
+    {% endwith %}{% empty %}<div class="bg-white border border-outline p-6 text-sm text-on-surface-variant">No lessons yet. Check back soon.</div>
     {% endfor %}
 </div>
-<p class="text-xs text-on-surface-variant mt-6">More topics are in the <a href="{% url 'library' %}" class="text-teal hover:underline">library</a>.</p>
 {% endblock %}

@@ -1,0 +1,9 @@
+{% for e in form.non_field_errors %}<p class="text-sm text-error">{{ e }}</p>{% endfor %}
+{% for field in form %}
+<div>
+    <label for="{{ field.id_for_label }}" class="block text-xs font-bold uppercase tracking-wider mb-1">{{ field.label }}</label>
+    {{ field }}
+    {% for e in field.errors %}<p class="text-xs text-error mt-1">{{ e }}</p>{% endfor %}
+    {% if field.name == 'new_password1' %}<p class="text-xs text-on-surface-variant mt-1">At least 8 characters. Avoid common words and anything only made of numbers.</p>{% endif %}
+</div>
+{% endfor %}

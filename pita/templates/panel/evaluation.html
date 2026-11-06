@@ -1,0 +1,141 @@
+{% extends "panel/base_panel.html" %}
+{% block title %}Model evaluation{% endblock %}
+
+{% block panel_content %}
+<div class="flex flex-wrap items-start justify-between gap-4 mb-6">
+    <div>
+        <h1 class="text-3xl font-bold">Model evaluation</h1>
+        <p class="text-sm text-on-surface-variant mt-1 max-w-3xl">Every model Guardian uses, what it is for, how it runs and what happens when it is down. Each evaluation calls the live service on Guardian's synthetic Ugandan test data and is stored, so earlier runs stay visible. Nothing here is estimated: a model that does not answer is recorded as unavailable.</p>
+    </div>
+    <form method="post" action="{% url 'evaluation_run' %}">
+        {% csrf_token %}
+        <input type="hidden" name="evaluation" value="all">
+        <button class="bg-teal text-white px-5 py-2 font-semibold border-2 border-teal hover:bg-primary transition-colors text-sm" {% if running %}disabled{% endif %}>Run all evaluations</button>
+    </form>
+</div>
+
+<div class="bg-white border border-outline p-4 mb-6 text-sm flex flex-wrap gap-x-6 gap-y-1">
+    {% if health.status == 'unavailable' %}
+    <span class="text-error font-semibold">Guardian AI is not reachable right now.</span>
+    <span class="text-on-surface-variant">Model evaluations will be recorded as unavailable; "Safety rules only" still runs.</span>
+    {% else %}
+    <span><span class="font-semibold">Service:</span> {{ health.status }} · {{ health.mode }}</span>
+    <span><span class="font-semibold">Host:</span> {{ health.host }}</span>
+    <span><span class="font-semibold">GPU:</span> {{ health.gpu|default:"none" }}</span>
+    {% endif %}
+</div>
+
+<div id="evalRunning" class="border border-teal bg-teal/5 p-4 mb-6 text-sm {% if not running %}hidden{% endif %}">
+    <span class="font-semibold text-teal">Running:</span> <span id="evalRunningText">starting...</span>
+    <span class="text-on-surface-variant">This page refreshes when it finishes.</span>
+</div>
+
+<div class="space-y-6">
+{% for c in cards %}
+<section class="bg-white border border-outline">
+    <div class="p-5 border-b border-outline flex flex-wrap items-start justify-between gap-3">
+        <div>
+            <h2 class="text-xl font-bold">{{ c.name }}</h2>
+            <div class="text-sm text-on-surface-variant font-mono break-all">{{ c.model_id }}</div>
+        </div>
+        <span class="text-xs font-semibold px-2 py-1 border {% if c.live_ok %}border-teal text-teal{% else %}border-error text-error{% endif %}">{{ c.live }}</span>
+    </div>
+    <div class="p-5 grid md:grid-cols-2 gap-x-8 gap-y-3 text-sm">
+        <p class="md:col-span-2">{{ c.use }}</p>
+        <div><div class="text-xs font-bold uppercase tracking-wider text-on-surface-variant">Task</div>{{ c.task }}</div>
+        <div><div class="text-xs font-bold uppercase tracking-wider text-on-surface-variant">Licence</div>{{ c.licence }}</div>
+        <div><div class="text-xs font-bold uppercase tracking-wider text-on-surface-variant">Files</div>{{ c.files }}</div>
+        <div><div class="text-xs font-bold uppercase tracking-wider text-on-surface-variant">Inputs and limits</div>{{ c.inputs }}</div>
+        <div><div class="text-xs font-bold uppercase tracking-wider text-on-surface-variant">Runtime</div>{{ c.runtime }}</div>
+        <div><div class="text-xs font-bold uppercase tracking-wider text-on-surface-variant">Called by</div>{{ c.endpoint }}</div>
+        <div><div class="text-xs font-bold uppercase tracking-wider text-on-surface-variant">Decision threshold</div>{{ c.threshold_text }}</div>
+        <div><div class="text-xs font-bold uppercase tracking-wider text-on-surface-variant">Known weaknesses</div>{{ c.weaknesses }}</div>
+        <div class="md:col-span-2 border-l-4 border-teal pl-3"><div class="text-xs font-bold uppercase tracking-wider text-teal">When it is unavailable</div>{{ c.fallback }}</div>
+    </div>
+    <div class="border-t border-outline divide-y divide-outline">
+        {% for e in c.evals %}
+        <div class="p-5">
+            <div class="flex flex-wrap items-center justify-between gap-3 mb-3">
+                <div>
+                    <div class="font-semibold">{{ e.title }}</div>
+                    <div class="text-xs text-on-surface-variant">Dataset: {{ e.dataset }}
+                        {% if e.run %} · last run {{ e.run.started_at|date:"j M, H:i T" }}{% if e.run.backend %} · answered by {{ e.run.backend }}{% if e.run.host %} on {{ e.run.host }}{% endif %}{% endif %}{% endif %}</div>
+                </div>
+                <div class="flex items-center gap-2">
+                    {% if e.run %}<a href="{% url 'evaluation_detail' e.run.pk %}" class="text-sm text-teal hover:underline">Details &rarr;</a>{% endif %}
+                    <form method="post" action="{% url 'evaluation_run' %}">
+                        {% csrf_token %}
+                        <input type="hidden" name="evaluation" value="{{ e.key }}">
+                        <button class="text-sm px-4 py-2 font-semibold border-2 border-teal text-teal hover:bg-teal hover:text-white transition-colors" {% if running %}disabled{% endif %}>Run</button>
+                    </form>
+                </div>
+            </div>
+            {% if not e.run %}
+            <p class="text-sm text-on-surface-variant">Not run yet.</p>
+            {% elif e.run.status == 'running' %}
+            <p class="text-sm text-teal">Running{% if e.run.progress %}: {{ e.run.progress }}{% endif %}...</p>
+            {% elif e.run.status != 'done' %}
+            <p class="text-sm text-error">{{ e.run.get_status_display }}: {{ e.run.error }}</p>
+            {% else %}
+            <div class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-2">
+                {% for label, value in e.headline %}
+                <div class="border border-outline p-3">
+                    <div class="text-lg font-bold text-teal">{{ value }}</div>
+                    <div class="text-xs text-on-surface-variant">{{ label }}</div>
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+        </div>
+        {% endfor %}
+    </div>
+</section>
+{% endfor %}
+</div>
+
+<section class="bg-white border border-outline mt-8">
+    <h2 class="font-semibold p-5 border-b border-outline">Run history</h2>
+    {% if history %}
+    <div class="overflow-x-auto">
+    <table class="w-full text-sm mob-cards">
+        <thead><tr class="text-left text-xs uppercase tracking-wider text-on-surface-variant border-b border-outline">
+            <th class="p-3">Evaluation</th><th class="p-3">Status</th><th class="p-3">Answered by</th><th class="p-3">Started</th><th class="p-3">Took</th><th class="p-3"></th></tr></thead>
+        <tbody>
+        {% for r in history %}
+        <tr class="border-b border-outline">
+            <td class="p-3" data-label="Evaluation">{% for k, t in titles.items %}{% if k == r.evaluation %}{{ t }}{% endif %}{% endfor %}</td>
+            <td class="p-3" data-label="Status"><span class="{% if r.status == 'done' %}text-teal{% elif r.status == 'running' %}text-on-surface-variant{% else %}text-error{% endif %}">{{ r.get_status_display }}</span></td>
+            <td class="p-3" data-label="Answered by">{{ r.backend|default:"-" }}{% if r.host %} · {{ r.host }}{% endif %}</td>
+            <td class="p-3" data-label="Started">{{ r.started_at|date:"j M, H:i T" }}{% if r.started_by %} · {{ r.started_by.email }}{% endif %}</td>
+            <td class="p-3" data-label="Took">{% if r.duration_s is not None %}{{ r.duration_s }} s{% else %}-{% endif %}</td>
+            <td class="p-3"><a href="{% url 'evaluation_detail' r.pk %}" class="text-teal hover:underline">Open</a></td>
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    </div>
+    {% else %}
+    <p class="p-5 text-sm text-on-surface-variant">No runs yet. Press "Run all evaluations" to create the first results.</p>
+    {% endif %}
+</section>
+
+<script>
+(function () {
+    var box = document.getElementById('evalRunning'), text = document.getElementById('evalRunningText');
+    var wasRunning = {{ running|yesno:"true,false" }};
+    function poll() {
+        fetch('{% url "evaluation_status" %}', {credentials: 'same-origin'}).then(function (r) { return r.json(); }).then(function (d) {
+            if (d.running.length) {
+                box.classList.remove('hidden');
+                text.textContent = d.running.map(function (r) { return r.title + (r.progress ? ' (' + r.progress + ')' : ''); }).join(' · ');
+                wasRunning = true;
+                setTimeout(poll, 4000);
+            } else if (wasRunning) {
+                location.reload();
+            }
+        }).catch(function () { setTimeout(poll, 8000); });
+    }
+    if (wasRunning) poll();
+})();
+</script>
+{% endblock %}

@@ -35,7 +35,7 @@
                 </td>
                 <td class="px-4 py-3 text-on-surface-variant" data-label="Threat">{{ source.get_threat_type_display }}</td>
                 <td class="px-4 py-3 text-on-surface-variant" data-label="Fetched">
-                    {% if source.last_fetched %}{{ source.last_fetched|date:"M d, Y H:i" }}{% else %}Never{% endif %}
+                    {% if source.last_fetched %}{{ source.last_fetched|date:"M d, Y H:i T" }}{% else %}Never{% endif %}
                 </td>
                 <td class="px-4 py-3 text-teal font-semibold" data-label="Raw Items">{{ source.raw_contents.count }}</td>
                 <td class="px-4 py-3 text-right">

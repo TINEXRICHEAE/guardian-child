@@ -1,0 +1,127 @@
+id,text,label,category,language,split,source
+m001,"Congratulations! Your number has won UGX 500,000 in the MTN MoMo anniversary draw. To receive it, dial *165# and enter your PIN, then reply with the code you get.",1,reward,en,test,team-synthetic
+m002,"You are the lucky winner of a Samsung phone from Airtel Uganda. Pay 15,000 shillings delivery fee by Mobile Money to receive your prize today.",1,reward,en,test,team-synthetic
+m003,FREE 20GB data for students! Claim now before midnight: mtn-ug-bonus.xyz/claim,1,reward,en,dev,team-synthetic
+m004,"Hello, you have been selected for free airtime worth 50,000. Click airtel-gift.top/free to activate within 2 hours.",1,reward,en,test,team-synthetic
+m005,"Your Free Fire account has won 10,000 diamonds. Log in at freefire-rewards.click with your Facebook password to collect them.",1,reward,en,test,team-synthetic
+m006,Roblox is giving 5000 free Robux to Ugandan players this week. Enter your username and password at robux-ug.site to get yours.,1,reward,en,dev,team-synthetic
+m007,"Dear customer, you have won a lucky draw of 1,200,000 UGX. Send 25,000 registration fee to claim. Do not tell anyone until you receive it.",1,reward,en,test,team-synthetic
+m008,WINNER! Coca-Cola Uganda promotion. Your ticket number won a motorcycle. Call our agent today and pay clearance fee to release it.,1,reward,en,test,team-synthetic
+m009,Get unlimited WhatsApp bundles for one year free. Just share this message with 10 groups and open bit.ly/ug-free-bundle,1,reward,en,dev,team-synthetic
+m010,"TikTok Uganda: your video has been chosen for a cash reward of 300,000 shs. Verify your account here tiktok-rewards.online",1,reward,en,test,team-synthetic
+m011,"Jackpot alert! You have been picked to receive a laptop from the President's youth programme. Send your name, school and parents phone number to claim.",1,reward,en,test,team-synthetic
+m012,"Your SIM card number was picked in the end of year bonanza. Reply YES and send 10,000 to confirm your gift hamper.",1,reward,en,dev,team-synthetic
+m013,"Makerere University bursary 2027: you have been shortlisted for a full scholarship. Pay the processing fee of 50,000 to secure your slot before Friday.",1,advance_fee,en,test,team-synthetic
+m014,"UNICEF Uganda school support grant. Your child qualifies for 800,000 UGX. Send 20,000 verification fee to the coordinator to receive the money.",1,advance_fee,en,test,team-synthetic
+m015,"Good news! You have been selected for a study abroad scholarship in Canada. Registration fee is 100,000 shs, pay by Mobile Money today.",1,advance_fee,en,dev,team-synthetic
+m016,Government bursary for S.4 leavers. Only 50 slots left. Fill the form at gov-bursary-ug.info and pay activation fee to be considered.,1,advance_fee,en,test,team-synthetic
+m017,"You have been shortlisted for a job as a supermarket attendant in Dubai. Salary 3,500,000 per month. Pay 200,000 for your medical and visa today.",1,advance_fee,en,test,team-synthetic
+m018,"Hello, I am the head of a youth NGO. We give 1,000,000 shs start-up capital to young people. Send 30,000 for your application form to be processed.",1,advance_fee,en,dev,team-synthetic
+m019,"Your national ID has been selected for the parish development money. To receive 1 million, send a small fee of 15,000 to the officer below.",1,advance_fee,en,test,team-synthetic
+m020,"Football academy trials in Europe! We have watched your videos. Send 150,000 shillings for your trial booking and travel letter.",1,advance_fee,en,test,team-synthetic
+m021,"Hi, we are hiring students for online typing jobs from home. Earn 50,000 a day. Pay a one time registration of 25,000 to start immediately.",1,advance_fee,en,dev,team-synthetic
+m022,"Hello, I sent you a code by mistake. Please send it back to me, it is for my Mobile Money account.",1,otp_theft,en,test,team-synthetic
+m023,"Dear customer, your MoMo account will be blocked today. To keep it active, reply with your PIN and the verification code we just sent.",1,otp_theft,en,test,team-synthetic
+m024,Airtel Money: we noticed a problem with your account. Call this customer care line and give the agent your PIN to fix it.,1,otp_theft,en,dev,team-synthetic
+m025,This is WhatsApp support. Someone tried to log in to your account. Send us the 6 digit code you received to protect it.,1,otp_theft,en,test,team-synthetic
+m026,"Hey it's me, I lost my phone and I am using a friend's line. A code will come to your phone, please forward it to me quickly.",1,otp_theft,en,test,team-synthetic
+m027,Your Instagram will be deleted within 24 hours for copyright violation. Confirm it is you by entering your password at insta-verify.site,1,otp_theft,en,dev,team-synthetic
+m028,Centenary Bank alert: your account is suspended. Update your details and one-time password at centenary-secure.xyz to avoid closure.,1,otp_theft,en,test,team-synthetic
+m029,Stanbic: unusual activity on your card. Reply with your card PIN to stop the transaction.,1,otp_theft,en,test,team-synthetic
+m030,Your Gmail storage is full and emails will stop today. Sign in at mail-storage-help.online to get 50GB free.,1,otp_theft,en,dev,team-synthetic
+m031,"Hello friend, I am a gamer like you. Give me your Free Fire login and I will level up your account for free tonight.",1,otp_theft,en,test,team-synthetic
+m032,"Your parcel could not be delivered. Pay 3,500 shs redelivery charge here: ug-post-track.top/pay",1,phishing_link,en,test,team-synthetic
+m033,"URA notice: you have an unpaid tax refund of 420,000. Claim it at ura-refunds.info before it expires.",1,phishing_link,en,dev,team-synthetic
+m034,See who viewed your profile today! Open socialviews.click and log in with Facebook.,1,phishing_link,en,test,team-synthetic
+m035,Your school results for S.3 are out. Check them at uneb-results-2027.site using your parent's phone number and PIN.,1,phishing_link,en,test,team-synthetic
+m036,MTN Uganda: your line will be disconnected for missing SIM registration. Register again at mtn-simreg.xyz,1,phishing_link,en,dev,team-synthetic
+m037,"Watch the leaked video of your classmate here, everyone is talking about it: tinyurl.com/class-vid-ug",1,phishing_link,en,test,team-synthetic
+m038,Airtel: You have 3 unclaimed bonuses. Visit http://41.210.18.77/airtel/bonus to redeem.,1,phishing_link,en,test,team-synthetic
+m039,Netflix free for 6 months for students in Uganda. Activate at netflix-students.ug.free-offer.online/start,1,phishing_link,en,dev,team-synthetic
+m040,"Hello, this is your headteacher. The school needs you to send 20,000 for the trip by Mobile Money to this new number today. Do not tell other students.",1,impersonation,en,test,team-synthetic
+m041,"Mum here, my phone is off. Please send me 50,000 on this number, I will explain later. Don't tell dad.",1,impersonation,en,test,team-synthetic
+m042,"This is the police cyber unit. Your phone was used in a crime. Pay a fine of 100,000 or you will be arrested tonight.",1,impersonation,en,dev,team-synthetic
+m043,"I am Pastor James from your church. God has chosen you for a blessing. Send 10,000 seed offering to receive 500,000.",1,impersonation,en,test,team-synthetic
+m044,"Hi, I am your class teacher using a new number. Send me photos of your report card and your parents' MoMo PIN so I can update records.",1,impersonation,en,test,team-synthetic
+m045,"Your uncle here. I am stuck at the border, please send 80,000 urgently, I will pay you back tomorrow.",1,impersonation,en,dev,team-synthetic
+m046,UCC: your SIM card has been flagged for fraud and will be switched off in 2 hours. Call this officer to verify your identity.,1,impersonation,en,test,team-synthetic
+m047,"I have your photos and I will share them with your school unless you send 100,000 by tonight. Do not tell your parents.",1,threat,en,test,team-synthetic
+m048,"We hacked your account. If you do not pay 50,000 we will post your chats to all your contacts.",1,threat,en,dev,team-synthetic
+m049,Your account has been reported for bad content. Send your password to the admin now or it will be closed and the police informed.,1,threat,en,test,team-synthetic
+m050,"Hi dear, I saw your profile and I like you. I am a soldier in another country. Can you help me receive a parcel? Keep it secret between us.",1,romance,en,test,team-synthetic
+m051,You are so beautiful. I want to send you a gift and money for school. Just tell me your mother's Mobile Money number and don't tell her I asked.,1,romance,en,dev,team-synthetic
+m052,Let us move to a private chat. I will send you airtime every day if you send me photos. Keep this our secret.,1,romance,en,test,team-synthetic
+m053,"Sorry, I have sent you 70,000 by mistake. Kindly return it to me, I am stranded at the hospital.",1,money_refund,en,test,team-synthetic
+m054,"Hello, my child sent school fees to your number by error. Please refund the money quickly, God bless you.",1,money_refund,en,dev,team-synthetic
+m055,"Join our crypto group and double your money in 7 days. Many students are already earning. Invest only 20,000 to start.",1,crypto,en,test,team-synthetic
+m056,"Earn 5,000 shs every hour by watching videos. Deposit 10,000 to unlock your earning account at earn-ug.click",1,crypto,en,test,team-synthetic
+m057,"Invest in our forex team. Send 50,000 today, get 500,000 on Monday. Guaranteed profit, limited slots.",1,crypto,en,dev,team-synthetic
+m058,"Part-time work for students: like YouTube videos and earn 2,000 per like. Message us and pay 10,000 to register.",1,job,en,test,team-synthetic
+m059,"Are you looking for a house girl job in Kampala? Salary 600,000 with free accommodation. Send 20,000 transport facilitation now.",1,job,en,test,team-synthetic
+m060,Free Minecraft for your phone. Download the APK from mc-free-ug.site and allow all permissions.,1,gaming,en,dev,team-synthetic
+m061,PUBG UC generator: get 8000 UC free. Enter your login details at uc-gen.top. Works only today.,1,gaming,en,test,team-synthetic
+m062,congratulation u hv won 250k frm momo promo. snd ur pin 2 confirm b4 5pm,1,reward,en,test,team-synthetic
+m063,"mtn customer care: ur line hs a problem, dial *165*7# then tel us the code u see so we fix",1,otp_theft,en,dev,team-synthetic
+m064,"Hi, your scholarship letter is ready. Collect it after you send the clearance fee of 35,000 by Mobile Money.",1,advance_fee,en,test,team-synthetic
+m065,"This is Airtel Money customer service. We reversed a transaction to your account by mistake. Please send back 45,000 now.",1,impersonation,en,test,team-synthetic
+m066,Your WhatsApp will expire. Renew for free at whatsapp-renew.info now.,1,phishing_link,en,dev,team-synthetic
+m067,You have received a gift card from a friend! Open giftcard-claim.link to see how much they sent you.,1,reward,en,test,team-synthetic
+m068,"Please help me vote in a school competition, I just need you to send me the code that WhatsApp sends to you.",1,otp_theft,en,test,team-synthetic
+m069,"Your MoMo verification code is [CODE]. Do not share this code with anyone, including MTN staff.",0,telco_otp,en,dev,team-synthetic
+m070,"Airtel Money: You have received UGX 20,000 from MUKASA J. Your new balance is UGX 23,500. Never share your PIN.",0,telco_otp,en,test,team-synthetic
+m071,Y'ello! You have bought 1GB data valid for 7 days. Dial *150# to check your balance.,0,telco_otp,en,test,team-synthetic
+m072,Your WhatsApp code: [CODE]. Don't share this code with others.,0,telco_otp,en,dev,team-synthetic
+m073,"Google: [CODE] is your verification code. If you did not ask for it, you can ignore this message.",0,telco_otp,en,test,team-synthetic
+m074,Airtel: Enjoy 2x data on all weekly bundles this weekend. Dial *175# to buy. Terms apply.,0,telco_promo,en,test,team-synthetic
+m075,MTN: Get 50% extra airtime when you load today using MoMo. Dial *165# to load. MTN will never ask for your PIN.,0,telco_promo,en,dev,team-synthetic
+m076,Your monthly bundle expires tomorrow. Dial *150*1# to renew and keep surfing.,0,telco_promo,en,test,team-synthetic
+m077,MTN Uganda: You can now pay school fees with MoMo. Visit mtn.co.ug for the list of schools.,0,telco_promo,en,test,team-synthetic
+m078,Thank you for registering your SIM card. Your registration is complete.,0,telco_promo,en,dev,team-synthetic
+m079,"Dear parent, term two fees are due by 15 May. Please pay at the school bursar's office or the school bank account only. Thank you.",0,school,en,test,team-synthetic
+m080,"Reminder: visiting day is this Sunday from 9am. Students should not be given money in excess of 20,000.",0,school,en,test,team-synthetic
+m081,S.4 mock examinations begin on Monday. Students should report by 7:30am with their own mathematical sets.,0,school,en,dev,team-synthetic
+m082,The school will close for holidays on Friday at 12 noon. Report cards will be issued on the last day.,0,school,en,test,team-synthetic
+m083,Debate club meets today at 4pm in the library. Topic: social media does more harm than good.,0,school,en,test,team-synthetic
+m084,"Hello class, the biology homework is on page 54. Submit your books on Thursday.",0,school,en,dev,team-synthetic
+m085,Makerere University: admission lists for private sponsorship are now available on the official website mak.ac.ug.,0,school,en,test,team-synthetic
+m086,UNEB results will be released on Friday. Candidates can check through their schools.,0,school,en,test,team-synthetic
+m087,"Hi dear, I will be late from work today. Please warm the food and do your homework.",0,family,en,dev,team-synthetic
+m088,Grandma says thank you for the call. She wants you to visit during the holidays.,0,family,en,test,team-synthetic
+m089,Mum: I have sent your transport money to your aunt. Collect it from her after school.,0,family,en,test,team-synthetic
+m090,Dad here. Remember your brother's birthday is tomorrow. Let us buy him a cake.,0,family,en,dev,team-synthetic
+m091,We are going to church at 9. Please be ready by 8:30.,0,family,en,test,team-synthetic
+m092,Your cousin arrived safely in Mbarara. She says hello.,0,family,en,test,team-synthetic
+m093,Are you coming for football practice tomorrow? Coach said 4pm.,0,friend,en,dev,team-synthetic
+m094,Did you finish the chemistry assignment? I am stuck on question 3.,0,friend,en,test,team-synthetic
+m095,Happy birthday! I hope you have a great day. See you at school.,0,friend,en,test,team-synthetic
+m096,Lol that video was so funny. Send me the song name.,0,friend,en,dev,team-synthetic
+m097,Let us meet at the library at 2 to revise for the test.,0,friend,en,test,team-synthetic
+m098,Congratulations on your results! You really worked hard.,0,friend,en,test,team-synthetic
+m099,I won the drawing competition at school today! The prize is a set of colour pencils.,0,friend,en,dev,team-synthetic
+m100,"Centenary Bank: Your account was credited with UGX 150,000 on 03/11. For help call the number on the back of your card.",0,bank,en,test,team-synthetic
+m101,Stanbic Bank: Your monthly statement is ready in the app. We will never ask for your PIN or password.,0,bank,en,test,team-synthetic
+m102,"Your school account savings deposit of UGX 10,000 has been received. Thank you for saving with us.",0,bank,en,dev,team-synthetic
+m103,Ministry of Health: Measles immunisation campaign this week at all health centres. Children under 5 are free.,0,health,en,test,team-synthetic
+m104,Your appointment at the dental clinic is confirmed for Tuesday at 10am.,0,health,en,test,team-synthetic
+m105,Your SafeBoda order is on the way. The rider will call when he arrives.,0,delivery,en,dev,team-synthetic
+m106,Jumia: your package has been delivered. Thank you for shopping with us.,0,delivery,en,test,team-synthetic
+m107,UCC reminds the public: never share your Mobile Money PIN or one-time codes with anyone.,0,official,en,test,team-synthetic
+m108,Electoral Commission: the display of the voters register starts on Monday at your polling station.,0,official,en,dev,team-synthetic
+m109,URA: your TIN registration was successful. Visit ura.go.ug to view your account.,0,official,en,test,team-synthetic
+m110,NWSC: your water bill for October is ready. Pay through Mobile Money or at any branch.,0,official,en,test,team-synthetic
+m111,Youth fellowship this Saturday at 3pm. Come with a friend. All are welcome.,0,church,en,dev,team-synthetic
+m112,Uganda Cranes win 2-0 against Kenya in the regional qualifier.,0,news,en,test,team-synthetic
+m113,Heavy rains expected in Kampala this afternoon. Carry an umbrella.,0,news,en,test,team-synthetic
+m114,Your Minecraft world has been saved. Play again soon!,0,gaming,en,dev,team-synthetic
+m115,Free Fire: the new season starts today. Update the game from the Play Store to play.,0,gaming,en,test,team-synthetic
+m116,Duolingo: You are on a 7-day streak! Keep going with your lesson today.,0,app,en,test,team-synthetic
+m117,YouTube: a new video from your subscription was posted 2 hours ago.,0,app,en,dev,team-synthetic
+m118,"Instagram: a new login to your account from a Tecno phone. If this was you, no action is needed.",0,app,en,test,team-synthetic
+m119,Airtel: Your number has been upgraded to 4G for free. Enjoy faster internet. No action needed.,0,telco_promo,en,test,team-synthetic
+m120,The scholarship committee will interview shortlisted students on Wednesday in the head teacher's office. No payment is required.,0,school,en,dev,team-synthetic
+m121,Send me a photo of your homework when you finish so I can check it.,0,family,en,test,team-synthetic
+m122,Can you send me the class notes from today? I was sick.,0,friend,en,test,team-synthetic
+m123,Uganda Police: report any lost phone at the nearest police station with your SIM registration details.,0,official,en,dev,team-synthetic
+m124,"Please remember to bring 2,000 shillings for the class party on Friday. Give it to the class teacher.",0,school,en,test,team-synthetic
+m125,Your login code for the school portal is [CODE]. It expires in 10 minutes.,0,telco_otp,en,test,team-synthetic
+m126,"Bro I just bought a new phone, now I can finally play PUBG with you.",0,friend,en,dev,team-synthetic

@@ -1,0 +1,88 @@
+{% load app_ui %}{% comment %}Child version of a campaign's topic, worked on together with the parents' email (plan.md §8.0).
+Needs: campaign, pack, auto, requests, child_questions.{% endcomment %}
+<section class="bg-white border {% if pack.is_published %}border-teal{% else %}border-outline{% endif %} mb-8" id="child-version">
+    <div class="p-5 border-b border-outline flex flex-wrap items-start justify-between gap-3">
+        <div>
+            <h2 class="text-lg font-bold">Child version and practice message</h2>
+            <p class="text-sm text-on-surface-variant max-w-3xl">Goes out with this campaign: the child lesson and quiz appear in children's Guardian lessons, and parents can send the practice message that leads to them. Parents see it on the topic page and can reword it for their own children.</p>
+        </div>
+        <span class="text-xs font-bold uppercase tracking-wider px-3 py-1 border {% if pack.is_published %}border-teal text-teal{% elif pack %}border-amber-600 text-amber-800{% else %}border-outline text-on-surface-variant{% endif %}">
+            {% if pack.is_published %}Published to families{% elif pack %}Draft: review below{% elif auto.state == 'running' %}Being written{% else %}Not prepared{% endif %}
+        </span>
+    </div>
+
+    {% if requests %}
+    <div class="px-5 py-3 border-b border-outline bg-amber-500/5 text-sm">
+        <span class="font-semibold text-amber-800">{{ requests|length }} parent{{ requests|length|pluralize }} asked for this child version:</span>
+        {% for r in requests %}{{ r.parent.email }} ({{ r.created_at|date:"j M, H:i T" }}{% if r.resolved_at %}, told it is ready{% endif %}){% if not forloop.last %}; {% endif %}{% endfor %}.
+        {% if not pack.is_published %}They get an email as soon as you publish it.{% endif %}
+    </div>
+    {% endif %}
+
+    {% if not pack %}
+    <div class="p-5 text-sm">
+        {% if auto.state == 'running' %}
+        <p class="text-teal font-semibold">Guardian AI is writing the child lesson, quiz and practice message now (about a minute).</p>
+        <p class="text-on-surface-variant mt-1">This page refreshes when it is ready.</p>
+        <script>setTimeout(function () { location.reload(); }, 10000);</script>
+        {% else %}
+        {% if auto.state == 'failed' %}<p class="text-error mb-2">The last attempt did not finish: {{ auto.error }}</p>{% endif %}
+        <form method="post" action="{% url 'panel_pack' campaign.content_id %}" data-page-loader>{% csrf_token %}
+            <input type="hidden" name="action" value="generate"><input type="hidden" name="next" value="{{ request.path }}#child-version">
+            <button class="bg-primary text-white px-5 py-2 text-sm font-semibold hover:bg-primary-container">Prepare the child version now</button>
+            <span class="text-xs text-on-surface-variant ml-2">Runs on Guardian AI (about a minute).</span>
+        </form>
+        {% endif %}
+    </div>
+    {% else %}
+
+    {% if pack.safety_warnings %}
+    <div class="mx-5 mt-5 border-l-4 border-amber-600 bg-amber-500/5 p-4">
+        <div class="text-xs font-bold uppercase tracking-wider text-amber-800 mb-2">Safety notes to check</div>
+        <ul class="text-sm list-disc list-inside space-y-1">{% for w in pack.safety_warnings %}<li>{{ w }}</li>{% endfor %}</ul>
+        <p class="text-xs text-on-surface-variant mt-2">Edit the text below and press "Save and re-check", or regenerate.</p>
+    </div>
+    {% endif %}
+
+    <form method="post" action="{% url 'panel_pack' campaign.content_id %}" class="p-5 grid lg:grid-cols-2 gap-5">{% csrf_token %}
+        <input type="hidden" name="action" value="save"><input type="hidden" name="next" value="{{ request.path }}#child-version">
+        <div class="space-y-3">
+            <div class="text-xs font-bold uppercase tracking-wider text-teal">Fraud simulation (practice message)</div>
+            <label class="block text-xs font-bold uppercase tracking-wider">Sender name<input name="practice_sender" value="{{ pack.practice_sender }}" class="mt-1 w-full px-3 py-2 border border-on-surface text-sm bg-white font-normal normal-case tracking-normal"></label>
+            <label class="block text-xs font-bold uppercase tracking-wider">Subject<input name="practice_subject" value="{{ pack.practice_subject }}" class="mt-1 w-full px-3 py-2 border border-on-surface text-sm bg-white font-normal normal-case tracking-normal"></label>
+            <label class="block text-xs font-bold uppercase tracking-wider">Email text (keep {link} and {name})<textarea name="practice_body" rows="6" class="mt-1 w-full px-3 py-2 border border-on-surface text-sm bg-white font-normal normal-case tracking-normal">{{ pack.practice_body }}</textarea></label>
+            <label class="block text-xs font-bold uppercase tracking-wider">SMS text (for later)<textarea name="practice_sms" rows="2" class="mt-1 w-full px-3 py-2 border border-on-surface text-sm bg-white font-normal normal-case tracking-normal">{{ pack.practice_sms }}</textarea></label>
+            {% if pack.red_flags %}<div class="text-xs text-on-surface-variant">Red flags shown after the click: {% for f in pack.red_flags %}{{ f.label }}{% if not forloop.last %} · {% endif %}{% endfor %}</div>{% endif %}
+        </div>
+        <div class="space-y-3">
+            <div class="text-xs font-bold uppercase tracking-wider text-teal">Child lesson</div>
+            <label class="block text-xs font-bold uppercase tracking-wider">Title<input name="child_title" value="{{ pack.child_title }}" class="mt-1 w-full px-3 py-2 border border-on-surface text-sm bg-white font-normal normal-case tracking-normal"></label>
+            <label class="block text-xs font-bold uppercase tracking-wider">Story<textarea name="child_story" rows="6" class="mt-1 w-full px-3 py-2 border border-on-surface text-sm bg-white font-normal normal-case tracking-normal">{{ pack.child_story }}</textarea></label>
+            <label class="block text-xs font-bold uppercase tracking-wider">Signs to spot (one per line)<textarea name="child_points" rows="3" class="mt-1 w-full px-3 py-2 border border-on-surface text-sm bg-white font-normal normal-case tracking-normal">{{ pack.child_points|lines }}</textarea></label>
+            <label class="block text-xs font-bold uppercase tracking-wider">What to do instead<textarea name="child_action" rows="2" class="mt-1 w-full px-3 py-2 border border-on-surface text-sm bg-white font-normal normal-case tracking-normal">{{ pack.child_action }}</textarea></label>
+            {% if child_questions %}<div class="text-xs text-on-surface-variant"><span class="font-bold uppercase tracking-wider">Child quiz:</span> {% for q in child_questions %}{{ forloop.counter }}. {{ q.question_text }} {% endfor %}</div>{% endif %}
+        </div>
+        <div class="lg:col-span-2 flex flex-wrap items-center gap-3">
+            <button class="bg-white text-on-surface px-5 py-2 text-sm font-semibold border border-on-surface hover:bg-surface">Save and re-check</button>
+            <a href="{% url 'panel_pack' campaign.content_id %}" class="text-sm text-teal hover:underline">Full editor, parent wording and results &rarr;</a>
+        </div>
+    </form>
+    <div class="px-5 pb-5 flex flex-wrap items-center gap-3 border-t border-outline pt-4">
+        <form method="post" action="{% url 'panel_pack' campaign.content_id %}" data-page-loader>{% csrf_token %}
+            <input type="hidden" name="action" value="generate"><input type="hidden" name="next" value="{{ request.path }}#child-version">
+            <button class="text-sm px-4 py-2 font-semibold border border-on-surface hover:bg-surface">Regenerate with Guardian AI</button>
+        </form>
+        {% if not pack.is_published and campaign.status == 'sent' %}
+        <form method="post" action="{% url 'panel_pack' campaign.content_id %}" data-page-loader class="flex flex-wrap items-center gap-3">{% csrf_token %}
+            <input type="hidden" name="action" value="publish"><input type="hidden" name="next" value="{{ request.path }}#child-version">
+            {% if pack.safety_warnings %}<label class="text-sm flex items-center gap-2"><input type="checkbox" name="override" value="1"> I checked the safety notes</label>{% endif %}
+            <button class="bg-primary text-white px-5 py-2 text-sm font-semibold hover:bg-primary-container">Publish child version to families</button>
+        </form>
+        {% elif pack.is_published %}
+        <span class="text-sm text-teal">Published {{ pack.published_at|date:"j M Y, H:i T" }}. Parents can send it from the topic page.</span>
+        {% else %}
+        <span class="text-sm text-on-surface-variant">Publishes when you send this campaign.</span>
+        {% endif %}
+    </div>
+    {% endif %}
+</section>

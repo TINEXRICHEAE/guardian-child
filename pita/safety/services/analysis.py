@@ -14,7 +14,7 @@ from awarenessapp.services import ai_client
 from awarenessapp.services.text import no_em_dash
 
 from ..models import ConsentRecord, GuardianPreference, ParentAlert, Submission
-from . import checks
+from . import alert_email, checks
 
 CATEGORY_TITLES = {
     'otp_theft': 'Someone asked for a secret code or PIN', 'advance_fee': 'A fee request for a scholarship or offer',
@@ -73,6 +73,56 @@ def _fuse(score, keys, url_flags, url_scores, org_mismatch):
     return 'low', False
 
 
+def assess(clean: str, *, use_models: bool = True) -> dict:
+    """Risk decision for already-redacted text, without storing anything. Shared by checks and the evaluation page.
+
+    use_models=False gives the 'safety rules only' result, exactly as when guardian-ai is unreachable.
+    """
+    providers, sources = {}, []
+    # URLs and claimed organisation, parsed, never fetched
+    urls = checks.extract_urls(clean)
+    org = checks.claimed_organisation(clean)
+    url_flags = []
+    for u in urls:
+        url_flags += checks.url_signals(u, org)
+    org_mismatch = any('official website' in f for f in url_flags)
+    url_scores = []
+    if urls and use_models:
+        cu = ai_client.classify_urls(urls)
+        providers['classify_url'] = cu.get('meta', {})
+        if cu.get('status') == 'ok':
+            sources.append('url-classifier')
+            url_scores = [r['phishingScore'] for r in cu['results']]
+            if any(s >= 0.8 for s in url_scores):
+                url_flags.append('The link looks like a known phishing pattern')
+    if url_flags:
+        sources.append('url-checks')
+
+    # Message classifier
+    score = None
+    if clean.strip() and use_models:
+        cl = ai_client.classify(clean)
+        providers['classify'] = cl.get('meta', {})
+        if cl.get('status') == 'ok':
+            score = cl['spamScore']
+            sources.append('message-classifier' if cl.get('scoreKind') != 'llm-judgement' else 'llm-classifier')
+
+    # Rules
+    hits = checks.rule_hits(clean)
+    keys = {k for k, _ in hits}
+    if hits:
+        sources.append('rules')
+
+    # Deterministic fusion, the LLM never sets the risk level
+    risk, review = _fuse(score, keys, url_flags, url_scores, org_mismatch)
+    return {
+        'urls': urls, 'score': score, 'url_scores': url_scores, 'risk': risk, 'review': review,
+        'category': checks.categorise(keys, url_flags, org),
+        'signals': list(dict.fromkeys([label for _, label in hits] + url_flags)),
+        'providers': providers, 'sources': sources,
+    }
+
+
 def analyse(*, user, role: str, child=None, text: str = '', image: bytes | None = None, mime: str = '',
             already_acted: bool = False) -> Submission:
     t0 = time.time()
@@ -92,46 +142,14 @@ def analyse(*, user, role: str, child=None, text: str = '', image: bytes | None 
 
     clean = checks.redact(text or '')[:5000]
 
-    # 2. URLs and claimed organisation, parsed, never fetched
-    urls = checks.extract_urls(clean)
-    org = checks.claimed_organisation(clean)
-    url_flags = []
-    for u in urls:
-        url_flags += checks.url_signals(u, org)
-    org_mismatch = any('official website' in f for f in url_flags)
-    url_scores = []
-    if urls:
-        cu = ai_client.classify_urls(urls)
-        providers['classify_url'] = cu.get('meta', {})
-        if cu.get('status') == 'ok':
-            sources.append('url-classifier')
-            url_scores = [r['phishingScore'] for r in cu['results']]
-            if any(s >= 0.8 for s in url_scores):
-                url_flags.append('The link looks like a known phishing pattern')
-    if url_flags:
-        sources.append('url-checks')
-
-    # 3. Message classifier
-    score = None
-    if clean.strip():
-        cl = ai_client.classify(clean)
-        providers['classify'] = cl.get('meta', {})
-        if cl.get('status') == 'ok':
-            score = cl['spamScore']
-            sources.append('message-classifier' if cl.get('scoreKind') != 'llm-judgement' else 'llm-classifier')
-
-    # 4. Rules
-    hits = checks.rule_hits(clean)
-    keys = {k for k, _ in hits}
-    if hits:
-        sources.append('rules')
-
-    # 5. Deterministic fusion, the LLM never sets the risk level
-    risk, review = _fuse(score, keys, url_flags, url_scores, org_mismatch)
+    # 2-5. URLs, classifier, rules and deterministic fusion
+    a = assess(clean)
+    providers.update(a['providers'])
+    sources += a['sources']
+    urls, score, risk, review, category, signals = (a['urls'], a['score'], a['risk'], a['review'], a['category'],
+                                                    a['signals'])
     if not clean.strip() and image:
         risk = 'unable_to_verify'
-    category = checks.categorise(keys, url_flags, org)
-    signals = list(dict.fromkeys([label for _, label in hits] + url_flags))
 
     # 6. Explanation for the child (or parent); templated fallback
     audience = 'parent' if role == 'parent' else 'child'
@@ -193,8 +211,9 @@ def alert_parents(child, sub: Submission) -> int:
     for link in child.guardian_links.filter(active=True).select_related('guardian'):
         prefs = GuardianPreference.for_parent(link.guardian)
         if (sub.risk_level == 'high' and prefs.alert_high) or (sub.risk_level == 'suspicious' and prefs.alert_suspicious):
-            ParentAlert.objects.create(parent=link.guardian, child=child, severity=sub.risk_level,
-                                       title=CATEGORY_TITLES.get(sub.category, CATEGORY_TITLES['other']),
-                                       safety_action=PARENT_ACTION.get(sub.category, PARENT_ACTION['other']))
+            alert = ParentAlert.objects.create(parent=link.guardian, child=child, severity=sub.risk_level,
+                                               title=CATEGORY_TITLES.get(sub.category, CATEGORY_TITLES['other']),
+                                               safety_action=PARENT_ACTION.get(sub.category, PARENT_ACTION['other']))
+            alert_email.notify(alert)
             sent += 1
     return sent

@@ -42,7 +42,7 @@
     </div>
     <div class="bg-white border border-outline p-3">
         <div class="text-xs font-bold uppercase tracking-wider text-on-surface-variant mb-1">Sent At</div>
-        <div>{% if campaign.sent_at %}{{ campaign.sent_at|date:"M d, Y H:i" }}{% else %}Not sent{% endif %}</div>
+        <div>{% if campaign.sent_at %}{{ campaign.sent_at|date:"M d, Y H:i T" }}{% else %}Not sent{% endif %}</div>
     </div>
     <div class="bg-white border border-outline p-3">
         <div class="text-xs font-bold uppercase tracking-wider text-on-surface-variant mb-1">Status</div>
@@ -103,8 +103,8 @@
                         {% if d.recipient %}{{ d.recipient.profile.department|default:"-" }}{% else %}-{% endif %}
                     </td>
                     <td class="px-4 py-2" data-label="Status"><span class="text-xs font-bold border border-teal text-teal px-2 py-0.5">{{ d.get_status_display }}</span></td>
-                    <td class="px-4 py-2 text-xs text-on-surface-variant" data-label="Sent At">{{ d.sent_at|date:"M d, Y H:i"|default:"-" }}</td>
-                    <td class="px-4 py-2 text-xs text-on-surface-variant" data-label="Opened At">{{ d.opened_at|date:"M d, Y H:i"|default:"-" }}</td>
+                    <td class="px-4 py-2 text-xs text-on-surface-variant" data-label="Sent At">{{ d.sent_at|date:"M d, Y H:i T"|default:"-" }}</td>
+                    <td class="px-4 py-2 text-xs text-on-surface-variant" data-label="Opened At">{{ d.opened_at|date:"M d, Y H:i T"|default:"-" }}</td>
                     <td class="px-4 py-2 text-xs text-on-surface-variant text-right" data-label="Time to Open">
                         {% if d.sent_at and d.opened_at %}
                             {% with diff=d.opened_at|timeuntil:d.sent_at %}{{ diff }} after send{% endwith %}
@@ -144,7 +144,7 @@
                     <td class="px-4 py-2 text-xs text-on-surface-variant" data-label="Dept">
                         {% if d.recipient %}{{ d.recipient.profile.department|default:"-" }}{% else %}-{% endif %}
                     </td>
-                    <td class="px-4 py-2 text-xs text-on-surface-variant" data-label="Sent At">{{ d.sent_at|date:"M d, Y H:i"|default:"-" }}</td>
+                    <td class="px-4 py-2 text-xs text-on-surface-variant" data-label="Sent At">{{ d.sent_at|date:"M d, Y H:i T"|default:"-" }}</td>
                 </tr>
                 {% endfor %}
             </tbody>

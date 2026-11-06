@@ -200,3 +200,13 @@ def test_explain_allows_not_safe(client, register):
     ok = {'explain': {'explanation': 'This is not safe. Do not share your PIN.', 'recommendedActions': []}}
     register(a=make_fake('a', reply=ok), b=make_fake('b'))
     assert client.post('/explain', json={'riskLevel': 'high', 'signals': []}).json()['meta']['backend'] == 'a'
+
+
+
+def test_extract_bubble_side_decides_sender_role(client, register):
+    reply = {'extract': {'messages': [{'side': 'right', 'sender_role': 'other', 'text': 'Which code?'},
+                                      {'side': 'left', 'sender_role': 'child', 'text': 'Send it back'},
+                                      {'side': 'none', 'sender_role': 'other', 'text': 'Dear customer'}]}}
+    register(a=make_fake('a', reply=reply), b=make_fake('b'))
+    r = client.post('/extract', files={'file': ('s.png', png_bytes(), 'image/png')}).json()
+    assert [m['sender_role'] for m in r['messages']] == ['child', 'other', 'other']

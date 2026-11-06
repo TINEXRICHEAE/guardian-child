@@ -1,23 +1,131 @@
-{% extends "app/parent_base.html" %}
-{% block title %}{{ pack.content.title }}{% endblock %}
+{% extends "app/parent_base.html" %}{% load app_ui %}
+{% block title %}{{ content.title }}{% endblock %}
 {% block parent_content %}
 <a href="{% url 'parent_news' %}" class="text-sm text-teal hover:underline">&larr; News for families</a>
-<h1 class="text-2xl md:text-3xl font-bold mt-2 mb-1">{{ pack.content.title }}</h1>
-<p class="text-xs font-bold uppercase tracking-wider text-on-surface-variant mb-6">{{ pack.published_at|date:"j M Y" }} · {{ pack.content.get_threat_type_display }}</p>
+<h1 class="text-2xl md:text-3xl font-bold mt-2 mb-1">{{ content.title }}</h1>
+<p class="text-xs font-bold uppercase tracking-wider text-on-surface-variant mb-4">{{ content.created_at|date:"j M Y" }} · {{ content.get_threat_type_display }} · {{ content.get_engagement_type_display }}</p>
+
+<nav class="flex flex-wrap gap-2 text-sm mb-6" aria-label="On this page">
+    <a href="#article" class="px-3 py-1 border border-outline hover:border-teal hover:text-teal">Article</a>
+    {% if questions %}<a href="#quiz" class="px-3 py-1 border border-outline hover:border-teal hover:text-teal">Quiz{% if last_attempt %} · {{ last_attempt.score }}/{{ last_attempt.total }}{% endif %}</a>{% endif %}
+    {% if pack %}<a href="#child-lesson" class="px-3 py-1 border border-outline hover:border-teal hover:text-teal">Your child's lesson</a>{% endif %}
+    <a href="#send" class="px-3 py-1 border border-teal text-teal hover:bg-teal hover:text-white">Send to my children</a>
+</nav>
+
 <div class="grid grid-cols-1 lg:grid-cols-3 gap-5">
     <div class="lg:col-span-2 space-y-5">
-        <section class="bg-white border border-outline p-5"><p class="text-sm mb-3">{{ pack.parent_summary }}</p>{% if pack.parent_why %}<p class="text-sm text-on-surface-variant">{{ pack.parent_why }}</p>{% endif %}</section>
-        {% if pack.parent_tips %}<section class="bg-white border border-outline p-5"><div class="text-xs font-bold uppercase tracking-wider text-on-surface-variant mb-2">Talking with your child</div><ul class="space-y-2 text-sm list-disc list-inside">{% for t in pack.parent_tips %}<li>{{ t }}</li>{% endfor %}</ul></section>{% endif %}
-        <section class="bg-white border border-outline p-5">
-            <div class="text-xs font-bold uppercase tracking-wider text-on-surface-variant mb-2">What your child will receive</div>
-            <p class="text-sm mb-1"><strong>{{ pack.practice_sender }}</strong> · {{ pack.practice_subject }}</p>
-            <p class="text-sm text-on-surface-variant mb-3">A safe, made-up message. Tapping its link opens the lesson <strong>"{{ pack.child_title }}"</strong> and a short quiz on Guardian, already signed in. Nothing is collected except whether it was opened, the lesson read and the quiz score.</p>
+        <div id="article" class="space-y-5 scroll-mt-24">
+            <section class="bg-white border-l-4 border-error p-5">
+                <h2 class="text-xs font-bold uppercase tracking-wider text-on-surface-variant mb-2">Why this matters for your child</h2>
+                <p class="text-sm leading-relaxed">{% if pack %}{{ pack.parent_summary }}{% else %}{{ content.risk }}{% endif %}</p>
+                {% if pack.parent_why %}<p class="text-sm text-on-surface-variant mt-2">{{ pack.parent_why }}</p>{% endif %}
+            </section>
+            <section class="bg-white border-l-4 border-teal p-5">
+                <h2 class="text-xs font-bold uppercase tracking-wider text-on-surface-variant mb-2">What to do</h2>
+                <ol class="space-y-2 text-sm list-decimal list-inside">{% for s in content.action|steps %}<li>{{ s }}</li>{% endfor %}</ol>
+                <p class="text-xs text-on-surface-variant mt-3">Report scams to the Uganda Police Child and Family Protection Unit or the Uganda Communications Commission (UCC). For a child in distress, call Sauti on 116 (free).</p>
+            </section>
+            {% if pack.parent_tips %}<section class="bg-white border border-outline p-5"><h2 class="text-xs font-bold uppercase tracking-wider text-on-surface-variant mb-2">Talking with your child</h2><ul class="space-y-2 text-sm list-disc list-inside">{% for t in pack.parent_tips %}<li>{{ t }}</li>{% endfor %}</ul></section>{% endif %}
+            {% include "app/_engagement.html" %}
+        </div>
+
+        {% if questions %}
+        <section class="bg-white border border-outline p-5 scroll-mt-24" id="quiz">
+            <h2 class="text-lg font-semibold mb-1">Quiz: check what you know</h2>
+            <p class="text-xs text-on-surface-variant mb-4 border-b border-outline pb-3">{{ questions|length }} question{{ questions|length|pluralize }}{% if not content.quiz %} · the same quiz your child gets{% endif %}{% if last_attempt and not result %} · your last score {{ last_attempt.score }}/{{ last_attempt.total }}{% endif %}</p>
+            {% if result %}<p class="text-lg font-bold mb-4">You got {{ result.attempt.score }} out of {{ result.attempt.total }}{% if result.attempt.score == result.attempt.total %}. Well done!{% else %}. The right answers are marked below.{% endif %}</p>{% endif %}
+            <form method="post" action="{% url 'parent_news_detail' content.pk %}#quiz" class="space-y-5">{% csrf_token %}
+                <input type="hidden" name="action" value="quiz">
+                {% for q in questions %}
+                <fieldset><legend class="font-semibold text-sm mb-2">{{ forloop.counter }}. {{ q.question_text }}</legend>
+                    {% for c in q.choices.all %}
+                    <label class="flex items-start gap-2 text-sm py-1"><input type="radio" name="q{{ q.pk }}" value="{{ c.pk }}" class="mt-1" required {% if result %}disabled{% endif %}{% for k, v in result.chosen.items %}{% if k == q.pk and v == c.pk %} checked{% endif %}{% endfor %}>
+                        <span {% if result and c.is_correct %}class="text-teal font-semibold"{% endif %}>{{ c.choice_text }}{% if result and c.is_correct %} ✓{% endif %}</span></label>
+                    {% endfor %}
+                    {% if result %}{% for c in q.choices.all %}{% if c.is_correct and c.explanation %}<p class="text-xs text-on-surface-variant mt-1">{{ c.explanation }}</p>{% endif %}{% endfor %}{% endif %}
+                </fieldset>
+                {% endfor %}
+                {% if result %}<a href="{% url 'parent_news_detail' content.pk %}#quiz" class="inline-block bg-white text-on-surface px-5 py-2 text-sm font-semibold border border-on-surface hover:bg-surface">Try again</a>
+                {% else %}<button class="bg-primary text-white px-5 py-2 text-sm font-semibold hover:bg-primary-container">Check my answers</button>{% endif %}
+            </form>
         </section>
+        {% endif %}
+
+        {% if pack %}
+        <section class="bg-white border border-outline p-5 scroll-mt-24" id="child-lesson">
+            <div class="flex flex-wrap items-center justify-between gap-2 mb-2">
+                <h2 class="text-xs font-bold uppercase tracking-wider text-on-surface-variant">Your child's version</h2>
+                <span class="text-xs px-2 py-0.5 border {% if v.edited %}border-teal text-teal{% else %}border-outline text-on-surface-variant{% endif %}">{% if v.edited %}Your wording{% else %}Written by Guardian AI, checked by analysts{% endif %}</span>
+            </div>
+            {% if my_edit and not my_edit.is_active %}
+            <div class="border border-amber-600 bg-amber-500/5 p-3 text-sm mb-4">An analyst changed your edit back to Guardian's original wording{% if my_edit.analyst_note %}: "{{ my_edit.analyst_note }}"{% endif %}. You can edit it again.</div>
+            {% endif %}
+            <p class="text-sm text-on-surface-variant mb-4">The lesson your child sees in their Guardian lessons, and the safe practice message that leads to it. The message shows your child how this scam really arrives; its link opens the lesson already signed in. Nothing is collected except whether it was opened, the lesson read and the quiz score.</p>
+
+            <div class="grid md:grid-cols-2 gap-4 mb-4">
+                <div class="border border-outline p-4">
+                    <div class="text-xs font-bold uppercase tracking-wider text-on-surface-variant mb-2">Practice message</div>
+                    <div class="text-sm"><span class="text-on-surface-variant">From:</span> {{ pack.practice_sender }}</div>
+                    <div class="text-sm mb-2"><span class="text-on-surface-variant">Subject:</span> {{ v.practice_subject|fill:preview_name }}</div>
+                    <div class="text-sm text-on-surface-variant leading-relaxed whitespace-pre-line">{{ v.practice_body|fill:preview_name }}</div>
+                </div>
+                <div class="border-l-4 border-teal pl-4">
+                    <div class="text-xs font-bold uppercase tracking-wider text-on-surface-variant mb-2">Lesson</div>
+                    <div class="font-semibold mb-1">{{ v.child_title|fill:preview_name }}</div>
+                    <div class="text-sm text-on-surface-variant leading-relaxed">{{ v.child_story|fill:preview_name|linebreaks }}</div>
+                    {% if v.child_points %}<div class="text-xs font-bold uppercase tracking-wider text-on-surface-variant mt-3 mb-1">Signs to spot</div><ul class="text-sm list-disc list-inside space-y-1">{% for p in v.child_points %}<li>{{ p|fill:preview_name }}</li>{% endfor %}</ul>{% endif %}
+                    {% if v.child_action %}<div class="text-xs font-bold uppercase tracking-wider text-on-surface-variant mt-3 mb-1">What to do instead</div><p class="text-sm">{{ v.child_action|fill:preview_name }}</p>{% endif %}
+                </div>
+            </div>
+
+            <details class="border border-outline" {% if edit_errors %}open{% endif %}>
+                <summary class="cursor-pointer px-4 py-3 text-sm font-semibold text-teal">Edit for my children</summary>
+                <form method="post" action="{% url 'parent_news_detail' content.pk %}#child-lesson" class="p-4 pt-1 space-y-3">{% csrf_token %}
+                    <input type="hidden" name="action" value="save_edit">
+                    <p class="text-xs text-on-surface-variant">Change the words to suit your family, for example your child's language or the apps they use. Your wording is used only for your children, goes through Guardian's safety check, and analysts can see it. Keep <span class="font-mono">{link}</span> where the link goes and <span class="font-mono">{name}</span> for your child's name.</p>
+                    {% for e in edit_errors %}<p class="text-sm text-error">{{ e }}</p>{% endfor %}
+                    <label class="block text-xs font-bold uppercase tracking-wider">Practice message subject
+                        <input name="practice_subject" maxlength="160" value="{% if form_data %}{{ form_data.practice_subject }}{% else %}{{ v.practice_subject }}{% endif %}" class="mt-1 w-full px-3 py-2 border border-on-surface text-sm bg-white font-normal normal-case tracking-normal"></label>
+                    <label class="block text-xs font-bold uppercase tracking-wider">Practice message text
+                        <textarea name="practice_body" rows="5" class="mt-1 w-full px-3 py-2 border border-on-surface text-sm bg-white font-normal normal-case tracking-normal">{% if form_data %}{{ form_data.practice_body }}{% else %}{{ v.practice_body }}{% endif %}</textarea></label>
+                    <label class="block text-xs font-bold uppercase tracking-wider">Lesson title
+                        <input name="child_title" maxlength="200" value="{% if form_data %}{{ form_data.child_title }}{% else %}{{ v.child_title }}{% endif %}" class="mt-1 w-full px-3 py-2 border border-on-surface text-sm bg-white font-normal normal-case tracking-normal"></label>
+                    <label class="block text-xs font-bold uppercase tracking-wider">Lesson story
+                        <textarea name="child_story" rows="6" class="mt-1 w-full px-3 py-2 border border-on-surface text-sm bg-white font-normal normal-case tracking-normal">{% if form_data %}{{ form_data.child_story }}{% else %}{{ v.child_story }}{% endif %}</textarea></label>
+                    <label class="block text-xs font-bold uppercase tracking-wider">Signs to spot (one per line)
+                        <textarea name="child_points" rows="4" class="mt-1 w-full px-3 py-2 border border-on-surface text-sm bg-white font-normal normal-case tracking-normal">{% if form_data %}{{ form_data.child_points }}{% else %}{{ v.child_points|lines }}{% endif %}</textarea></label>
+                    <label class="block text-xs font-bold uppercase tracking-wider">What to do instead
+                        <textarea name="child_action" rows="2" class="mt-1 w-full px-3 py-2 border border-on-surface text-sm bg-white font-normal normal-case tracking-normal">{% if form_data %}{{ form_data.child_action }}{% else %}{{ v.child_action }}{% endif %}</textarea></label>
+                    <div class="flex flex-wrap gap-2">
+                        <button class="bg-primary text-white px-5 py-2 text-sm font-semibold hover:bg-primary-container">Save my wording</button>
+                    </div>
+                </form>
+                {% if v.edited %}
+                <form method="post" action="{% url 'parent_news_detail' content.pk %}#child-lesson" class="px-4 pb-4">{% csrf_token %}
+                    <input type="hidden" name="action" value="reset_edit">
+                    <button class="text-sm px-4 py-2 font-semibold border border-on-surface hover:bg-surface">Use Guardian's original</button>
+                </form>
+                {% endif %}
+            </details>
+        </section>
+        {% endif %}
     </div>
-    <section class="bg-white border border-outline p-5 h-fit">
-        <div class="text-xs font-bold uppercase tracking-wider text-on-surface-variant mb-3">Send to my children</div>
-        {% if rows %}
-        <form method="post" data-page-loader class="space-y-3">{% csrf_token %}
+
+    <section class="bg-white border border-outline p-5 h-fit lg:sticky lg:top-24 scroll-mt-24" id="send">
+        <h2 class="text-xs font-bold uppercase tracking-wider text-on-surface-variant mb-3">Send to my children</h2>
+        {% if not pack %}
+        {% if child_request %}
+        <p class="text-sm text-on-surface-variant">You asked for the child lesson on {{ child_request.created_at|date:"j M, H:i T" }}. Guardian's analysts are preparing and checking it, and we will email you when it is ready to send.</p>
+        {% else %}
+        <p class="text-sm text-on-surface-variant mb-3">There is no child lesson and practice message for this topic yet. Ask for one and Guardian's analysts will prepare and check it.</p>
+        <form method="post" action="{% url 'parent_news_detail' content.pk %}" data-page-loader>{% csrf_token %}
+            <input type="hidden" name="action" value="request_child_version">
+            <button class="w-full bg-primary text-white px-5 py-2 text-sm font-semibold hover:bg-primary-container">Ask for the child version</button>
+        </form>
+        {% endif %}
+        {% elif rows %}
+        <form method="post" action="{% url 'parent_news_detail' content.pk %}" data-page-loader class="space-y-3">{% csrf_token %}
+            <input type="hidden" name="action" value="send">
             {% for r in rows %}{% with d=r.delivery %}
             <div class="border-b border-outline pb-3 last:border-b-0">
                 <label class="flex items-start gap-2 text-sm">
@@ -26,15 +134,24 @@
                     {% if d.status == 'sent' %}<span class="block text-xs text-on-surface-variant">Sent {{ d.sent_at|timesince }} ago ·
                         {% if d.reported_at %}<span class="text-teal font-semibold">spotted it and checked it</span>{% elif d.clicked_at %}opened the link{% else %}not opened yet{% endif %}
                         {% if d.lesson_viewed_at %} · read the lesson{% endif %}{% if d.quiz_attempt %} · quiz {{ d.quiz_attempt.score }}/{{ d.quiz_attempt.total }}{% endif %}</span>
-                    {% elif r.reason %}<span class="block text-xs text-on-surface-variant">{{ r.reason }}{% if r.reason == 'Practice emails are turned off' or r.reason == 'No email address yet' %} · <a class="text-teal" href="{% url 'parent_home' %}">change in My family</a>{% endif %}</span>
+                    {% elif r.reason %}<span class="block text-xs text-on-surface-variant">{{ r.reason }}{% if r.reason == 'Practice emails are turned off' or r.reason == 'No email address yet' %} · <a class="text-teal" href="{% url 'child_edit' r.child.pk %}">change this</a>{% elif r.reason == 'Welcome note not delivered yet' %}. Guardian first sends a short note explaining practice emails, with a "this isn't me" link.{% endif %}</span>
+                    {% if r.reason == 'Welcome note not delivered yet' %}<button type="submit" form="notice-{{ r.child.pk }}" class="mt-2 text-xs px-3 py-1.5 font-semibold border-2 border-teal text-teal hover:bg-teal hover:text-white">Send welcome note now</button>{% endif %}
                     {% elif d.status == 'failed' %}<span class="block text-xs text-error">Last try did not send; tick to try again</span>{% endif %}</span>
                 </label>
             </div>
             {% endwith %}{% endfor %}
-            <button class="w-full bg-primary text-white px-5 py-2 text-sm font-semibold hover:bg-primary-container">Send practice message</button>
+            <button name="action" value="send" class="w-full bg-primary text-white px-5 py-2 text-sm font-semibold hover:bg-primary-container">Send practice message and lesson</button>
+            <p class="text-xs text-on-surface-variant">Each child gets {% if v.edited %}your wording{% else %}Guardian's version{% endif %} by email. The lesson is also always in their Guardian lessons.</p>
         </form>
-        {% else %}<p class="text-sm text-on-surface-variant">Add a child in <a class="text-teal font-semibold" href="{% url 'parent_home' %}">My family</a> first.</p>{% endif %}
+        {% for r in rows %}{% if r.reason == 'Welcome note not delivered yet' %}
+        <form id="notice-{{ r.child.pk }}" method="post" action="{% url 'parent_news_detail' content.pk %}" data-page-loader class="hidden">{% csrf_token %}
+            <input type="hidden" name="action" value="send_notice"><input type="hidden" name="child" value="{{ r.child.pk }}">
+        </form>
+        {% endif %}{% endfor %}
         <p class="text-xs text-on-surface-variant mt-3">Prefer not to do this each time? Turn on <a class="text-teal" href="{% url 'parent_settings' %}">automatic drills</a>.</p>
+        {% else %}
+        <p class="text-sm text-on-surface-variant">Add a child in <a class="text-teal font-semibold" href="{% url 'parent_home' %}">My family</a> first.</p>
+        {% endif %}
     </section>
 </div>
 {% endblock %}

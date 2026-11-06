@@ -6,7 +6,7 @@
 <div class="bg-white border border-outline">
     {% for s in subs %}
     <a href="{% url 'child_result' s.pk %}" class="flex items-center justify-between gap-3 px-5 py-4 border-b border-outline last:border-b-0 hover:bg-surface">
-        <span><span class="block font-semibold text-sm">{{ s.label }}</span><span class="block text-xs text-on-surface-variant">{{ s.created_at|date:"D j M, H:i" }}</span></span>
+        <span><span class="block font-semibold text-sm">{{ s.label }}</span><span class="block text-xs text-on-surface-variant">{{ s.created_at|date:"D j M, H:i T" }}</span></span>
         <span class="text-xs font-semibold px-2 py-0.5 {{ s.risk_level|risk_badge }}">{{ s.get_risk_level_display }}</span>
     </a>
     {% empty %}

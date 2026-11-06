@@ -6,6 +6,7 @@ from django.urls import reverse
 from django.utils import timezone
 from ..models import EmailCampaign, EmailDelivery, Users, ROLE_PARENT
 from .text import no_em_dash
+from safety.templatetags.app_ui import as_steps
 
 logger = logging.getLogger(__name__)
 
@@ -15,15 +16,15 @@ def build_email_body(campaign: EmailCampaign) -> str:
     content = campaign.content
     site_url = getattr(settings, 'SITE_URL', 'http://localhost:8000').rstrip('/')
 
-    content_url = site_url + reverse('content_view', args=[content.pk])
-
-    quiz = getattr(content, 'quiz', None)
-    quiz_url = site_url + reverse('take_quiz', args=[quiz.pk]) if quiz else content_url
+    # Parents land on the family news page for this topic: article, quiz and sending to their children (plan.md §8.0)
+    content_url = site_url + reverse('parent_news_detail', args=[content.pk])
+    quiz_url = content_url + '#quiz'
 
     ctx = {
         'title': content.title,
         'risk': content.risk,
         'action': content.action,
+        'steps': as_steps(content.action),
         'threat_type': content.get_threat_type_display(),
         'engagement_type': content.engagement_type,
         'engagement_data': content.engagement_data or {},
@@ -39,8 +40,8 @@ def send_campaign(campaign: EmailCampaign) -> dict:
     Send a campaign to selected recipients. Returns a summary dict.
     Creates an EmailDelivery record per recipient.
     Target logic:
-      - target_all_staff=True  → all active parent accounts
-      - target_all_staff=False → explicit target_recipients + extra_emails
+      - target_all_staff=True  -> all active parent accounts
+      - target_all_staff=False -> explicit target_recipients + extra_emails
     """
     if campaign.status == EmailCampaign.STATUS_SENT:
         return {'error': 'Campaign already sent'}
@@ -60,7 +61,7 @@ def send_campaign(campaign: EmailCampaign) -> dict:
     ]
 
     if not user_recipients and not extra_emails:
-        return {'error': 'No recipients selected. Add staff, extra email addresses, or upload a list.'}
+        return {'error': 'No recipients selected. Add parents, extra email addresses, or upload a list.'}
 
     campaign.status = EmailCampaign.STATUS_SENDING
     campaign.save(update_fields=['status'])

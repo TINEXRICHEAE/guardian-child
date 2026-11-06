@@ -1,0 +1,1897 @@
+[
+  {
+    "id": 4,
+    "evaluation": "classifier",
+    "dataset": "messages_v1 (test split)",
+    "backend": "onnx",
+    "model": "masterburator3301/distilbert-spam-phishing-classification-onnx",
+    "host": "DESKTOP-3CGBSSB",
+    "gpu": "NVIDIA GeForce GTX 1060, 5798 MiB, 6144 MiB",
+    "mode": "live",
+    "started_at": "2026-11-06T04:50:53.890121+00:00",
+    "duration_s": 51.9,
+    "metrics": {
+      "n": 84,
+      "f1": 0.75,
+      "fn": 7,
+      "fp": 19,
+      "tn": 19,
+      "tp": 39,
+      "fnr": 0.1522,
+      "fpr": 0.5,
+      "max_ms": 523,
+      "p95_ms": 478,
+      "recall": 0.8478,
+      "mean_ms": 402,
+      "roc_auc": 0.7543,
+      "accuracy": 0.6905,
+      "precision": 0.6724,
+      "threshold": 0.5,
+      "f1_at_tuned": 0.7216,
+      "fn_at_tuned": 11,
+      "fp_at_tuned": 16,
+      "tuned_threshold": 0.8
+    },
+    "details": {
+      "note": "Tuned threshold chosen on the dev split (42 messages); all numbers are on the test split (84 messages).",
+      "sweep": [
+        {
+          "f1": 0.7586,
+          "fn": 2,
+          "fp": 26,
+          "recall": 0.9565,
+          "precision": 0.6286,
+          "threshold": 0.1
+        },
+        {
+          "f1": 0.7679,
+          "fn": 3,
+          "fp": 23,
+          "recall": 0.9348,
+          "precision": 0.6515,
+          "threshold": 0.2
+        },
+        {
+          "f1": 0.7736,
+          "fn": 5,
+          "fp": 19,
+          "recall": 0.8913,
+          "precision": 0.6833,
+          "threshold": 0.3
+        },
+        {
+          "f1": 0.7736,
+          "fn": 5,
+          "fp": 19,
+          "recall": 0.8913,
+          "precision": 0.6833,
+          "threshold": 0.4
+        },
+        {
+          "f1": 0.75,
+          "fn": 7,
+          "fp": 19,
+          "recall": 0.8478,
+          "precision": 0.6724,
+          "threshold": 0.5
+        },
+        {
+          "f1": 0.7327,
+          "fn": 9,
+          "fp": 18,
+          "recall": 0.8043,
+          "precision": 0.6727,
+          "threshold": 0.6
+        },
+        {
+          "f1": 0.74,
+          "fn": 9,
+          "fp": 17,
+          "recall": 0.8043,
+          "precision": 0.6852,
+          "threshold": 0.7
+        },
+        {
+          "f1": 0.7216,
+          "fn": 11,
+          "fp": 16,
+          "recall": 0.7609,
+          "precision": 0.6863,
+          "threshold": 0.8
+        },
+        {
+          "f1": 0.6957,
+          "fn": 14,
+          "fp": 14,
+          "recall": 0.6957,
+          "precision": 0.6957,
+          "threshold": 0.9
+        },
+        {
+          "f1": 0.6588,
+          "fn": 18,
+          "fp": 11,
+          "recall": 0.6087,
+          "precision": 0.7179,
+          "threshold": 0.95
+        }
+      ],
+      "failures": [
+        {
+          "id": "m041",
+          "gold": "scam",
+          "kind": "missed scam (false negative)",
+          "risk": null,
+          "text": "Mum here, my phone is off. Please send me 50,000 on this number, I will explain later. Don't tell dad.",
+          "score": 0.0101,
+          "category": "impersonation"
+        },
+        {
+          "id": "m043",
+          "gold": "scam",
+          "kind": "missed scam (false negative)",
+          "risk": null,
+          "text": "I am Pastor James from your church. God has chosen you for a blessing. Send 10,000 seed offering to receive 500,000.",
+          "score": 0.4518,
+          "category": "impersonation"
+        },
+        {
+          "id": "m044",
+          "gold": "scam",
+          "kind": "missed scam (false negative)",
+          "risk": null,
+          "text": "Hi, I am your class teacher using a new number. Send me photos of your report card and your parents' MoMo PIN so I can update records.",
+          "score": 0.0484,
+          "category": "impersonation"
+        },
+        {
+          "id": "m047",
+          "gold": "scam",
+          "kind": "missed scam (false negative)",
+          "risk": null,
+          "text": "I have your photos and I will share them with your school unless you send 100,000 by tonight. Do not tell your parents.",
+          "score": 0.1665,
+          "category": "threat"
+        },
+        {
+          "id": "m050",
+          "gold": "scam",
+          "kind": "missed scam (false negative)",
+          "risk": null,
+          "text": "Hi dear, I saw your profile and I like you. I am a soldier in another country. Can you help me receive a parcel? Keep it secret between us.",
+          "score": 0.2823,
+          "category": "romance"
+        },
+        {
+          "id": "m052",
+          "gold": "scam",
+          "kind": "missed scam (false negative)",
+          "risk": null,
+          "text": "Let us move to a private chat. I will send you airtime every day if you send me photos. Keep this our secret.",
+          "score": 0.422,
+          "category": "romance"
+        },
+        {
+          "id": "m068",
+          "gold": "scam",
+          "kind": "missed scam (false negative)",
+          "risk": null,
+          "text": "Please help me vote in a school competition, I just need you to send me the code that WhatsApp sends to you.",
+          "score": 0.2265,
+          "category": "otp_theft"
+        },
+        {
+          "id": "m070",
+          "gold": "legitimate",
+          "kind": "false alarm (false positive)",
+          "risk": null,
+          "text": "Airtel Money: You have received UGX 20,000 from MUKASA J. Your new balance is UGX 23,500. Never share your PIN.",
+          "score": 0.9983,
+          "category": "telco_otp"
+        },
+        {
+          "id": "m071",
+          "gold": "legitimate",
+          "kind": "false alarm (false positive)",
+          "risk": null,
+          "text": "Y'ello! You have bought 1GB data valid for 7 days. Dial *150# to check your balance.",
+          "score": 0.9966,
+          "category": "telco_otp"
+        },
+        {
+          "id": "m073",
+          "gold": "legitimate",
+          "kind": "false alarm (false positive)",
+          "risk": null,
+          "text": "Google: [CODE] is your verification code. If you did not ask for it, you can ignore this message.",
+          "score": 0.9649,
+          "category": "telco_otp"
+        },
+        {
+          "id": "m074",
+          "gold": "legitimate",
+          "kind": "false alarm (false positive)",
+          "risk": null,
+          "text": "Airtel: Enjoy 2x data on all weekly bundles this weekend. Dial *175# to buy. Terms apply.",
+          "score": 0.9207,
+          "category": "telco_promo"
+        },
+        {
+          "id": "m076",
+          "gold": "legitimate",
+          "kind": "false alarm (false positive)",
+          "risk": null,
+          "text": "Your monthly bundle expires tomorrow. Dial *150*1# to renew and keep surfing.",
+          "score": 0.9753,
+          "category": "telco_promo"
+        },
+        {
+          "id": "m077",
+          "gold": "legitimate",
+          "kind": "false alarm (false positive)",
+          "risk": null,
+          "text": "MTN Uganda: You can now pay school fees with MoMo. Visit mtn.co.ug for the list of schools.",
+          "score": 0.9778,
+          "category": "telco_promo"
+        },
+        {
+          "id": "m085",
+          "gold": "legitimate",
+          "kind": "false alarm (false positive)",
+          "risk": null,
+          "text": "Makerere University: admission lists for private sponsorship are now available on the official website mak.ac.ug.",
+          "score": 0.9819,
+          "category": "school"
+        },
+        {
+          "id": "m100",
+          "gold": "legitimate",
+          "kind": "false alarm (false positive)",
+          "risk": null,
+          "text": "Centenary Bank: Your account was credited with UGX 150,000 on 03/11. For help call the number on the back of your card.",
+          "score": 0.9991,
+          "category": "bank"
+        }
+      ],
+      "by_category": {
+        "app": {
+          "n": 2,
+          "missed": 0,
+          "correct": 1,
+          "accuracy": 0.5,
+          "false_alarm": 1
+        },
+        "job": {
+          "n": 2,
+          "missed": 0,
+          "correct": 2,
+          "accuracy": 1.0,
+          "false_alarm": 0
+        },
+        "bank": {
+          "n": 2,
+          "missed": 0,
+          "correct": 0,
+          "accuracy": 0.0,
+          "false_alarm": 2
+        },
+        "news": {
+          "n": 2,
+          "missed": 0,
+          "correct": 1,
+          "accuracy": 0.5,
+          "false_alarm": 1
+        },
+        "crypto": {
+          "n": 2,
+          "missed": 0,
+          "correct": 2,
+          "accuracy": 1.0,
+          "false_alarm": 0
+        },
+        "family": {
+          "n": 5,
+          "missed": 0,
+          "correct": 5,
+          "accuracy": 1.0,
+          "false_alarm": 0
+        },
+        "friend": {
+          "n": 5,
+          "missed": 0,
+          "correct": 5,
+          "accuracy": 1.0,
+          "false_alarm": 0
+        },
+        "gaming": {
+          "n": 2,
+          "missed": 0,
+          "correct": 1,
+          "accuracy": 0.5,
+          "false_alarm": 1
+        },
+        "health": {
+          "n": 2,
+          "missed": 0,
+          "correct": 0,
+          "accuracy": 0.0,
+          "false_alarm": 2
+        },
+        "reward": {
+          "n": 10,
+          "missed": 0,
+          "correct": 10,
+          "accuracy": 1.0,
+          "false_alarm": 0
+        },
+        "school": {
+          "n": 7,
+          "missed": 0,
+          "correct": 5,
+          "accuracy": 0.714,
+          "false_alarm": 2
+        },
+        "threat": {
+          "n": 2,
+          "missed": 1,
+          "correct": 1,
+          "accuracy": 0.5,
+          "false_alarm": 0
+        },
+        "romance": {
+          "n": 2,
+          "missed": 2,
+          "correct": 0,
+          "accuracy": 0.0,
+          "false_alarm": 0
+        },
+        "delivery": {
+          "n": 1,
+          "missed": 0,
+          "correct": 1,
+          "accuracy": 1.0,
+          "false_alarm": 0
+        },
+        "official": {
+          "n": 3,
+          "missed": 0,
+          "correct": 1,
+          "accuracy": 0.333,
+          "false_alarm": 2
+        },
+        "otp_theft": {
+          "n": 8,
+          "missed": 1,
+          "correct": 7,
+          "accuracy": 0.875,
+          "false_alarm": 0
+        },
+        "telco_otp": {
+          "n": 4,
+          "missed": 0,
+          "correct": 0,
+          "accuracy": 0.0,
+          "false_alarm": 4
+        },
+        "advance_fee": {
+          "n": 7,
+          "missed": 0,
+          "correct": 7,
+          "accuracy": 1.0,
+          "false_alarm": 0
+        },
+        "telco_promo": {
+          "n": 4,
+          "missed": 0,
+          "correct": 0,
+          "accuracy": 0.0,
+          "false_alarm": 4
+        },
+        "money_refund": {
+          "n": 1,
+          "missed": 0,
+          "correct": 1,
+          "accuracy": 1.0,
+          "false_alarm": 0
+        },
+        "impersonation": {
+          "n": 6,
+          "missed": 3,
+          "correct": 3,
+          "accuracy": 0.5,
+          "false_alarm": 0
+        },
+        "phishing_link": {
+          "n": 5,
+          "missed": 0,
+          "correct": 5,
+          "accuracy": 1.0,
+          "false_alarm": 0
+        }
+      },
+      "by_language": {
+        "en": {
+          "n": 84,
+          "missed": 7,
+          "correct": 58,
+          "accuracy": 0.69,
+          "false_alarm": 19
+        }
+      }
+    }
+  },
+  {
+    "id": 2,
+    "evaluation": "url",
+    "dataset": "urls_v1",
+    "backend": "url-onnx",
+    "model": "pirocheto/phishing-url-detection",
+    "host": "DESKTOP-3CGBSSB",
+    "gpu": "NVIDIA GeForce GTX 1060, 5798 MiB, 6144 MiB",
+    "mode": "live",
+    "started_at": "2026-11-06T04:50:51.779047+00:00",
+    "duration_s": 0.6,
+    "metrics": {
+      "n": 50,
+      "f1": 0.8696,
+      "fn": 5,
+      "fp": 1,
+      "tn": 24,
+      "tp": 20,
+      "fnr": 0.2,
+      "fpr": 0.04,
+      "recall": 0.8,
+      "roc_auc": 0.9552,
+      "accuracy": 0.88,
+      "f1_at_0_8": 0.7317,
+      "fn_at_0_8": 10,
+      "fp_at_0_8": 1,
+      "precision": 0.9524,
+      "threshold": 0.5,
+      "lexical_f1": 1.0,
+      "lexical_fn": 0,
+      "lexical_fp": 0,
+      "mean_ms_per_url": 10.7
+    },
+    "details": {
+      "note": "Links are scored as text and never visited. \"Lexical\" is the rule-based fallback used when the model is down.",
+      "sweep": [
+        {
+          "f1": 0.9091,
+          "fn": 0,
+          "fp": 5,
+          "recall": 1.0,
+          "precision": 0.8333,
+          "threshold": 0.1
+        },
+        {
+          "f1": 0.9057,
+          "fn": 1,
+          "fp": 4,
+          "recall": 0.96,
+          "precision": 0.8571,
+          "threshold": 0.2
+        },
+        {
+          "f1": 0.9231,
+          "fn": 1,
+          "fp": 3,
+          "recall": 0.96,
+          "precision": 0.8889,
+          "threshold": 0.3
+        },
+        {
+          "f1": 0.92,
+          "fn": 2,
+          "fp": 2,
+          "recall": 0.92,
+          "precision": 0.92,
+          "threshold": 0.4
+        },
+        {
+          "f1": 0.8696,
+          "fn": 5,
+          "fp": 1,
+          "recall": 0.8,
+          "precision": 0.9524,
+          "threshold": 0.5
+        },
+        {
+          "f1": 0.8696,
+          "fn": 5,
+          "fp": 1,
+          "recall": 0.8,
+          "precision": 0.9524,
+          "threshold": 0.6
+        },
+        {
+          "f1": 0.8444,
+          "fn": 6,
+          "fp": 1,
+          "recall": 0.76,
+          "precision": 0.95,
+          "threshold": 0.7
+        },
+        {
+          "f1": 0.7317,
+          "fn": 10,
+          "fp": 1,
+          "recall": 0.6,
+          "precision": 0.9375,
+          "threshold": 0.8
+        },
+        {
+          "f1": 0.5556,
+          "fn": 15,
+          "fp": 1,
+          "recall": 0.4,
+          "precision": 0.9091,
+          "threshold": 0.9
+        },
+        {
+          "f1": 0.5143,
+          "fn": 16,
+          "fp": 1,
+          "recall": 0.36,
+          "precision": 0.9,
+          "threshold": 0.95
+        }
+      ],
+      "failures": [
+        {
+          "id": "https://mail.google.com/mail/u/0/",
+          "gold": "legitimate",
+          "kind": "false alarm (false positive)",
+          "risk": null,
+          "text": "https://mail.google.com/mail/u/0/",
+          "score": 0.9982,
+          "category": "common"
+        },
+        {
+          "id": "http://airtel-gift.click/activate",
+          "gold": "scam",
+          "kind": "missed scam (false negative)",
+          "risk": null,
+          "text": "http://airtel-gift.click/activate",
+          "score": 0.4216,
+          "category": "lookalike"
+        },
+        {
+          "id": "https://airtel-money-help.site/pin",
+          "gold": "scam",
+          "kind": "missed scam (false negative)",
+          "risk": null,
+          "text": "https://airtel-money-help.site/pin",
+          "score": 0.1516,
+          "category": "lookalike"
+        },
+        {
+          "id": "https://stanbic-alert.link/card",
+          "gold": "scam",
+          "kind": "missed scam (false negative)",
+          "risk": null,
+          "text": "https://stanbic-alert.link/card",
+          "score": 0.44,
+          "category": "lookalike"
+        },
+        {
+          "id": "http://freefire-rewards.click/diamonds",
+          "gold": "scam",
+          "kind": "missed scam (false negative)",
+          "risk": null,
+          "text": "http://freefire-rewards.click/diamonds",
+          "score": 0.4157,
+          "category": "gaming"
+        },
+        {
+          "id": "http://socialviews.click/who-viewed",
+          "gold": "scam",
+          "kind": "missed scam (false negative)",
+          "risk": null,
+          "text": "http://socialviews.click/who-viewed",
+          "score": 0.3554,
+          "category": "social"
+        }
+      ],
+      "by_category": {
+        "common": {
+          "n": 13,
+          "missed": 0,
+          "correct": 12,
+          "accuracy": 0.923,
+          "false_alarm": 1
+        },
+        "gaming": {
+          "n": 3,
+          "missed": 1,
+          "correct": 2,
+          "accuracy": 0.667,
+          "false_alarm": 0
+        },
+        "social": {
+          "n": 4,
+          "missed": 1,
+          "correct": 3,
+          "accuracy": 0.75,
+          "false_alarm": 0
+        },
+        "delivery": {
+          "n": 1,
+          "missed": 0,
+          "correct": 1,
+          "accuracy": 1.0,
+          "false_alarm": 0
+        },
+        "official": {
+          "n": 12,
+          "missed": 0,
+          "correct": 12,
+          "accuracy": 1.0,
+          "false_alarm": 0
+        },
+        "lookalike": {
+          "n": 12,
+          "missed": 3,
+          "correct": 9,
+          "accuracy": 0.75,
+          "false_alarm": 0
+        },
+        "shortener": {
+          "n": 2,
+          "missed": 0,
+          "correct": 2,
+          "accuracy": 1.0,
+          "false_alarm": 0
+        },
+        "ip-address": {
+          "n": 2,
+          "missed": 0,
+          "correct": 2,
+          "accuracy": 1.0,
+          "false_alarm": 0
+        },
+        "subdomain-trick": {
+          "n": 1,
+          "missed": 0,
+          "correct": 1,
+          "accuracy": 1.0,
+          "false_alarm": 0
+        }
+      },
+      "lexical_checks": {
+        "n": 50,
+        "f1": 1.0,
+        "fn": 0,
+        "fp": 0,
+        "tn": 25,
+        "tp": 25,
+        "fnr": 0.0,
+        "fpr": 0.0,
+        "recall": 1.0,
+        "accuracy": 1.0,
+        "precision": 1.0
+      }
+    }
+  },
+  {
+    "id": 3,
+    "evaluation": "embed",
+    "dataset": "waves_v1",
+    "backend": "minilm",
+    "model": "sentence-transformers/all-MiniLM-L6-v2",
+    "host": "DESKTOP-3CGBSSB",
+    "gpu": "NVIDIA GeForce GTX 1060, 5798 MiB, 6144 MiB",
+    "mode": "live",
+    "started_at": "2026-11-06T04:50:52.353142+00:00",
+    "duration_s": 1.5,
+    "metrics": {
+      "f1": 0.8077,
+      "fn": 6,
+      "fp": 4,
+      "tn": 269,
+      "tp": 21,
+      "pairs": 300,
+      "recall": 0.7778,
+      "mean_ms": 1492,
+      "roc_auc": 0.9811,
+      "precision": 0.84,
+      "dimensions": 384,
+      "separation": 0.3514,
+      "best_threshold": 0.45,
+      "mean_different": 0.1855,
+      "mean_same_wave": 0.5369,
+      "nearest_neighbour_accuracy": 1.0
+    },
+    "details": {
+      "note": "Positive pair = two rewordings of the same scam wave. Nearest-neighbour accuracy: for each wave message, is its most similar message from the same wave?",
+      "sweep": [
+        {
+          "f1": 0.5347,
+          "fn": 0,
+          "fp": 47,
+          "recall": 1.0,
+          "precision": 0.3649,
+          "threshold": 0.3
+        },
+        {
+          "f1": 0.7857,
+          "fn": 5,
+          "fp": 7,
+          "recall": 0.8148,
+          "precision": 0.7586,
+          "threshold": 0.4
+        },
+        {
+          "f1": 0.7391,
+          "fn": 10,
+          "fp": 2,
+          "recall": 0.6296,
+          "precision": 0.8947,
+          "threshold": 0.5
+        },
+        {
+          "f1": 0.5405,
+          "fn": 17,
+          "fp": 0,
+          "recall": 0.3704,
+          "precision": 1.0,
+          "threshold": 0.6
+        },
+        {
+          "f1": 0.0714,
+          "fn": 26,
+          "fp": 0,
+          "recall": 0.037,
+          "precision": 1.0,
+          "threshold": 0.7
+        },
+        {
+          "f1": 0.0,
+          "fn": 27,
+          "fp": 0,
+          "recall": 0.0,
+          "precision": 0.0,
+          "threshold": 0.8
+        },
+        {
+          "f1": 0.0,
+          "fn": 27,
+          "fp": 0,
+          "recall": 0.0,
+          "precision": 0.0,
+          "threshold": 0.9
+        }
+      ],
+      "waves": {
+        "momo_prize": 4,
+        "bursary_fee": 4,
+        "code_forward": 4,
+        "free_data_link": 4,
+        "sextortion_threat": 3
+      }
+    }
+  },
+  {
+    "id": 9,
+    "evaluation": "qwen_extract",
+    "dataset": "synthetic chat screenshots v1 (rendered)",
+    "backend": "qwen",
+    "model": "qwen3-vl-2b",
+    "host": "DESKTOP-3CGBSSB",
+    "gpu": "NVIDIA GeForce GTX 1060, 5798 MiB, 6144 MiB",
+    "mode": "live",
+    "started_at": "2026-11-06T04:56:19.657961+00:00",
+    "duration_s": 21.5,
+    "metrics": {
+      "max_ms": 4081,
+      "p95_ms": 4081,
+      "mean_ms": 3519,
+      "messages": 17,
+      "screenshots": 6,
+      "text_accuracy": 1.0,
+      "mean_text_similarity": 1.0,
+      "sender_role_accuracy": 1.0,
+      "child_messages_wrongly_analysed": 0
+    },
+    "details": {
+      "note": "Text counts as read correctly at 85% character similarity or more. Sender role must also match (\"unclear\" counts as wrong). Guardian analyses only messages from the other person.",
+      "cases": [
+        {
+          "chat": "MoMo Promo",
+          "urls": [],
+          "messages": [
+            {
+              "text": "Congratulations! You have won UGX 300,000 in the MoMo weekend draw.",
+              "read_as": "Congratulations! You have won UGX 300,000 in the MoMo weekend draw.",
+              "read_role": "other",
+              "similarity": 1.0,
+              "truth_role": "other"
+            },
+            {
+              "text": "To receive it send your PIN and the code we just sent you.",
+              "read_as": "To receive it send your PIN and the code we just sent you.",
+              "read_role": "other",
+              "similarity": 1.0,
+              "truth_role": "other"
+            },
+            {
+              "text": "Really? How did I win?",
+              "read_as": "Really? How did I win?",
+              "read_role": "child",
+              "similarity": 1.0,
+              "truth_role": "child"
+            }
+          ],
+          "latency_ms": 4081,
+          "child_text_analysed": 0
+        },
+        {
+          "chat": "Unknown number",
+          "urls": [],
+          "messages": [
+            {
+              "text": "Hello, I sent you a code by mistake. Please send it back to me.",
+              "read_as": "Hello, I sent you a code by mistake. Please send it back to me.",
+              "read_role": "other",
+              "similarity": 1.0,
+              "truth_role": "other"
+            },
+            {
+              "text": "Which code?",
+              "read_as": "Which code?",
+              "read_role": "child",
+              "similarity": 1.0,
+              "truth_role": "child"
+            },
+            {
+              "text": "The 6 digit one that just came. Quickly please.",
+              "read_as": "The 6 digit one that just came. Quickly please.",
+              "read_role": "other",
+              "similarity": 1.0,
+              "truth_role": "other"
+            }
+          ],
+          "latency_ms": 3238,
+          "child_text_analysed": 0
+        },
+        {
+          "chat": "Scholarship Office",
+          "urls": [],
+          "messages": [
+            {
+              "text": "You have been shortlisted for the 2027 bursary.",
+              "read_as": "You have been shortlisted for the 2027 bursary.",
+              "read_role": "other",
+              "similarity": 1.0,
+              "truth_role": "other"
+            },
+            {
+              "text": "Pay the processing fee of 50,000 before Friday to keep your place.",
+              "read_as": "Pay the processing fee of 50,000 before Friday to keep your place.",
+              "read_role": "other",
+              "similarity": 1.0,
+              "truth_role": "other"
+            },
+            {
+              "text": "Can I ask my mum first?",
+              "read_as": "Can I ask my mum first?",
+              "read_role": "child",
+              "similarity": 1.0,
+              "truth_role": "child"
+            }
+          ],
+          "latency_ms": 4080,
+          "child_text_analysed": 0
+        },
+        {
+          "chat": "Brian (class)",
+          "urls": [],
+          "messages": [
+            {
+              "text": "Did you finish the maths homework?",
+              "read_as": "Did you finish the maths homework?",
+              "read_role": "child",
+              "similarity": 1.0,
+              "truth_role": "child"
+            },
+            {
+              "text": "Yes, page 54. Meet at the library at 2.",
+              "read_as": "Yes, page 54. Meet at the library at 2.",
+              "read_role": "other",
+              "similarity": 1.0,
+              "truth_role": "other"
+            },
+            {
+              "text": "Okay see you",
+              "read_as": "Okay see you",
+              "read_role": "child",
+              "similarity": 1.0,
+              "truth_role": "child"
+            }
+          ],
+          "latency_ms": 3301,
+          "child_text_analysed": 0
+        },
+        {
+          "chat": "Free Data",
+          "urls": [
+            "mtn-ug-bonus.xyz/claim"
+          ],
+          "messages": [
+            {
+              "text": "FREE 20GB data for students! Claim before midnight at mtn-ug-bonus.xyz/claim",
+              "read_as": "FREE 20GB data for students! Claim before midnight at mtn-ug-bonus.xyz/claim",
+              "read_role": "other",
+              "similarity": 1.0,
+              "truth_role": "other"
+            },
+            {
+              "text": "Is this real?",
+              "read_as": "Is this real?",
+              "read_role": "child",
+              "similarity": 1.0,
+              "truth_role": "child"
+            }
+          ],
+          "latency_ms": 3333,
+          "child_text_analysed": 0
+        },
+        {
+          "chat": "Mum",
+          "urls": [],
+          "messages": [
+            {
+              "text": "I will be late from work today. Please warm the food.",
+              "read_as": "I will be late from work today. Please warm the food.",
+              "read_role": "other",
+              "similarity": 1.0,
+              "truth_role": "other"
+            },
+            {
+              "text": "Okay mum",
+              "read_as": "Okay mum",
+              "read_role": "child",
+              "similarity": 1.0,
+              "truth_role": "child"
+            },
+            {
+              "text": "And do your homework first.",
+              "read_as": "And do your homework first.",
+              "read_role": "other",
+              "similarity": 1.0,
+              "truth_role": "other"
+            }
+          ],
+          "latency_ms": 3078,
+          "child_text_analysed": 0
+        }
+      ]
+    }
+  },
+  {
+    "id": 11,
+    "evaluation": "qwen_explain",
+    "dataset": "explain cases v1",
+    "backend": "qwen",
+    "model": "qwen3-vl-2b",
+    "host": "DESKTOP-3CGBSSB",
+    "gpu": "NVIDIA GeForce GTX 1060, 5798 MiB, 6144 MiB",
+    "mode": "live",
+    "started_at": "2026-11-06T04:57:22.979074+00:00",
+    "duration_s": 11.4,
+    "metrics": {
+      "cases": 6,
+      "max_ms": 2691,
+      "p95_ms": 2691,
+      "mean_ms": 1889,
+      "pass_no_em_dash": 1.0,
+      "all_checks_passed": 6,
+      "pass_no_safe_claim": 1.0,
+      "pass_has_explanation": 1.0,
+      "pass_short_sentences": 1.0,
+      "pass_has_1_to_5_actions": 1.0,
+      "mean_reading_grade_child": 3.2
+    },
+    "details": {
+      "note": "Checks run on the raw model reply. Guardian also removes em dashes and never uses the model for \"low risk\" wording. Reading grade: Flesch-Kincaid estimate (lower is easier).",
+      "cases": [
+        {
+          "risk": "high",
+          "grade": 3.3,
+          "checks": {
+            "no_em_dash": true,
+            "no_safe_claim": true,
+            "has_explanation": true,
+            "short_sentences": true,
+            "has_1_to_5_actions": true
+          },
+          "actions": [
+            "Don’t give your PIN, password, or code",
+            "Tell a trusted adult if you see this",
+            "Stay safe and keep your information safe"
+          ],
+          "signals": [
+            "Asks for a PIN, password or one-time code",
+            "Promises an unexpected prize or reward"
+          ],
+          "age_band": "11-13",
+          "audience": "child",
+          "latency_ms": 1872,
+          "explanation": "This is a scam because it asks for your PIN, password, or code. Scammers want your money or information. They promise a prize, but it’s not real. Be careful and don’t give your details."
+        },
+        {
+          "risk": "high",
+          "grade": 1.9,
+          "checks": {
+            "no_em_dash": true,
+            "no_safe_claim": true,
+            "has_explanation": true,
+            "short_sentences": true,
+            "has_1_to_5_actions": true
+          },
+          "actions": [
+            "Do not pay anything",
+            "Tell a trusted adult",
+            "Stay safe"
+          ],
+          "signals": [
+            "Asks you to pay a fee first",
+            "Offers a scholarship or bursary"
+          ],
+          "age_band": "14-17",
+          "audience": "child",
+          "latency_ms": 1152,
+          "explanation": "This is a scam. They want you to pay money first, and they say it's a scholarship. You should not pay. Be careful and talk to a trusted adult."
+        },
+        {
+          "risk": "high",
+          "grade": 8.5,
+          "checks": {
+            "no_em_dash": true,
+            "no_safe_claim": true,
+            "has_explanation": true,
+            "short_sentences": true,
+            "has_1_to_5_actions": true
+          },
+          "actions": [
+            "Do not send money to the sender",
+            "Contact the sender through a trusted contact to confirm the request",
+            "Report the scam to your bank or local authorities"
+          ],
+          "signals": [
+            "Asks you to send money by Mobile Money",
+            "Tells you to keep it secret"
+          ],
+          "age_band": "11-13",
+          "audience": "parent",
+          "latency_ms": 2410,
+          "explanation": "The scam involves asking you to send money via Mobile Money, which is a common method for fraud. The message also instructs you to keep the money secret, which is a red flag. This type of scam is designed to trick you into sending money without your knowledge. It's important to be cautious and verify the sender's identity before sending any money."
+        },
+        {
+          "risk": "suspicious",
+          "grade": 1.7,
+          "checks": {
+            "no_em_dash": true,
+            "no_safe_claim": true,
+            "has_explanation": true,
+            "short_sentences": true,
+            "has_1_to_5_actions": true
+          },
+          "actions": [
+            "Don't click on the link",
+            "Tell a grown-up if you see something strange",
+            "Stay safe and keep your phone safe"
+          ],
+          "signals": [
+            "The link does not belong to MTN Uganda's official website"
+          ],
+          "age_band": "8-10",
+          "audience": "child",
+          "latency_ms": 1435,
+          "explanation": "The link is not from MTN Uganda's real website. That means it might be fake. Be careful and don't click it."
+        },
+        {
+          "risk": "suspicious",
+          "grade": 6.5,
+          "checks": {
+            "no_em_dash": true,
+            "no_safe_claim": true,
+            "has_explanation": true,
+            "short_sentences": true,
+            "has_1_to_5_actions": true
+          },
+          "actions": [
+            "Do not click on the link, as it may lead to a scam site",
+            "Verify the sender's information and check if the message is from a trusted source",
+            "Report the message to the platform or your local authorities if you believe it's a scam"
+          ],
+          "signals": [
+            "Pushes you to act fast",
+            "The link is shortened, so you cannot see where it goes"
+          ],
+          "age_band": "14-17",
+          "audience": "parent",
+          "latency_ms": 2691,
+          "explanation": "The link is shortened, which means it could lead to a fake or malicious site. The message urges you to act quickly, which may be a tactic to trick you into clicking. This is a common scam method to make you feel urgency and increase the chance of falling for it."
+        },
+        {
+          "risk": "suspicious",
+          "grade": 6.1,
+          "checks": {
+            "no_em_dash": true,
+            "no_safe_claim": true,
+            "has_explanation": true,
+            "short_sentences": true,
+            "has_1_to_5_actions": true
+          },
+          "actions": [
+            "Don't give money or personal info",
+            "Tell a trusted adult if you see this",
+            "Ask questions to check if it's real"
+          ],
+          "signals": [
+            "Promises an unexpected prize or reward"
+          ],
+          "age_band": "11-13",
+          "audience": "child",
+          "latency_ms": 1774,
+          "explanation": "This message says it will give you a special prize if you do something, but it's not real. Scammers often say this to trick kids into giving money or personal info. Be careful and don't give anything."
+        }
+      ]
+    }
+  },
+  {
+    "id": 10,
+    "evaluation": "qwen_generate",
+    "dataset": "generation topics v1",
+    "backend": "qwen",
+    "model": "qwen3-vl-2b",
+    "host": "DESKTOP-3CGBSSB",
+    "gpu": "NVIDIA GeForce GTX 1060, 5798 MiB, 6144 MiB",
+    "mode": "live",
+    "started_at": "2026-11-06T04:56:41.166644+00:00",
+    "duration_s": 41.8,
+    "metrics": {
+      "max_ms": 21043,
+      "p95_ms": 21043,
+      "topics": 2,
+      "mean_ms": 20892,
+      "pass_valid_json": 1.0,
+      "all_checks_passed": 0,
+      "pass_no_em_dash_raw": 1.0,
+      "pass_all_parts_present": 1.0,
+      "pass_link_placeholder_raw": 0.0,
+      "pass_passes_safety_screen": 0.5,
+      "pass_three_quiz_questions": 1.0,
+      "pass_no_duplicate_questions": 1.0,
+      "pass_answers_marked_correctly": 1.0,
+      "pass_does_not_give_exercise_away": 0.5
+    },
+    "details": {
+      "note": "Same prompt, clean-up and safety screen as the analyst \"Family versions\" page. Checks ending in \"raw\" describe the model reply before Guardian repairs it (Guardian swaps an invented web address for the practice link). Nothing is saved.",
+      "cases": [
+        {
+          "error": "",
+          "topic": "Fake free data offers",
+          "checks": {
+            "valid_json": true,
+            "no_em_dash_raw": true,
+            "all_parts_present": true,
+            "link_placeholder_raw": false,
+            "passes_safety_screen": false,
+            "three_quiz_questions": true,
+            "no_duplicate_questions": true,
+            "answers_marked_correctly": true,
+            "does_not_give_exercise_away": false
+          },
+          "warnings": [
+            "Red flag \"Too good to be true\" quotes words that are not in the message."
+          ],
+          "latency_ms": 21043,
+          "child_title": "Stay Safe Online",
+          "practice_subject": "Free Data Offer! Get 10GB for 100 Shillings"
+        },
+        {
+          "error": "",
+          "topic": "Forwarded verification codes",
+          "checks": {
+            "valid_json": true,
+            "no_em_dash_raw": true,
+            "all_parts_present": true,
+            "link_placeholder_raw": false,
+            "passes_safety_screen": true,
+            "three_quiz_questions": true,
+            "no_duplicate_questions": true,
+            "answers_marked_correctly": true,
+            "does_not_give_exercise_away": true
+          },
+          "warnings": [],
+          "latency_ms": 20740,
+          "child_title": "Stay Safe Online: Don’t Share Your Code!",
+          "practice_subject": "You’ve been selected for a free game!"
+        }
+      ]
+    }
+  },
+  {
+    "id": 1,
+    "evaluation": "rules_only",
+    "dataset": "messages_v1 (test split)",
+    "backend": "rules",
+    "model": "deterministic rules + fusion",
+    "host": "Django",
+    "gpu": "",
+    "mode": "rules-only",
+    "started_at": "2026-11-06T04:50:51.521413+00:00",
+    "duration_s": 0.3,
+    "metrics": {
+      "n": 84,
+      "f1": 0.7312,
+      "fn": 12,
+      "fp": 13,
+      "tn": 25,
+      "tp": 34,
+      "fnr": 0.2609,
+      "fpr": 0.3421,
+      "max_ms": 2,
+      "p95_ms": 0,
+      "recall": 0.7391,
+      "mean_ms": 0,
+      "roc_auc": 0.7042,
+      "accuracy": 0.7024,
+      "precision": 0.7234
+    },
+    "details": {
+      "note": "Scam = \"high risk\" or \"some warning signs\". ROC-AUC uses the risk level as an ordinal score.",
+      "failures": [
+        {
+          "id": "m011",
+          "gold": "scam",
+          "kind": "missed scam (false negative)",
+          "risk": "unable_to_verify",
+          "text": "Jackpot alert! You have been picked to receive a laptop from the President's youth programme. Send your name, school and parents phone number to claim.",
+          "score": null,
+          "category": "reward"
+        },
+        {
+          "id": "m019",
+          "gold": "scam",
+          "kind": "missed scam (false negative)",
+          "risk": "unable_to_verify",
+          "text": "Your national ID has been selected for the parish development money. To receive 1 million, send a small fee of 15,000 to the officer below.",
+          "score": null,
+          "category": "advance_fee"
+        },
+        {
+          "id": "m020",
+          "gold": "scam",
+          "kind": "missed scam (false negative)",
+          "risk": "unable_to_verify",
+          "text": "Football academy trials in Europe! We have watched your videos. Send 150,000 shillings for your trial booking and travel letter.",
+          "score": null,
+          "category": "advance_fee"
+        },
+        {
+          "id": "m025",
+          "gold": "scam",
+          "kind": "missed scam (false negative)",
+          "risk": "unable_to_verify",
+          "text": "This is WhatsApp support. Someone tried to log in to your account. Send us the 6 digit code you received to protect it.",
+          "score": null,
+          "category": "otp_theft"
+        },
+        {
+          "id": "m026",
+          "gold": "scam",
+          "kind": "missed scam (false negative)",
+          "risk": "unable_to_verify",
+          "text": "Hey it's me, I lost my phone and I am using a friend's line. A code will come to your phone, please forward it to me quickly.",
+          "score": null,
+          "category": "otp_theft"
+        },
+        {
+          "id": "m043",
+          "gold": "scam",
+          "kind": "missed scam (false negative)",
+          "risk": "unable_to_verify",
+          "text": "I am Pastor James from your church. God has chosen you for a blessing. Send 10,000 seed offering to receive 500,000.",
+          "score": null,
+          "category": "impersonation"
+        },
+        {
+          "id": "m046",
+          "gold": "scam",
+          "kind": "missed scam (false negative)",
+          "risk": "unable_to_verify",
+          "text": "UCC: your SIM card has been flagged for fraud and will be switched off in 2 hours. Call this officer to verify your identity.",
+          "score": null,
+          "category": "impersonation"
+        },
+        {
+          "id": "m052",
+          "gold": "scam",
+          "kind": "missed scam (false negative)",
+          "risk": "unable_to_verify",
+          "text": "Let us move to a private chat. I will send you airtime every day if you send me photos. Keep this our secret.",
+          "score": null,
+          "category": "romance"
+        },
+        {
+          "id": "m053",
+          "gold": "scam",
+          "kind": "missed scam (false negative)",
+          "risk": "unable_to_verify",
+          "text": "Sorry, I have sent you 70,000 by mistake. Kindly return it to me, I am stranded at the hospital.",
+          "score": null,
+          "category": "money_refund"
+        },
+        {
+          "id": "m055",
+          "gold": "scam",
+          "kind": "missed scam (false negative)",
+          "risk": "unable_to_verify",
+          "text": "Join our crypto group and double your money in 7 days. Many students are already earning. Invest only 20,000 to start.",
+          "score": null,
+          "category": "crypto"
+        },
+        {
+          "id": "m058",
+          "gold": "scam",
+          "kind": "missed scam (false negative)",
+          "risk": "unable_to_verify",
+          "text": "Part-time work for students: like YouTube videos and earn 2,000 per like. Message us and pay 10,000 to register.",
+          "score": null,
+          "category": "job"
+        },
+        {
+          "id": "m068",
+          "gold": "scam",
+          "kind": "missed scam (false negative)",
+          "risk": "unable_to_verify",
+          "text": "Please help me vote in a school competition, I just need you to send me the code that WhatsApp sends to you.",
+          "score": null,
+          "category": "otp_theft"
+        },
+        {
+          "id": "m070",
+          "gold": "legitimate",
+          "kind": "false alarm (false positive)",
+          "risk": "high",
+          "text": "Airtel Money: You have received UGX 20,000 from MUKASA J. Your new balance is UGX 23,500. Never share your PIN.",
+          "score": null,
+          "category": "telco_otp"
+        },
+        {
+          "id": "m073",
+          "gold": "legitimate",
+          "kind": "false alarm (false positive)",
+          "risk": "high",
+          "text": "Google: [CODE] is your verification code. If you did not ask for it, you can ignore this message.",
+          "score": null,
+          "category": "telco_otp"
+        },
+        {
+          "id": "m076",
+          "gold": "legitimate",
+          "kind": "false alarm (false positive)",
+          "risk": "suspicious",
+          "text": "Your monthly bundle expires tomorrow. Dial *150*1# to renew and keep surfing.",
+          "score": null,
+          "category": "telco_promo"
+        }
+      ],
+      "by_category": {
+        "app": {
+          "n": 2,
+          "missed": 0,
+          "correct": 1,
+          "accuracy": 0.5,
+          "false_alarm": 1
+        },
+        "job": {
+          "n": 2,
+          "missed": 1,
+          "correct": 1,
+          "accuracy": 0.5,
+          "false_alarm": 0
+        },
+        "bank": {
+          "n": 2,
+          "missed": 0,
+          "correct": 1,
+          "accuracy": 0.5,
+          "false_alarm": 1
+        },
+        "news": {
+          "n": 2,
+          "missed": 0,
+          "correct": 2,
+          "accuracy": 1.0,
+          "false_alarm": 0
+        },
+        "crypto": {
+          "n": 2,
+          "missed": 1,
+          "correct": 1,
+          "accuracy": 0.5,
+          "false_alarm": 0
+        },
+        "family": {
+          "n": 5,
+          "missed": 0,
+          "correct": 5,
+          "accuracy": 1.0,
+          "false_alarm": 0
+        },
+        "friend": {
+          "n": 5,
+          "missed": 0,
+          "correct": 3,
+          "accuracy": 0.6,
+          "false_alarm": 2
+        },
+        "gaming": {
+          "n": 2,
+          "missed": 0,
+          "correct": 1,
+          "accuracy": 0.5,
+          "false_alarm": 1
+        },
+        "health": {
+          "n": 2,
+          "missed": 0,
+          "correct": 2,
+          "accuracy": 1.0,
+          "false_alarm": 0
+        },
+        "reward": {
+          "n": 10,
+          "missed": 1,
+          "correct": 9,
+          "accuracy": 0.9,
+          "false_alarm": 0
+        },
+        "school": {
+          "n": 7,
+          "missed": 0,
+          "correct": 5,
+          "accuracy": 0.714,
+          "false_alarm": 2
+        },
+        "threat": {
+          "n": 2,
+          "missed": 0,
+          "correct": 2,
+          "accuracy": 1.0,
+          "false_alarm": 0
+        },
+        "romance": {
+          "n": 2,
+          "missed": 1,
+          "correct": 1,
+          "accuracy": 0.5,
+          "false_alarm": 0
+        },
+        "delivery": {
+          "n": 1,
+          "missed": 0,
+          "correct": 1,
+          "accuracy": 1.0,
+          "false_alarm": 0
+        },
+        "official": {
+          "n": 3,
+          "missed": 0,
+          "correct": 2,
+          "accuracy": 0.667,
+          "false_alarm": 1
+        },
+        "otp_theft": {
+          "n": 8,
+          "missed": 3,
+          "correct": 5,
+          "accuracy": 0.625,
+          "false_alarm": 0
+        },
+        "telco_otp": {
+          "n": 4,
+          "missed": 0,
+          "correct": 1,
+          "accuracy": 0.25,
+          "false_alarm": 3
+        },
+        "advance_fee": {
+          "n": 7,
+          "missed": 2,
+          "correct": 5,
+          "accuracy": 0.714,
+          "false_alarm": 0
+        },
+        "telco_promo": {
+          "n": 4,
+          "missed": 0,
+          "correct": 2,
+          "accuracy": 0.5,
+          "false_alarm": 2
+        },
+        "money_refund": {
+          "n": 1,
+          "missed": 1,
+          "correct": 0,
+          "accuracy": 0.0,
+          "false_alarm": 0
+        },
+        "impersonation": {
+          "n": 6,
+          "missed": 2,
+          "correct": 4,
+          "accuracy": 0.667,
+          "false_alarm": 0
+        },
+        "phishing_link": {
+          "n": 5,
+          "missed": 0,
+          "correct": 5,
+          "accuracy": 1.0,
+          "false_alarm": 0
+        }
+      },
+      "by_language": {
+        "en": {
+          "n": 84,
+          "missed": 12,
+          "correct": 59,
+          "accuracy": 0.702,
+          "false_alarm": 13
+        }
+      },
+      "risk_levels": {
+        "low": 0,
+        "high": 16,
+        "suspicious": 31,
+        "unable_to_verify": 37
+      }
+    }
+  },
+  {
+    "id": 5,
+    "evaluation": "fused",
+    "dataset": "messages_v1 (test split)",
+    "backend": "onnx",
+    "model": "",
+    "host": "DESKTOP-3CGBSSB",
+    "gpu": "NVIDIA GeForce GTX 1060, 5798 MiB, 6144 MiB",
+    "mode": "live",
+    "started_at": "2026-11-06T04:51:45.781662+00:00",
+    "duration_s": 36.6,
+    "metrics": {
+      "n": 84,
+      "f1": 0.7679,
+      "fn": 3,
+      "fp": 23,
+      "tn": 15,
+      "tp": 43,
+      "fnr": 0.0652,
+      "fpr": 0.6053,
+      "max_ms": 592,
+      "p95_ms": 521,
+      "recall": 0.9348,
+      "mean_ms": 427,
+      "roc_auc": 0.716,
+      "accuracy": 0.6905,
+      "precision": 0.6515,
+      "answered_by_models": 84
+    },
+    "details": {
+      "note": "Scam = \"high risk\" or \"some warning signs\". ROC-AUC uses the risk level as an ordinal score.",
+      "failures": [
+        {
+          "id": "m043",
+          "gold": "scam",
+          "kind": "missed scam (false negative)",
+          "risk": "low",
+          "text": "I am Pastor James from your church. God has chosen you for a blessing. Send 10,000 seed offering to receive 500,000.",
+          "score": 0.4518,
+          "category": "impersonation"
+        },
+        {
+          "id": "m052",
+          "gold": "scam",
+          "kind": "missed scam (false negative)",
+          "risk": "low",
+          "text": "Let us move to a private chat. I will send you airtime every day if you send me photos. Keep this our secret.",
+          "score": 0.422,
+          "category": "romance"
+        },
+        {
+          "id": "m068",
+          "gold": "scam",
+          "kind": "missed scam (false negative)",
+          "risk": "low",
+          "text": "Please help me vote in a school competition, I just need you to send me the code that WhatsApp sends to you.",
+          "score": 0.2265,
+          "category": "otp_theft"
+        },
+        {
+          "id": "m070",
+          "gold": "legitimate",
+          "kind": "false alarm (false positive)",
+          "risk": "high",
+          "text": "Airtel Money: You have received UGX 20,000 from MUKASA J. Your new balance is UGX 23,500. Never share your PIN.",
+          "score": 0.9983,
+          "category": "telco_otp"
+        },
+        {
+          "id": "m071",
+          "gold": "legitimate",
+          "kind": "false alarm (false positive)",
+          "risk": "suspicious",
+          "text": "Y'ello! You have bought 1GB data valid for 7 days. Dial *150# to check your balance.",
+          "score": 0.9966,
+          "category": "telco_otp"
+        },
+        {
+          "id": "m073",
+          "gold": "legitimate",
+          "kind": "false alarm (false positive)",
+          "risk": "high",
+          "text": "Google: [CODE] is your verification code. If you did not ask for it, you can ignore this message.",
+          "score": 0.9649,
+          "category": "telco_otp"
+        },
+        {
+          "id": "m074",
+          "gold": "legitimate",
+          "kind": "false alarm (false positive)",
+          "risk": "suspicious",
+          "text": "Airtel: Enjoy 2x data on all weekly bundles this weekend. Dial *175# to buy. Terms apply.",
+          "score": 0.9207,
+          "category": "telco_promo"
+        },
+        {
+          "id": "m076",
+          "gold": "legitimate",
+          "kind": "false alarm (false positive)",
+          "risk": "suspicious",
+          "text": "Your monthly bundle expires tomorrow. Dial *150*1# to renew and keep surfing.",
+          "score": 0.9753,
+          "category": "telco_promo"
+        },
+        {
+          "id": "m077",
+          "gold": "legitimate",
+          "kind": "false alarm (false positive)",
+          "risk": "high",
+          "text": "MTN Uganda: You can now pay school fees with MoMo. Visit mtn.co.ug for the list of schools.",
+          "score": 0.9778,
+          "category": "telco_promo"
+        },
+        {
+          "id": "m083",
+          "gold": "legitimate",
+          "kind": "false alarm (false positive)",
+          "risk": "suspicious",
+          "text": "Debate club meets today at 4pm in the library. Topic: social media does more harm than good.",
+          "score": 0.0786,
+          "category": "school"
+        },
+        {
+          "id": "m085",
+          "gold": "legitimate",
+          "kind": "false alarm (false positive)",
+          "risk": "suspicious",
+          "text": "Makerere University: admission lists for private sponsorship are now available on the official website mak.ac.ug.",
+          "score": 0.9819,
+          "category": "school"
+        },
+        {
+          "id": "m098",
+          "gold": "legitimate",
+          "kind": "false alarm (false positive)",
+          "risk": "suspicious",
+          "text": "Congratulations on your results! You really worked hard.",
+          "score": 0.2138,
+          "category": "friend"
+        },
+        {
+          "id": "m100",
+          "gold": "legitimate",
+          "kind": "false alarm (false positive)",
+          "risk": "suspicious",
+          "text": "Centenary Bank: Your account was credited with UGX 150,000 on 03/11. For help call the number on the back of your card.",
+          "score": 0.9991,
+          "category": "bank"
+        },
+        {
+          "id": "m101",
+          "gold": "legitimate",
+          "kind": "false alarm (false positive)",
+          "risk": "high",
+          "text": "Stanbic Bank: Your monthly statement is ready in the app. We will never ask for your PIN or password.",
+          "score": 0.9409,
+          "category": "bank"
+        },
+        {
+          "id": "m103",
+          "gold": "legitimate",
+          "kind": "false alarm (false positive)",
+          "risk": "suspicious",
+          "text": "Ministry of Health: Measles immunisation campaign this week at all health centres. Children under 5 are free.",
+          "score": 0.6448,
+          "category": "health"
+        }
+      ],
+      "by_category": {
+        "app": {
+          "n": 2,
+          "missed": 0,
+          "correct": 0,
+          "accuracy": 0.0,
+          "false_alarm": 2
+        },
+        "job": {
+          "n": 2,
+          "missed": 0,
+          "correct": 2,
+          "accuracy": 1.0,
+          "false_alarm": 0
+        },
+        "bank": {
+          "n": 2,
+          "missed": 0,
+          "correct": 0,
+          "accuracy": 0.0,
+          "false_alarm": 2
+        },
+        "news": {
+          "n": 2,
+          "missed": 0,
+          "correct": 1,
+          "accuracy": 0.5,
+          "false_alarm": 1
+        },
+        "crypto": {
+          "n": 2,
+          "missed": 0,
+          "correct": 2,
+          "accuracy": 1.0,
+          "false_alarm": 0
+        },
+        "family": {
+          "n": 5,
+          "missed": 0,
+          "correct": 5,
+          "accuracy": 1.0,
+          "false_alarm": 0
+        },
+        "friend": {
+          "n": 5,
+          "missed": 0,
+          "correct": 3,
+          "accuracy": 0.6,
+          "false_alarm": 2
+        },
+        "gaming": {
+          "n": 2,
+          "missed": 0,
+          "correct": 1,
+          "accuracy": 0.5,
+          "false_alarm": 1
+        },
+        "health": {
+          "n": 2,
+          "missed": 0,
+          "correct": 0,
+          "accuracy": 0.0,
+          "false_alarm": 2
+        },
+        "reward": {
+          "n": 10,
+          "missed": 0,
+          "correct": 10,
+          "accuracy": 1.0,
+          "false_alarm": 0
+        },
+        "school": {
+          "n": 7,
+          "missed": 0,
+          "correct": 4,
+          "accuracy": 0.571,
+          "false_alarm": 3
+        },
+        "threat": {
+          "n": 2,
+          "missed": 0,
+          "correct": 2,
+          "accuracy": 1.0,
+          "false_alarm": 0
+        },
+        "romance": {
+          "n": 2,
+          "missed": 1,
+          "correct": 1,
+          "accuracy": 0.5,
+          "false_alarm": 0
+        },
+        "delivery": {
+          "n": 1,
+          "missed": 0,
+          "correct": 1,
+          "accuracy": 1.0,
+          "false_alarm": 0
+        },
+        "official": {
+          "n": 3,
+          "missed": 0,
+          "correct": 1,
+          "accuracy": 0.333,
+          "false_alarm": 2
+        },
+        "otp_theft": {
+          "n": 8,
+          "missed": 1,
+          "correct": 7,
+          "accuracy": 0.875,
+          "false_alarm": 0
+        },
+        "telco_otp": {
+          "n": 4,
+          "missed": 0,
+          "correct": 0,
+          "accuracy": 0.0,
+          "false_alarm": 4
+        },
+        "advance_fee": {
+          "n": 7,
+          "missed": 0,
+          "correct": 7,
+          "accuracy": 1.0,
+          "false_alarm": 0
+        },
+        "telco_promo": {
+          "n": 4,
+          "missed": 0,
+          "correct": 0,
+          "accuracy": 0.0,
+          "false_alarm": 4
+        },
+        "money_refund": {
+          "n": 1,
+          "missed": 0,
+          "correct": 1,
+          "accuracy": 1.0,
+          "false_alarm": 0
+        },
+        "impersonation": {
+          "n": 6,
+          "missed": 1,
+          "correct": 5,
+          "accuracy": 0.833,
+          "false_alarm": 0
+        },
+        "phishing_link": {
+          "n": 5,
+          "missed": 0,
+          "correct": 5,
+          "accuracy": 1.0,
+          "false_alarm": 0
+        }
+      },
+      "by_language": {
+        "en": {
+          "n": 84,
+          "missed": 3,
+          "correct": 58,
+          "accuracy": 0.69,
+          "false_alarm": 23
+        }
+      },
+      "risk_levels": {
+        "low": 18,
+        "high": 25,
+        "suspicious": 41,
+        "unable_to_verify": 0
+      }
+    }
+  }
+]

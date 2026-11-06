@@ -73,7 +73,7 @@
                 <td class="px-4 py-2" data-label="Recipient">
                     <div>{% if d.email %}{{ d.email }}{% elif d.recipient %}{{ d.recipient.email }}{% else %}-{% endif %}</div>
                     {% if d.recipient %}
-                    <div class="text-xs text-on-surface-variant">{{ d.recipient.profile.full_name|default:"" }}{% if d.recipient.profile.department %} &mdash; {{ d.recipient.profile.department }}{% endif %}</div>
+                    <div class="text-xs text-on-surface-variant">{{ d.recipient.profile.full_name|default:"" }}{% if d.recipient.profile.department %} · {{ d.recipient.profile.department }}{% endif %}</div>
                     {% else %}
                     <div class="text-xs text-on-surface-variant">External</div>
                     {% endif %}
@@ -94,8 +94,8 @@
                         {{ d.get_status_display }}
                     </span>
                 </td>
-                <td class="px-4 py-2 text-xs text-on-surface-variant" data-label="Sent At">{{ d.sent_at|date:"M d, Y H:i"|default:"-" }}</td>
-                <td class="px-4 py-2 text-xs text-on-surface-variant" data-label="Opened At">{{ d.opened_at|date:"M d, Y H:i"|default:"-" }}</td>
+                <td class="px-4 py-2 text-xs text-on-surface-variant" data-label="Sent At">{{ d.sent_at|date:"M d, Y H:i T"|default:"-" }}</td>
+                <td class="px-4 py-2 text-xs text-on-surface-variant" data-label="Opened At">{{ d.opened_at|date:"M d, Y H:i T"|default:"-" }}</td>
             </tr>
             {% empty %}
             <tr><td colspan="6" class="px-4 py-8 text-center text-on-surface-variant">No deliveries yet.</td></tr>

@@ -1,0 +1,31 @@
+{% comment %}The topic's full material (article, link, scenario or policy), shared by family and library pages. Needs `content`.{% endcomment %}
+{% with e=content.engagement_data %}
+{% if content.engagement_type == 'article' and e.summary %}
+<section class="bg-white border border-outline p-5">
+    <h2 class="text-xs font-bold uppercase tracking-wider text-on-surface-variant mb-3">Full article</h2>
+    <div class="text-sm leading-relaxed whitespace-pre-line">{{ e.summary }}</div>
+    {% if e.source or e.reference_url %}<p class="mt-4 pt-3 border-t border-outline text-xs text-on-surface-variant">Source:
+        {% if e.reference_url %}<a href="{{ e.reference_url }}" target="_blank" rel="noopener noreferrer" class="text-teal hover:underline">{{ e.source|default:e.reference_url }}</a>{% else %}{{ e.source }}{% endif %}</p>{% endif %}
+</section>
+{% elif content.engagement_type == 'link' and e.url %}
+<section class="bg-white border border-outline p-5">
+    <h2 class="text-xs font-bold uppercase tracking-wider text-on-surface-variant mb-3">Learn more</h2>
+    <a href="{{ e.url }}" target="_blank" rel="noopener noreferrer" class="inline-block border-2 border-teal text-teal px-4 py-2 text-sm font-semibold hover:bg-teal hover:text-white transition-colors">{{ e.label|default:"Open the resource" }} &rarr;</a>
+</section>
+{% elif content.engagement_type == 'scenario' and e.scenario %}
+<section class="bg-white border border-outline p-5">
+    <h2 class="text-xs font-bold uppercase tracking-wider text-on-surface-variant mb-3">What could happen</h2>
+    <p class="text-sm leading-relaxed">{{ e.scenario }}</p>
+    {% if e.correct_action %}<div class="border-l-4 border-teal pl-4 mt-4"><div class="text-xs font-bold uppercase tracking-wider text-teal">The right response</div><p class="text-sm mt-1 whitespace-pre-line">{{ e.correct_action }}</p></div>{% endif %}
+</section>
+{% elif content.engagement_type == 'policy' and e.policy_name %}
+<section class="bg-white border border-outline p-5 space-y-3 text-sm">
+    <h2 class="text-xs font-bold uppercase tracking-wider text-on-surface-variant">Rules and guidance</h2>
+    <p class="font-bold">{{ e.policy_name }}</p>
+    {% if e.applicability %}<p>{{ e.applicability }}</p>{% endif %}
+    {% if e.consequences %}<div class="border-l-4 border-error pl-4"><div class="text-xs font-bold uppercase tracking-wider text-error">If it is ignored</div><p>{{ e.consequences }}</p></div>{% endif %}
+    {% if e.remediations %}<div class="border-l-4 border-teal pl-4"><div class="text-xs font-bold uppercase tracking-wider text-teal">What to do</div><p class="whitespace-pre-line">{{ e.remediations }}</p></div>{% endif %}
+    {% if e.reference %}<p class="text-xs text-on-surface-variant">Reference: <a href="{{ e.reference }}" target="_blank" rel="noopener noreferrer" class="text-teal hover:underline">{{ e.reference }}</a></p>{% endif %}
+</section>
+{% endif %}
+{% endwith %}

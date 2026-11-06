@@ -1,0 +1,17 @@
+{% with c=row.content p=row.pack %}
+<a href="{% url 'parent_news_detail' c.pk %}" class="block bg-white border {% if row.read %}border-outline{% else %}border-teal{% endif %} p-4 md:p-5 hover:border-teal transition-colors">
+    <div class="flex flex-wrap items-center gap-2 text-xs font-bold uppercase tracking-wider text-on-surface-variant mb-1">
+        {% if not row.read %}<span class="text-teal">New</span> ·{% endif %}
+        <span>{{ c.created_at|date:"j M Y" }}</span> · <span>{{ c.get_threat_type_display }}</span> · <span>{{ c.get_engagement_type_display }}</span>
+    </div>
+    <h3 class="text-lg font-bold mb-1">{{ c.title }}</h3>
+    <p class="text-sm text-on-surface-variant mb-3">{% if p %}{{ p.parent_summary|truncatechars:200 }}{% else %}{{ c.risk|truncatechars:200 }}{% endif %}</p>
+    <div class="flex flex-wrap gap-2 text-xs">
+        {% if c.quiz or p.child_quiz %}<span class="px-2 py-0.5 border {% if row.quiz_done %}border-teal text-teal{% else %}border-outline text-on-surface-variant{% endif %}">{% if row.quiz_done %}Quiz done{% else %}Quiz{% endif %}</span>{% endif %}
+        {% if p %}
+            {% if row.sent_to %}<span class="px-2 py-0.5 border border-teal text-teal">Sent to {% for ch in row.sent_to %}{{ ch.nickname }}{% if not forloop.last %}, {% endif %}{% endfor %}</span>
+            {% else %}<span class="px-2 py-0.5 border border-teal text-teal">Child lesson ready to send</span>{% endif %}
+        {% endif %}
+    </div>
+</a>
+{% endwith %}

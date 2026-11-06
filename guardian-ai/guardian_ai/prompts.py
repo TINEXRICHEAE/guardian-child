@@ -12,7 +12,7 @@ Judge only the message between the markers. Return ONLY JSON:
 MESSAGE>>>"""
 
 EXTRACT = """You read screenshots of chats, SMS or emails that a child received. Return ONLY JSON:
-{"messages": [{"sender_role": "other" | "child" | "unclear", "text": "..."}],
+{"messages": [{"side": "left" | "right" | "none", "sender_role": "other" | "child" | "unclear", "text": "..."}],
  "urls": ["..."],
  "phone_numbers_present": true | false,
  "claimed_organisation": "name or null",
@@ -21,6 +21,8 @@ How to tell senders apart in a chat screenshot: the name or number at the top is
 LEFT side (usually white or grey) were RECEIVED from that person: "other". Bubbles on the RIGHT side (usually green
 or blue) were SENT by the phone's owner, the child: "child". For an SMS or email with no bubbles, the message
 is "other".
+For every message first write "side": where its bubble is drawn ("left", "right", or "none" when there are no
+bubbles). Look at each bubble on its own; do not assume the messages take turns.
 Rules: copy message text exactly; do not judge safety; if you cannot tell who sent a message use "unclear";
 never describe people's faces or bodies."""
 

@@ -29,6 +29,11 @@
             {% if request.resolver_match.url_name == 'panel_analytics' %}bg-teal text-white border-teal{% endif %}">
             Analytics
         </a>
+        <a href="{% url 'evaluation_page' %}"
+            class="text-sm px-4 py-2 font-semibold border border-outline hover:border-teal hover:text-teal transition-colors
+            {% if 'evaluation' in request.resolver_match.url_name %}bg-teal text-white border-teal{% endif %}">
+            Model evaluation
+        </a>
     </div>
 
     {% block panel_content %}{% endblock %}

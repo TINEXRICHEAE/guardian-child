@@ -1,0 +1,8 @@
+{% extends "account_pages/_card.html" %}
+{% block title %}Check your email{% endblock %}
+{% block card %}
+<h1 class="text-2xl font-bold mb-2">Check your email</h1>
+<p class="text-sm text-on-surface-variant mb-3">If that address has a Guardian account, a reset link is on its way. It works once and expires after 3 days.</p>
+<p class="text-sm text-on-surface-variant">Nothing arrived after a few minutes? Check your spam folder, or try again.</p>
+<p class="text-sm mt-6"><a href="{% url 'login_user' %}" class="text-teal hover:underline">&larr; Back to sign in</a></p>
+{% endblock %}

@@ -12,7 +12,7 @@
             <span class="text-xs font-semibold px-2 py-0.5 {{ a.severity|risk_badge }}">{{ a.severity|capfirst }}</span>
             {% if not a.read_at %}<span class="text-xs font-semibold px-2 py-0.5 bg-teal text-white">New</span>{% endif %}</div>
         <p class="text-sm mb-1">{{ a.safety_action }}</p>
-        <div class="text-xs text-on-surface-variant">{{ a.child.nickname }} · {{ a.created_at|date:"D j M, H:i" }} · from a {{ a.source }}</div>
+        <div class="text-xs text-on-surface-variant">{{ a.child.nickname }} · {{ a.created_at|date:"D j M, H:i T" }} · from a {{ a.source }}</div>
     </div>
     {% empty %}
     <div class="p-6 text-sm text-on-surface-variant">No safety alerts. Alerts appear here when a child with safety alerts turned on checks something high-risk.</div>

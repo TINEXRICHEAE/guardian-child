@@ -23,6 +23,7 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s %(levelname)s %(name
 app = FastAPI(title='guardian-ai', version=__version__)
 
 SENDER_ROLES = {'other', 'child', 'unclear'}
+SIDE_ROLE = {'left': 'other', 'right': 'child'}
 LANGUAGES = {'en', 'lg', 'nyn', 'other'}
 
 
@@ -51,6 +52,10 @@ def _clean_extract(data: dict) -> dict:
     for m in data.get('messages') or []:
         if isinstance(m, dict) and str(m.get('text', '')).strip():
             role = m.get('sender_role') if m.get('sender_role') in SENDER_ROLES else 'unclear'
+            # The bubble side is an easier visual judgement than "who sent it", so it wins when given
+            side = str(m.get('side', '')).lower()
+            if side in SIDE_ROLE:
+                role = SIDE_ROLE[side]
             messages.append({'sender_role': role, 'text': str(m['text'])})
     org = data.get('claimed_organisation')
     return {

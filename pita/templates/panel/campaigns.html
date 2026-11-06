@@ -42,7 +42,7 @@
                     </span>
                 </td>
                 <td class="px-4 py-3 text-xs text-on-surface-variant" data-label="Sent At">
-                    {% if cam.sent_at %}{{ cam.sent_at|date:"M d, Y H:i" }}{% else %}-{% endif %}
+                    {% if cam.sent_at %}{{ cam.sent_at|date:"M d, Y H:i T" }}{% else %}-{% endif %}
                 </td>
                 <td class="px-4 py-3 text-right">
                     <a href="{% url 'panel_campaign_detail' cam.pk %}" class="text-xs text-teal hover:underline font-semibold">

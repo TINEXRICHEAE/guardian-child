@@ -8,7 +8,7 @@
         <div class="p-5 space-y-4">
             <label class="flex items-start gap-3 text-sm"><input type="checkbox" name="alert_high" class="mt-1" {% if prefs.alert_high %}checked{% endif %}><span><strong>High-risk threat alerts</strong><span class="block text-xs text-on-surface-variant">PIN, OTP, account takeover, or strong scam evidence</span></span></label>
             <label class="flex items-start gap-3 text-sm"><input type="checkbox" name="alert_suspicious" class="mt-1" {% if prefs.alert_suspicious %}checked{% endif %}><span><strong>Suspicious-message alerts</strong><span class="block text-xs text-on-surface-variant">Lower-confidence warning signs</span></span></label>
-            <label class="flex items-start gap-3 text-sm"><input type="checkbox" name="alert_email" class="mt-1" {% if prefs.alert_email %}checked{% endif %}><span><strong>Email me alerts too</strong><span class="block text-xs text-on-surface-variant">In addition to this page (coming soon)</span></span></label>
+            <label class="flex items-start gap-3 text-sm"><input type="checkbox" name="alert_email" class="mt-1" {% if prefs.alert_email %}checked{% endif %}><span><strong>Email me alerts too</strong><span class="block text-xs text-on-surface-variant">Also send each alert to {{ request.user.email }}: the type of threat and what to do, never the message itself</span></span></label>
         </div>
     </div>
     <div class="bg-white border border-outline">

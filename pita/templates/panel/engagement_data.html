@@ -9,7 +9,7 @@
         <div>
             <h1 class="text-2xl font-bold leading-tight">Engagement Data</h1>
             <p class="text-on-surface-variant text-sm mt-1">
-                {{ content.title }} &mdash;
+                {{ content.title }} ·
                 <span class="font-semibold">{{ content.get_engagement_type_display }}</span>
             </p>
         </div>
@@ -30,7 +30,7 @@
         {% elif content.engagement_type == 'article' %}
         Expected: {"summary": "Full article text...", "source": "Author / Organisation", "reference_url": "https://..."}
         {% elif content.engagement_type == 'scenario' %}
-        Expected: {"scenario": "Workplace situation...", "correct_action": "Step-by-step response..."}
+        Expected: {"scenario": "Family situation...", "correct_action": "Step-by-step response..."}
         {% elif content.engagement_type == 'policy' %}
         Expected: {"policy_name": "...", "framework": "...", "applicability": "...", "consequences": "...", "remediations": "...", "reference": "https://..."}
         {% endif %}

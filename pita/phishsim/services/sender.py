@@ -79,14 +79,22 @@ def send_notice(child) -> bool:
 def render_practice(delivery: PracticeDelivery) -> tuple[str, str]:
     """(html, text) for one delivery. The link carries the delivery token; no login page on the way (§8.6)."""
     pack = delivery.pack
+    edit = delivery.lesson_edit if delivery.lesson_edit_id and delivery.lesson_edit.is_active else None
+    body = edit.practice_body if edit else pack.practice_body
     link = _site() + reverse('practice_open', args=[delivery.token])
     name = delivery.child.nickname
-    body_html = (linebreaks(escape(pack.practice_body)).replace('{name}', escape(name))
+    body_html = (linebreaks(escape(body)).replace('{name}', escape(name))
                  .replace('{link}', f'<a href="{link}">{link}</a>'))
     html = no_em_dash(render_to_string('phishsim/emails/practice.html', {
         'pack': pack, 'body_html': body_html, 'link': link, 'child': delivery.child}))
-    text = pack.practice_body.replace('{name}', name).replace('{link}', link)
+    text = body.replace('{name}', name).replace('{link}', link)
     return html, no_em_dash(text)
+
+
+def practice_subject(delivery) -> str:
+    edit = delivery.lesson_edit if delivery.lesson_edit_id and delivery.lesson_edit.is_active else None
+    subject = edit.practice_subject if edit else delivery.pack.practice_subject
+    return no_em_dash(subject.replace('{name}', delivery.child.nickname))
 
 
 def send_delivery(delivery: PracticeDelivery) -> PracticeDelivery:
@@ -96,7 +104,7 @@ def send_delivery(delivery: PracticeDelivery) -> PracticeDelivery:
         delivery.save(update_fields=['status', 'skip_reason'])
         return delivery
     html, text = render_practice(delivery)
-    msg = EmailMultiAlternatives(subject=no_em_dash(delivery.pack.practice_subject.replace('{name}', delivery.child.nickname)), body=text,
+    msg = EmailMultiAlternatives(subject=practice_subject(delivery), body=text,
                                  from_email=_from(delivery.pack.practice_sender), to=[delivery.child.email],
                                  headers={'X-Guardian-Simulation': str(delivery.pk)})
     msg.attach_alternative(html, 'text/html')
@@ -114,7 +122,9 @@ def send_delivery(delivery: PracticeDelivery) -> PracticeDelivery:
 
 def send_pack_to_children(pack, parent, children, *, automated=False) -> list[PracticeDelivery]:
     """One delivery per child (re-sending a failed one retries it). Only the parent's own linked children."""
+    from .versions import active_edit
     own = set(GuardianChildLink.objects.filter(guardian=parent, active=True).values_list('child_id', flat=True))
+    edit = active_edit(pack, parent)          # the parent's own wording, if they edited it
     results = []
     for child in children:
         if child.pk not in own:
@@ -124,6 +134,9 @@ def send_pack_to_children(pack, parent, children, *, automated=False) -> list[Pr
         if not created and delivery.status == 'sent':
             results.append(delivery)
             continue
+        if delivery.lesson_edit_id != getattr(edit, 'pk', None):
+            delivery.lesson_edit = edit
+            delivery.save(update_fields=['lesson_edit'])
         results.append(send_delivery(delivery))
     return results
 

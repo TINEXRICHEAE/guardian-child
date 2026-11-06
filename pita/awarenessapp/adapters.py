@@ -16,8 +16,14 @@ class SocialAccountAdapter(DefaultSocialAccountAdapter):
             self._sync_google_profile(sociallogin.user, sociallogin.account.extra_data)
             return
 
-        email = (sociallogin.account.extra_data.get('email') or '').strip().lower()
-        if not email:
+        # "Connect Google" from Password and sign-in: allauth attaches it to the signed-in user itself
+        if sociallogin.state.get('process') == 'connect':
+            return
+
+        extra = sociallogin.account.extra_data
+        email = (extra.get('email') or '').strip().lower()
+        # Only join accounts on an address Google has verified, so nobody can take over an account by email alone
+        if not email or extra.get('email_verified') in (False, 'false', 'False'):
             return
 
         from .models import Users
