@@ -69,7 +69,7 @@
                                 <span class="text-xs font-bold text-on-surface-variant w-16 shrink-0">
                                     Attempt {{ attempt.attempt_number }}
                                 </span>
-                                <span class="text-xs text-on-surface-variant">{{ attempt.completed_at|date:"M d, Y H:i" }}</span>
+                                <span class="text-xs text-on-surface-variant">{{ attempt.completed_at|date:"M d, Y H:i T" }}</span>
                             </div>
                             <div class="flex items-center gap-4">
                                 {% if attempt.attempt_delta is not None %}
@@ -78,7 +78,7 @@
                                 </span>
                                 {% endif %}
                                 <span class="font-bold {% if attempt.percentage >= 70 %}text-teal{% else %}text-error{% endif %}">
-                                    {{ attempt.score }}/{{ attempt.total }} &mdash; {{ attempt.percentage }}%
+                                    {{ attempt.score }}/{{ attempt.total }} · {{ attempt.percentage }}%
                                 </span>
                                 <a href="{% url 'quiz_review' attempt.pk %}"
                                     class="text-xs text-on-surface-variant hover:text-teal hover:underline">Review</a>

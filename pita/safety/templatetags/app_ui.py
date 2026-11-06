@@ -84,3 +84,48 @@ def risk_badge(level):
 @register.filter
 def risk_panel(level):
     return _PANEL.get(level, _PANEL['unable_to_verify'])
+
+
+def as_steps(value) -> list[str]:
+    """Actions as a clean list, whatever shape they were stored in: a list, "['a', 'b']" text, JSON, numbered lines
+    ("1. a 2. b") or plain lines. Used by pages and emails so a Python list never shows as raw text."""
+    import ast
+    import json
+    import re
+    if isinstance(value, (list, tuple)):
+        items = list(value)
+    else:
+        s = str(value or '').strip()
+        items = None
+        if s.startswith('['):
+            for parse in (json.loads, ast.literal_eval):
+                try:
+                    parsed = parse(s)
+                except (ValueError, SyntaxError):
+                    continue
+                if isinstance(parsed, list):
+                    items = parsed
+                    break
+        if items is None:
+            items = [line for line in s.splitlines() if line.strip()]
+            if len(items) == 1:
+                items = re.split(r'\s+(?=\d+[.)]\s)', items[0])
+    clean = [re.sub(r'^\s*(?:\d+[.)]|[-*•])\s*', '', str(i)).strip() for i in items]
+    return [c for c in clean if c]
+
+
+@register.filter
+def steps(value):
+    return as_steps(value)
+
+
+@register.filter
+def lines(value):
+    """A list as one item per line (for editable textareas)."""
+    return '\n'.join(str(v) for v in (value or []))
+
+
+@register.filter
+def fill(value, name=''):
+    """Show text with Guardian's placeholders filled in: {name} becomes the child's name, {link} 'the link'."""
+    return str(value or '').replace('{name}', name or 'friend').replace('{link}', 'the link')

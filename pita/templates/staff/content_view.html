@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+{% extends "base.html" %}{% load app_ui %}
 {% block title %}{{ content.title }}{% endblock %}
 
 {% block content %}
@@ -14,7 +14,7 @@
             {% elif content.threat_type == 'malicious' %}border-error text-error
             {% elif content.threat_type == 'negligent' %}border-on-surface-variant text-on-surface-variant
             {% else %}border-primary text-primary{% endif %}">
-            {{ content.get_threat_type_display }} Threat
+            {{ content.get_threat_type_display }}
         </span>
     </div>
 
@@ -28,8 +28,8 @@
 
     <!-- Action section -->
     <section class="bg-white border-l-4 border-teal p-5 mb-8">
-        <h2 class="text-xs font-bold uppercase tracking-wider text-on-surface-variant mb-2">What You Should Do</h2>
-        <p class="text-on-surface leading-relaxed whitespace-pre-line">{{ content.action }}</p>
+        <h2 class="text-xs font-bold uppercase tracking-wider text-on-surface-variant mb-2">What To Do</h2>
+        <ol class="text-on-surface leading-relaxed list-decimal list-inside space-y-1">{% for s in content.action|steps %}<li>{{ s }}</li>{% endfor %}</ol>
     </section>
 
     <!-- Engagement section -->

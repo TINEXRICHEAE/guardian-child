@@ -150,7 +150,7 @@
                     </td>
                     <td class="px-4 py-2 text-center font-semibold" data-label="Deliveries">{{ c.delivery_count }}</td>
                     <td class="px-4 py-2 text-center {% if c.opened_count > 0 %}text-teal font-semibold{% else %}text-on-surface-variant{% endif %}" data-label="Opened">{{ c.opened_count }}</td>
-                    <td class="px-4 py-2 text-xs text-on-surface-variant" data-label="Sent At">{% if c.sent_at %}{{ c.sent_at|date:"M d, Y H:i" }}{% else %}-{% endif %}</td>
+                    <td class="px-4 py-2 text-xs text-on-surface-variant" data-label="Sent At">{% if c.sent_at %}{{ c.sent_at|date:"M d, Y H:i T" }}{% else %}-{% endif %}</td>
                 </tr>
                 {% endfor %}
             </tbody>

@@ -93,8 +93,8 @@
                     <td class="px-4 py-2" data-label="Email">{% if d.email %}{{ d.email }}{% elif d.recipient %}{{ d.recipient.email }}{% else %}-{% endif %}</td>
                     <td class="px-4 py-2 text-xs text-on-surface-variant" data-label="Campaign">{{ d.campaign.subject|truncatechars:40 }}</td>
                     <td class="px-4 py-2" data-label="Status"><span class="text-xs font-bold border border-teal text-teal px-2 py-0.5">{{ d.get_status_display }}</span></td>
-                    <td class="px-4 py-2 text-xs text-on-surface-variant" data-label="Sent At">{{ d.sent_at|date:"M d, Y H:i"|default:"-" }}</td>
-                    <td class="px-4 py-2 text-xs text-on-surface-variant" data-label="Opened At">{{ d.opened_at|date:"M d, Y H:i"|default:"-" }}</td>
+                    <td class="px-4 py-2 text-xs text-on-surface-variant" data-label="Sent At">{{ d.sent_at|date:"M d, Y H:i T"|default:"-" }}</td>
+                    <td class="px-4 py-2 text-xs text-on-surface-variant" data-label="Opened At">{{ d.opened_at|date:"M d, Y H:i T"|default:"-" }}</td>
                 </tr>
                 {% endfor %}
             </tbody>
@@ -123,7 +123,7 @@
                 <tr class="border-b border-outline hover:bg-surface">
                     <td class="px-4 py-2" data-label="Email">{% if d.email %}{{ d.email }}{% elif d.recipient %}{{ d.recipient.email }}{% else %}-{% endif %}</td>
                     <td class="px-4 py-2 text-xs text-on-surface-variant" data-label="Campaign">{{ d.campaign.subject|truncatechars:40 }}</td>
-                    <td class="px-4 py-2 text-xs text-on-surface-variant" data-label="Sent At">{{ d.sent_at|date:"M d, Y H:i"|default:"-" }}</td>
+                    <td class="px-4 py-2 text-xs text-on-surface-variant" data-label="Sent At">{{ d.sent_at|date:"M d, Y H:i T"|default:"-" }}</td>
                 </tr>
                 {% endfor %}
             </tbody>
@@ -164,7 +164,7 @@
                         </span>
                         {% else %}-{% endif %}
                     </td>
-                    <td class="px-4 py-2 text-xs text-on-surface-variant" data-label="Completed">{{ a.completed_at|date:"M d, Y H:i" }}</td>
+                    <td class="px-4 py-2 text-xs text-on-surface-variant" data-label="Completed">{{ a.completed_at|date:"M d, Y H:i T" }}</td>
                 </tr>
                 {% endfor %}
             </tbody>
@@ -198,7 +198,7 @@
                     </td>
                     <td class="px-4 py-2 text-center" data-label="Viewed">{% if i.viewed %}<span class="text-teal font-bold">Yes</span>{% else %}No{% endif %}</td>
                     <td class="px-4 py-2 text-center" data-label="Quiz Done">{% if i.quiz_completed %}<span class="text-teal font-bold">Yes</span>{% else %}No{% endif %}</td>
-                    <td class="px-4 py-2 text-xs text-on-surface-variant" data-label="Viewed At">{{ i.viewed_at|date:"M d, Y H:i"|default:"-" }}</td>
+                    <td class="px-4 py-2 text-xs text-on-surface-variant" data-label="Viewed At">{{ i.viewed_at|date:"M d, Y H:i T"|default:"-" }}</td>
                 </tr>
                 {% endfor %}
             </tbody>

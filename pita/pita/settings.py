@@ -129,6 +129,7 @@ INSTALLED_APPS = [
     'awarenessapp',
     'safety',
     'phishsim',
+    'evaluation',
 ]
 
 MIDDLEWARE = [

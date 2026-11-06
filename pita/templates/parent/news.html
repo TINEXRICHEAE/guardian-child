@@ -2,17 +2,19 @@
 {% block title %}News for families{% endblock %}
 {% block parent_content %}
 <h1 class="text-2xl md:text-3xl font-bold mb-1">News for families</h1>
-<p class="text-on-surface-variant mb-6">The latest scams reaching children, from Uganda's child online-safety authorities. Read it first, then send your children a safe practice message that leads to a short lesson.</p>
-<div class="space-y-4">
-    {% for row in rows %}{% with p=row.pack %}
-    <a href="{% url 'parent_news_detail' p.pk %}" class="block bg-white border border-outline p-5 hover:border-teal">
-        <div class="text-xs font-bold uppercase tracking-wider text-on-surface-variant mb-1">{{ p.published_at|date:"j M Y" }} · {{ p.content.get_threat_type_display }}</div>
-        <h2 class="text-lg font-bold mb-1">{{ p.content.title }}</h2>
-        <p class="text-sm text-on-surface-variant mb-2">{{ p.parent_summary|truncatechars:220 }}</p>
-        <span class="text-sm font-semibold text-teal">{% if row.sent_to %}Sent to {% for c in row.sent_to %}{{ c.nickname }}{% if not forloop.last %}, {% endif %}{% endfor %} · see how it went{% else %}Read and send to my children &rarr;{% endif %}</span>
-    </a>
-    {% endwith %}{% empty %}
-    <div class="bg-white border border-outline p-6 text-sm text-on-surface-variant">No news yet. New topics appear here as soon as they are published.</div>
+<p class="text-on-surface-variant mb-6 max-w-3xl">Scams reaching children in Uganda, published with guidance from the country's child online-safety regulators. Each topic has a short article, a quiz for you and, when ready, a safe practice message you can send to your children.</p>
+
+<h2 class="text-xs font-bold uppercase tracking-wider text-on-surface-variant mb-3">New for you{% if unread %} ({{ unread|length }}){% endif %}</h2>
+<div class="space-y-3 mb-8">
+    {% for row in unread %}{% include "parent/_news_row.html" %}{% empty %}
+    <div class="bg-white border border-outline p-5 text-sm text-on-surface-variant">You're up to date. New topics appear here as soon as they are published.</div>
     {% endfor %}
 </div>
+
+{% if read %}
+<h2 class="text-xs font-bold uppercase tracking-wider text-on-surface-variant mb-3">Already read ({{ read|length }})</h2>
+<div class="space-y-3">
+    {% for row in read %}{% include "parent/_news_row.html" %}{% endfor %}
+</div>
+{% endif %}
 {% endblock %}

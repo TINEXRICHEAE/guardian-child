@@ -24,22 +24,23 @@
 <body>
 <div class="wrapper">
     <div class="header">
-        <h1>Guardian - Security Awareness</h1>
+        <h1>Guardian · Online safety news for families</h1>
         <h2>{{ title }}</h2>
-        <div class="badge">{{ threat_type }} Threat</div>
+        <div class="badge">{{ threat_type }}</div>
     </div>
     <div class="body">
         <div class="section">
-            <div class="section-label">Why This Matters</div>
+            <div class="section-label">Why this matters for your child</div>
             <div class="risk-block">
                 <p>{{ risk }}</p>
             </div>
         </div>
         <div class="section">
-            <div class="section-label">What You Should Do</div>
+            <div class="section-label">What to do</div>
             <div class="action-block">
-                <p style="white-space: pre-line;">{{ action }}</p>
+                <ol style="margin:0;padding-left:20px;font-size:14px;line-height:1.6;">{% for s in steps %}<li>{{ s }}</li>{% endfor %}</ol>
             </div>
+            <p style="font-size:12px;color:#6f7977;margin-top:8px;">Report scams to the Uganda Police Child and Family Protection Unit or the Uganda Communications Commission (UCC). For a child in distress, call Sauti on 116 (free).</p>
         </div>
 
         {% if engagement_type == 'link' and engagement_data.url %}
@@ -48,7 +49,7 @@
             <p>{{ engagement_data.label|default:"Read the full resource at the link below." }}</p>
             <a href="{{ engagement_data.url }}" class="cta-btn">{{ engagement_data.label|default:"Read Article" }}</a>
             <p style="margin-top:12px;font-size:12px;color:#6f7977;">
-                Also available on Guardian: <a href="{{ content_url }}" style="color:#005049;">View on Guardian &rarr;</a>
+                Also on Guardian: <a href="{{ content_url }}" style="color:#005049;">read it there &rarr;</a>
             </p>
         </div>
 
@@ -64,23 +65,23 @@
                 {% endif %}
             </p>
             {% endif %}
-            <a href="{{ content_url }}" class="cta-btn" style="margin-top:12px;">Read Full Article on Guardian</a>
+            <a href="{{ content_url }}" class="cta-btn" style="margin-top:12px;">Read the full article on Guardian</a>
         </div>
 
         {% elif engagement_type == 'scenario' and engagement_data.scenario %}
         <div class="section">
-            <div class="section-label">Real-World Scenario</div>
+            <div class="section-label">What could happen</div>
             <p style="white-space: pre-line;">{{ engagement_data.scenario }}</p>
             {% if engagement_data.correct_action %}
-            <p style="margin-top:8px;"><strong>Correct action:</strong></p>
+            <p style="margin-top:8px;"><strong>The right response:</strong></p>
             <p style="white-space: pre-line;">{{ engagement_data.correct_action }}</p>
             {% endif %}
-            <a href="{{ content_url }}" class="cta-btn" style="margin-top:12px;">View Full Scenario on Guardian</a>
+            <a href="{{ content_url }}" class="cta-btn" style="margin-top:12px;">See the full scenario on Guardian</a>
         </div>
 
         {% elif engagement_type == 'policy' and engagement_data.policy_name %}
         <div class="section">
-            <div class="section-label">Policy Reference</div>
+            <div class="section-label">Rules and guidance</div>
             <p><strong>{{ engagement_data.policy_name }}</strong></p>
             {% if engagement_data.framework %}<p style="font-size:12px;color:#6f7977;">Framework: {{ engagement_data.framework }}</p>{% endif %}
             {% if engagement_data.applicability %}<p>{{ engagement_data.applicability }}</p>{% endif %}
@@ -89,20 +90,19 @@
                 Official reference: <a href="{{ engagement_data.reference }}" style="color:#005049;">{{ engagement_data.reference }}</a>
             </p>
             {% endif %}
-            <a href="{{ content_url }}" class="cta-btn" style="margin-top:12px;">View Full Policy Details on Guardian</a>
+            <a href="{{ content_url }}" class="cta-btn" style="margin-top:12px;">See the details on Guardian</a>
         </div>
 
         {% elif engagement_type == 'quiz' %}
         <div class="section">
-            <div class="section-label">Test Your Knowledge</div>
-            <p>A short quiz is available on the Guardian portal to test your understanding of this topic.</p>
-            <a href="{{ quiz_url }}" class="cta-btn">Take the Quiz on Guardian</a>
+            <div class="section-label">Check what you know</div>
+            <p>A short quiz on Guardian checks what you know about this scam.</p>
+            <a href="{{ quiz_url }}" class="cta-btn">Take the quiz on Guardian</a>
         </div>
         {% endif %}
-
     </div>
     <div class="footer">
-        <p>This awareness email comes from <strong>Guardian</strong>. Its lessons are published by authorised child online-safety analysts to help families recognise and avoid scams.</p>
+        <p>This email comes from <strong>Guardian</strong>. Its topics are prepared by authorised analysts with guidance from Uganda's child online-safety regulators, including the Uganda Communications Commission (UCC), the Ministry of Gender, Labour and Social Development and the Uganda Police Child and Family Protection Unit.</p>
         <p>Do not reply to this email. Need help now? Call Sauti, Uganda's free child helpline, on 116.</p>
     </div>
 </div>

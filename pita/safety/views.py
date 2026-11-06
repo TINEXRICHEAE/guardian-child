@@ -327,9 +327,11 @@ def child_report(request):
         )
         if child and report.notify_parent and not report.confidential:
             for link in child.guardian_links.filter(active=True):
-                ParentAlert.objects.create(parent=link.guardian, child=child, severity='high', source='report',
-                                           title=f'{child.nickname} reported: {report.get_category_display().lower()}',
-                                           safety_action='Talk with your child calmly. They chose to let you know.')
+                alert = ParentAlert.objects.create(parent=link.guardian, child=child, severity='high', source='report',
+                                                   title=f'{child.nickname} reported: {report.get_category_display().lower()}',
+                                                   safety_action='Talk with your child calmly. They chose to let you know.')
+                from .services import alert_email
+                alert_email.notify(alert)
         return render(request, 'child/report_done.html', {'report': report, 'sensitive': sensitive, 'nav': 'home'})
     return render(request, 'child/report.html', context)
 

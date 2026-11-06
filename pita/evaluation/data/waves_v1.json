@@ -1,0 +1,42 @@
+{
+  "about": "Scam waves for the MiniLM grouping check: messages in the same wave are rewordings of one campaign. Team-written, synthetic.",
+  "waves": {
+    "momo_prize": [
+      "Congratulations! Your number won UGX 500,000 in the MoMo draw. Send your PIN to receive it.",
+      "You are a winner of 500k from the Mobile Money promotion. Reply with your PIN to claim your money.",
+      "MoMo promo: your line has won half a million shillings. Confirm with your PIN today.",
+      "congs u hv won 500,000 frm momo. snd pin 2 get it"
+    ],
+    "bursary_fee": [
+      "You have been shortlisted for a university bursary. Pay a 50,000 processing fee to secure it.",
+      "Scholarship news: you qualify for full sponsorship. Send the registration fee before Friday.",
+      "Bursary 2027: your application was successful. Pay the clearance fee to receive your letter.",
+      "Good news, a study grant is waiting for you. Only the processing fee is needed to release it."
+    ],
+    "code_forward": [
+      "I sent you a code by mistake, please forward it to me.",
+      "A code just came to your phone, it is mine, kindly send it back.",
+      "Please send me the 6 digit number WhatsApp sent you, it was for me.",
+      "Hello, you received my verification code by error. Can you share it with me quickly?"
+    ],
+    "free_data_link": [
+      "Free 20GB data for students, claim now at the link before midnight.",
+      "Get free internet bundles today only. Open the link to activate your 20GB.",
+      "Students: unlimited free data this week. Tap the link and register.",
+      "Claim your free data gift now, the offer ends tonight. Click here."
+    ],
+    "sextortion_threat": [
+      "I have your photos and I will share them unless you pay tonight.",
+      "Send money now or I post your pictures to your school group.",
+      "Pay 100,000 or everyone in your contacts will see your private photos."
+    ]
+  },
+  "unrelated": [
+    "Term two fees are due by 15 May. Pay at the bursar's office only.",
+    "Football practice is at 4pm tomorrow, bring your boots.",
+    "Your monthly bundle expires tomorrow. Dial *150# to renew.",
+    "Mum will be late from work, please warm the food.",
+    "The debate club meets in the library today.",
+    "Heavy rains expected in Kampala this afternoon."
+  ]
+}

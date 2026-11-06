@@ -8,7 +8,7 @@
     <div class="flex items-start justify-between gap-4 mb-6">
         <div>
             <h1 class="text-2xl font-bold leading-tight">{{ raw.source.name }}</h1>
-            <p class="text-on-surface-variant text-sm mt-1">Raw Content #{{ raw.pk }} - {{ raw.fetched_at|date:"M d, Y H:i" }}</p>
+            <p class="text-on-surface-variant text-sm mt-1">Raw Content #{{ raw.pk }} - {{ raw.fetched_at|date:"M d, Y H:i T" }}</p>
         </div>
         <span class="text-xs font-bold uppercase px-3 py-1 border whitespace-nowrap
             {% if raw.processed %}border-teal text-teal{% else %}border-on-surface-variant text-on-surface-variant{% endif %}">
@@ -28,7 +28,7 @@
         </div>
         <div>
             <div class="text-xs font-bold uppercase tracking-wider text-on-surface-variant mb-1">Fetched</div>
-            <div>{{ raw.fetched_at|date:"M d, Y H:i" }}</div>
+            <div>{{ raw.fetched_at|date:"M d, Y H:i T" }}</div>
         </div>
     </div>
 
@@ -86,7 +86,7 @@
             {% for c in raw.awareness_contents.all %}
             <a href="{% url 'panel_content_detail' c.pk %}" class="text-teal font-semibold hover:underline">#{{ c.pk }} {{ c.title|truncatechars:40 }}</a>{% if not forloop.last %}, {% endif %}
             {% endfor %}
-            &mdash; Re-transforming will create a new entry using the current engagement type and summary.
+            Re-transforming will create a new entry using the current engagement type and summary.
             {% endif %}
         </div>
         {% else %}

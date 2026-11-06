@@ -220,12 +220,13 @@
                     </svg>
                 </span>
             </button>
+            <a href="{% url 'account_security' %}" class="w-full bg-white text-on-surface py-2.5 font-semibold border border-on-surface hover:bg-surface transition-colors text-sm flex items-center justify-center">Password and sign-in</a>
             <button onclick="closeProfileModal()" class="w-full bg-white text-on-surface py-2.5 font-semibold border border-on-surface hover:bg-surface transition-colors text-sm">Cancel</button>
             <button onclick="handleLogout()" class="w-full bg-white text-on-surface py-2.5 font-semibold border border-on-surface hover:bg-surface transition-colors text-sm">Logout</button>
         </div>
         <div class="mt-6 pt-6 border-t border-outline">
             <strong class="text-error text-sm">Danger Zone</strong>
-            <p class="text-sm text-on-surface-variant mt-2 mb-3">Deactivate your account. Your organisational records will be retained.</p>
+            <p class="text-sm text-on-surface-variant mt-2 mb-3">Deactivate your account. You will no longer be able to sign in.</p>
             <button onclick="handleDeleteAccount()" class="w-full text-white py-2.5 font-semibold border-2 hover:opacity-90 transition-opacity text-sm" style="background-color:#ba1a1a;border-color:#ba1a1a;">
                 Deactivate Account
             </button>
@@ -268,6 +269,8 @@
 /* ══════════════════════════════════════════════════════════════════════
    DARK MODE: applied when <html class="dark">
 ══════════════════════════════════════════════════════════════════════ */
+/* Active (filled) tabs and buttons keep white text on hover in both themes */
+.bg-teal.hover\:text-teal:hover, .bg-primary.hover\:text-teal:hover { color: #fff !important; }
 html.dark { color-scheme: dark; }
 html.dark body { background-color: #0d1615; }
 html.dark .bg-white { background-color: #1a2423 !important; }
@@ -287,8 +290,17 @@ html.dark .border-error { border-color: #ffb4ab !important; }
 html.dark .divide-outline > * { border-color: #2b3e3c !important; }
 html.dark .hover\:border-teal:hover { border-color: #4db8aa !important; }
 html.dark .hover\:text-teal:hover { color: #4db8aa !important; }
-html.dark .hover\:bg-surface:hover { background-color: #1a2423 !important; }
-html.dark .hover\:bg-primary:hover { background-color: #002724 !important; }
+html.dark .hover\:bg-surface:hover { background-color: #22302f !important; }
+html.dark .hover\:bg-primary:hover { background-color: #003a35 !important; }
+/* No white flashes in dark mode: light hover fills become a soft teal tint */
+html.dark .hover\:bg-white:hover { background-color: rgba(126,207,197,0.14) !important; border-color: #7ecfc5 !important; }
+html.dark .hover\:bg-white:hover.hover\:text-primary,
+html.dark .hover\:bg-white:hover .hover\:text-primary { color: #e6f4f1 !important; }
+html.dark .hover\:bg-primary-container:hover { background-color: #00463f !important; }
+html.dark .hover\:bg-teal:hover { background-color: #2f8f84 !important; }
+html.dark .hover\:bg-error:hover { background-color: #b3261e !important; }
+html.dark .hover\:text-on-surface:hover { color: #f1f6f5 !important; }
+html.dark .hover\:text-white:hover { color: #f1f6f5 !important; }
 html.dark .group:hover .group-hover\:text-teal { color: #4db8aa !important; }
 html.dark a.hover\:text-teal:hover { color: #4db8aa !important; }
 /* inputs & selects */

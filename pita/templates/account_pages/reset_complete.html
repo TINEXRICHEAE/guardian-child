@@ -1,0 +1,7 @@
+{% extends "account_pages/_card.html" %}
+{% block title %}Password saved{% endblock %}
+{% block card %}
+<h1 class="text-2xl font-bold mb-2">Password saved</h1>
+<p class="text-sm text-on-surface-variant mb-6">You're signed in. From now on you can sign in with your email and this password{% if user.is_authenticated %}, and with Google if it's connected{% endif %}.</p>
+<a href="{% if user.is_authenticated %}{% url 'account_security' %}{% else %}{% url 'login_user' %}{% endif %}" class="inline-block bg-primary text-white px-5 py-2 font-semibold hover:bg-primary-container">{% if user.is_authenticated %}Password and sign-in{% else %}Sign in{% endif %}</a>
+{% endblock %}

@@ -1,0 +1,11 @@
+{% extends "account_pages/_card.html" %}
+{% block title %}Reset your password{% endblock %}
+{% block card %}
+<h1 class="text-2xl font-bold mb-2">Reset your password</h1>
+<p class="text-sm text-on-surface-variant mb-6">Enter the email you use for Guardian. We'll send a link to choose a new password. This also works if you've only used Google so far and want to add a password.</p>
+<form method="post" class="space-y-4" novalidate data-page-loader>{% csrf_token %}
+    {% include "account_pages/_fields.html" %}
+    <button class="w-full bg-primary text-white px-5 py-3 font-semibold hover:bg-primary-container">Send reset link</button>
+</form>
+<p class="text-sm mt-6"><a href="{% url 'login_user' %}" class="text-teal hover:underline">&larr; Back to sign in</a></p>
+{% endblock %}

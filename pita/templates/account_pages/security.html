@@ -1,0 +1,50 @@
+{% extends "base.html" %}{% load socialaccount %}
+{% block title %}Password and sign-in{% endblock %}
+{% block content %}
+<div class="max-w-2xl mx-auto px-4 py-8 md:py-12">
+    <h1 class="text-2xl md:text-3xl font-bold mb-1">Password and sign-in</h1>
+    <p class="text-on-surface-variant mb-6">Choose how you sign in to Guardian. You can use Google, a password, or both.</p>
+
+    {% if link_session %}
+    <div class="bg-white border border-outline p-6 text-sm">You opened Guardian from a practice link. To change how you sign in, sign out and sign in with your own account first.</div>
+    {% else %}
+    <section class="bg-white border border-outline mb-6">
+        <h2 class="text-xs font-bold uppercase tracking-wider text-on-surface-variant p-5 pb-0">Ways to sign in</h2>
+        <div class="divide-y divide-outline">
+            <div class="p-5 flex flex-wrap items-center justify-between gap-3">
+                <div>
+                    <div class="font-semibold">Email and password</div>
+                    <div class="text-sm text-on-surface-variant">{{ request.user.email }} · {% if has_password %}password set{% else %}no password yet{% endif %}</div>
+                </div>
+                <span class="text-xs px-2 py-1 border {% if has_password %}border-teal text-teal{% else %}border-outline text-on-surface-variant{% endif %}">{% if has_password %}On{% else %}Off{% endif %}</span>
+            </div>
+            <div class="p-5 flex flex-wrap items-center justify-between gap-3">
+                <div>
+                    <div class="font-semibold">Google</div>
+                    <div class="text-sm text-on-surface-variant">{% if google %}Connected{% if google_email %} as {{ google_email }}{% endif %}{% elif google_enabled %}Not connected{% else %}Not available on this server{% endif %}</div>
+                </div>
+                {% if google %}
+                <form method="post">{% csrf_token %}<input type="hidden" name="action" value="disconnect_google">
+                    <button class="text-sm px-4 py-2 font-semibold border border-on-surface hover:bg-surface" {% if not has_password %}disabled title="Add a password first"{% endif %}>Disconnect</button>
+                </form>
+                {% elif google_enabled %}
+                <a href="{% provider_login_url 'google' process='connect' next=request.path %}" class="text-sm px-4 py-2 font-semibold border-2 border-teal text-teal hover:bg-teal hover:text-white">Connect Google</a>
+                {% endif %}
+            </div>
+        </div>
+        {% if google and not has_password %}<p class="text-xs text-on-surface-variant px-5 pb-5">You sign in with Google only. Add a password below to also sign in with your email, for example on a shared computer without your Google account.</p>{% endif %}
+    </section>
+
+    <section class="bg-white border border-outline p-5 md:p-6">
+        <h2 class="text-lg font-semibold mb-1">{% if has_password %}Change password{% else %}Add a password{% endif %}</h2>
+        <p class="text-sm text-on-surface-variant mb-4">{% if has_password %}You will stay signed in here. We will email you to confirm the change.{% else %}Your Google sign-in keeps working. We will email you to confirm.{% endif %}</p>
+        <form method="post" class="space-y-4" novalidate>{% csrf_token %}
+            <input type="hidden" name="action" value="password">
+            {% include "account_pages/_fields.html" %}
+            <button class="bg-primary text-white px-5 py-2 text-sm font-semibold hover:bg-primary-container">{% if has_password %}Change password{% else %}Add password{% endif %}</button>
+        </form>
+        {% if has_password %}<p class="text-xs text-on-surface-variant mt-4">Forgot your current password? <a href="{% url 'password_reset' %}" class="text-teal hover:underline">Reset it by email</a>.</p>{% endif %}
+    </section>
+    {% endif %}
+</div>
+{% endblock %}

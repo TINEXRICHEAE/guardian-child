@@ -1,6 +1,6 @@
 from django.conf import settings
 from django.urls import path, include
-from . import views
+from . import account_views, views
 
 urlpatterns = [
     # Home (always at root)
@@ -10,6 +10,11 @@ urlpatterns = [
     path(f'{settings.AWARENESS_AUTH_PREFIX}/', include([
         path('register/', views.register_user, name='register_user'),
         path('login/', views.login_user, name='login_user'),
+        path('security/', account_views.security, name='account_security'),
+        path('password/reset/', account_views.PasswordReset.as_view(), name='password_reset'),
+        path('password/reset/sent/', account_views.PasswordResetDone.as_view(), name='password_reset_done'),
+        path('password/reset/<uidb64>/<token>/', account_views.PasswordResetConfirm.as_view(), name='password_reset_confirm'),
+        path('password/reset/complete/', account_views.PasswordResetComplete.as_view(), name='password_reset_complete'),
         path('logout/', views.logout_user, name='logout_user'),
         path('check/', views.check_auth, name='check_auth'),
         path('profile/', views.user_profile, name='user_profile'),

@@ -25,7 +25,7 @@
     <div>
         <a href="{% url 'panel_analytics' %}" class="text-sm text-teal font-semibold hover:underline">&larr; Analytics</a>
         <h1 class="text-2xl font-bold mt-1">Consolidated Security Awareness Report</h1>
-        <p class="text-sm text-on-surface-variant">{{ report_date|date:"F j, Y - H:i" }}</p>
+        <p class="text-sm text-on-surface-variant">{{ report_date|date:"F j, Y - H:i T" }}</p>
     </div>
     <button onclick="window.print()" class="bg-teal text-white px-5 py-2 font-semibold border-2 border-teal hover:bg-primary transition-colors text-sm">
         Print / Export PDF
@@ -38,7 +38,7 @@
     <div class="text-base font-semibold tracking-widest uppercase text-on-surface-variant mb-8">Cybersecurity Awareness Platform</div>
     <div class="border-t-2 border-b-2 border-on-surface py-6 my-6 mx-auto" style="max-width:480px;">
         <div class="text-2xl font-bold mb-1">Security Awareness Report</div>
-        <div class="text-sm text-on-surface-variant">Generated {{ report_date|date:"F j, Y" }} at {{ report_date|date:"H:i" }}</div>
+        <div class="text-sm text-on-surface-variant">Generated {{ report_date|date:"F j, Y" }} at {{ report_date|date:"H:i T" }}</div>
     </div>
     <div class="text-sm text-on-surface-variant mt-8">Prepared by: Administration</div>
     <div class="text-xs text-on-surface-variant mt-2">CONFIDENTIAL - FOR INTERNAL USE ONLY</div>
@@ -228,7 +228,7 @@
                     </td>
                     <td class="px-4 py-2 text-center {% if c.failed_count > 0 %}text-error font-semibold{% else %}text-on-surface-variant{% endif %}" data-label="Failed">{{ c.failed_count }}</td>
                     <td class="px-4 py-2 text-xs text-on-surface-variant" data-label="Sent At">
-                        {% if c.sent_at %}{{ c.sent_at|date:"M d, Y H:i" }}{% else %}-{% endif %}
+                        {% if c.sent_at %}{{ c.sent_at|date:"M d, Y H:i T" }}{% else %}-{% endif %}
                     </td>
                 </tr>
                 {% empty %}
@@ -438,7 +438,7 @@
                         {% else %}<span class="text-xs border border-error text-error px-1.5 py-0.5">Poor</span>
                         {% endif %}
                     </td>
-                    <td class="px-4 py-2 text-xs text-on-surface-variant" data-label="Completed">{{ a.completed_at|date:"M d, Y H:i" }}</td>
+                    <td class="px-4 py-2 text-xs text-on-surface-variant" data-label="Completed">{{ a.completed_at|date:"M d, Y H:i T" }}</td>
                 </tr>
                 {% empty %}
                 <tr><td colspan="8" class="px-4 py-8 text-center text-on-surface-variant">No quiz attempts recorded.</td></tr>
@@ -451,7 +451,7 @@
 <!-- FOOTER -->
 <div class="mt-12 pt-4 border-t border-outline text-xs text-on-surface-variant flex justify-between avoid-break">
     <span>Guardian - Cybersecurity Awareness Platform</span>
-    <span>Report generated: {{ report_date|date:"F j, Y H:i" }}</span>
+    <span>Report generated: {{ report_date|date:"F j, Y H:i T" }}</span>
     <span>CONFIDENTIAL</span>
 </div>
 {% endblock %}

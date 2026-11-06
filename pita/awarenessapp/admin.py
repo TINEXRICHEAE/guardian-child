@@ -193,7 +193,7 @@ class UsersAdmin(GuardedModelAdmin, UserAdmin):
     status_display.short_description = 'Status'
 
     def date_joined_display(self, obj):
-        return obj.created_at.strftime('%b %d, %Y')
+        return timezone.localtime(obj.created_at).strftime('%b %d, %Y')
     date_joined_display.short_description = 'Date Joined'
 
     def save_model(self, request, obj, form, change):

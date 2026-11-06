@@ -1,0 +1,122 @@
+{% extends "panel/base_panel.html" %}
+{% load guardian_filters %}
+{% block title %}{{ meta.title }} · evaluation #{{ run.pk }}{% endblock %}
+
+{% block panel_content %}
+<a href="{% url 'evaluation_page' %}" class="text-sm text-teal hover:underline">&larr; Model evaluation</a>
+<h1 class="text-3xl font-bold mt-2">{{ meta.title|default:run.evaluation }}</h1>
+<p class="text-sm text-on-surface-variant mt-1 mb-6">
+    Run #{{ run.pk }} · {{ run.started_at|date:"j M Y, H:i T" }}{% if run.duration_s is not None %} · took {{ run.duration_s }} s{% endif %}
+    · dataset {{ run.dataset }}
+    {% if run.backend %}· answered by <span class="font-mono">{{ run.backend }}</span>{% endif %}
+    {% if run.model_id %} (<span class="font-mono">{{ run.model_id }}</span>){% endif %}
+    {% if run.host %} on {{ run.host }}{% endif %}{% if run.gpu %}, {{ run.gpu }}{% endif %}{% if run.mode %} · mode {{ run.mode }}{% endif %}
+</p>
+
+{% if run.status != 'done' %}
+<div class="border {% if run.status == 'running' %}border-teal bg-teal/5{% else %}border-error bg-error/5{% endif %} p-5 mb-6">
+    <div class="font-semibold">{{ run.get_status_display }}</div>
+    <p class="text-sm mt-1">{% if run.status == 'running' %}{{ run.progress|default:"Working..." }}{% else %}{{ run.error }}{% endif %}</p>
+</div>
+{% else %}
+
+<div class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-2 mb-6">
+    {% for label, value in headline %}
+    <div class="bg-white border border-outline p-3"><div class="text-xl font-bold text-teal">{{ value }}</div><div class="text-xs text-on-surface-variant">{{ label }}</div></div>
+    {% endfor %}
+</div>
+
+{% if run.details.note %}<p class="text-sm text-on-surface-variant mb-6 max-w-4xl">{{ run.details.note }}</p>{% endif %}
+
+<div class="grid lg:grid-cols-2 gap-6">
+    <section class="bg-white border border-outline">
+        <h2 class="font-semibold p-4 border-b border-outline">All metrics</h2>
+        <div class="overflow-x-auto"><table class="w-full text-sm">
+            {% for k, v in metrics_rows %}
+            <tr class="border-b border-outline"><td class="p-2 pl-4 font-mono text-xs">{{ k }}</td><td class="p-2 text-right pr-4">{{ v }}</td></tr>
+            {% endfor %}
+        </table></div>
+    </section>
+
+    {% if run.details.sweep %}
+    <section class="bg-white border border-outline">
+        <h2 class="font-semibold p-4 border-b border-outline">Threshold sweep</h2>
+        <div class="overflow-x-auto"><table class="w-full text-sm">
+            <thead><tr class="text-left text-xs uppercase tracking-wider text-on-surface-variant border-b border-outline">
+                <th class="p-2 pl-4">Threshold</th><th class="p-2">Precision</th><th class="p-2">Recall</th><th class="p-2">F1</th><th class="p-2">False alarms</th><th class="p-2">Missed</th></tr></thead>
+            {% for r in run.details.sweep %}
+            <tr class="border-b border-outline"><td class="p-2 pl-4">{{ r.threshold }}</td><td class="p-2">{{ r.precision }}</td><td class="p-2">{{ r.recall }}</td><td class="p-2 font-semibold">{{ r.f1 }}</td><td class="p-2">{{ r.fp }}</td><td class="p-2">{{ r.fn }}</td></tr>
+            {% endfor %}
+        </table></div>
+    </section>
+    {% endif %}
+
+    {% if run.details.by_category %}
+    <section class="bg-white border border-outline">
+        <h2 class="font-semibold p-4 border-b border-outline">By category</h2>
+        <div class="overflow-x-auto"><table class="w-full text-sm">
+            <thead><tr class="text-left text-xs uppercase tracking-wider text-on-surface-variant border-b border-outline">
+                <th class="p-2 pl-4">Category</th><th class="p-2">Messages</th><th class="p-2">Accuracy</th><th class="p-2">Missed</th><th class="p-2">False alarms</th></tr></thead>
+            {% for name, g in run.details.by_category.items %}
+            <tr class="border-b border-outline"><td class="p-2 pl-4">{{ name }}</td><td class="p-2">{{ g.n }}</td><td class="p-2">{{ g.accuracy }}</td><td class="p-2">{{ g.missed }}</td><td class="p-2">{{ g.false_alarm }}</td></tr>
+            {% endfor %}
+        </table></div>
+    </section>
+    {% endif %}
+
+    {% if run.details.risk_levels %}
+    <section class="bg-white border border-outline p-4">
+        <h2 class="font-semibold mb-3">Results given</h2>
+        <ul class="text-sm space-y-1">{% for k, v in run.details.risk_levels.items %}<li class="flex justify-between"><span>{{ k }}</span><span class="font-semibold">{{ v }}</span></li>{% endfor %}</ul>
+        {% if run.details.by_language %}<p class="text-xs text-on-surface-variant mt-3">Languages in this set: {% for k, g in run.details.by_language.items %}{{ k }} ({{ g.n }}){% if not forloop.last %}, {% endif %}{% endfor %}. Luganda and Runyankole messages are not in the set yet.</p>{% endif %}
+    </section>
+    {% endif %}
+</div>
+
+{% if run.details.failures %}
+<section class="bg-white border border-outline mt-6">
+    <h2 class="font-semibold p-4 border-b border-outline">Mistakes ({{ run.details.failures|length }} shown)</h2>
+    <div class="divide-y divide-outline">
+        {% for f in run.details.failures %}
+        <div class="p-4 text-sm">
+            <div class="text-xs font-bold uppercase tracking-wider {% if 'missed' in f.kind %}text-error{% else %}text-amber-800{% endif %}">{{ f.kind }} · {{ f.category }}{% if f.score is not None %} · score {{ f.score|floatformat:3 }}{% endif %}{% if f.risk %} · result {{ f.risk }}{% endif %}</div>
+            <div class="mt-1 break-words">{{ f.text }}</div>
+        </div>
+        {% endfor %}
+    </div>
+</section>
+{% endif %}
+
+{% if run.details.cases %}
+<section class="bg-white border border-outline mt-6">
+    <h2 class="font-semibold p-4 border-b border-outline">Cases</h2>
+    <div class="divide-y divide-outline">
+        {% for c in run.details.cases %}
+        <div class="p-4 text-sm space-y-2">
+            {% if c.chat %}
+            <div class="font-semibold">Chat: {{ c.chat }} <span class="text-on-surface-variant font-normal">· {{ c.latency_ms }} ms{% if c.child_text_analysed %} · <span class="text-error">{{ c.child_text_analysed }} child message(s) would be analysed</span>{% endif %}</span></div>
+            <div class="overflow-x-auto"><table class="w-full text-xs">
+                <thead><tr class="text-left text-on-surface-variant"><th class="p-1">Sent by</th><th class="p-1">Real text</th><th class="p-1">Read as</th><th class="p-1">Role read</th><th class="p-1">Similarity</th></tr></thead>
+                {% for m in c.messages %}<tr class="border-t border-outline"><td class="p-1">{{ m.truth_role }}</td><td class="p-1">{{ m.text }}</td><td class="p-1">{{ m.read_as }}</td><td class="p-1 {% if m.read_role != m.truth_role %}text-error{% endif %}">{{ m.read_role }}</td><td class="p-1">{{ m.similarity }}</td></tr>{% endfor %}
+            </table></div>
+            {% elif c.topic %}
+            <div class="font-semibold">Topic: {{ c.topic }} <span class="text-on-surface-variant font-normal">· {{ c.latency_ms }} ms</span></div>
+            {% if c.child_title %}<div>Child lesson: <em>{{ c.child_title }}</em> · practice subject: <em>{{ c.practice_subject }}</em></div>{% endif %}
+            {% if c.error %}<div class="text-error">{{ c.error }}</div>{% endif %}
+            {% for w in c.warnings %}<div class="text-amber-800">Safety note: {{ w }}</div>{% endfor %}
+            {% else %}
+            <div class="font-semibold">{{ c.risk }} · {{ c.audience }} · age {{ c.age_band }} <span class="text-on-surface-variant font-normal">· grade {{ c.grade }} · {{ c.latency_ms }} ms</span></div>
+            <div class="text-on-surface-variant">Signals: {{ c.signals|join:"; " }}</div>
+            <div>{{ c.explanation }}</div>
+            {% if c.actions %}<ul class="list-disc list-inside">{% for a in c.actions %}<li>{{ a }}</li>{% endfor %}</ul>{% endif %}
+            {% endif %}
+            {% if c.checks %}
+            <div class="flex flex-wrap gap-2">{% for k, ok in c.checks.items %}<span class="text-xs px-2 py-0.5 border {% if ok %}border-teal text-teal{% else %}border-error text-error{% endif %}">{% if ok %}pass{% else %}fail{% endif %}: {{ k }}</span>{% endfor %}</div>
+            {% endif %}
+        </div>
+        {% endfor %}
+    </div>
+</section>
+{% endif %}
+{% endif %}
+{% endblock %}

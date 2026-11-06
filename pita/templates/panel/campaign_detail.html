@@ -1,4 +1,4 @@
-{% extends "panel/base_panel.html" %}
+{% extends "panel/base_panel.html" %}{% load app_ui %}
 {% block title %}Campaign: {{ campaign.subject }}{% endblock %}
 
 {% block panel_content %}
@@ -25,32 +25,39 @@
             <div class="text-xs font-bold uppercase tracking-wider text-on-surface-variant mb-1">Target</div>
             <div>
                 {% if campaign.target_all_staff %}All parents{% else %}Custom{% endif %}
-                &mdash; <strong>{{ target_count }}</strong> recipient{{ target_count|pluralize }}
+                · <strong>{{ target_count }}</strong> recipient{{ target_count|pluralize }}
             </div>
         </div>
         <div>
             <div class="text-xs font-bold uppercase tracking-wider text-on-surface-variant mb-1">Created</div>
-            <div>{{ campaign.created_at|date:"M d, Y H:i" }}</div>
+            <div>{{ campaign.created_at|date:"M d, Y H:i T" }}</div>
         </div>
         <div>
             <div class="text-xs font-bold uppercase tracking-wider text-on-surface-variant mb-1">Sent At</div>
-            <div>{% if campaign.sent_at %}{{ campaign.sent_at|date:"M d, Y H:i" }}{% else %}-{% endif %}</div>
+            <div>{% if campaign.sent_at %}{{ campaign.sent_at|date:"M d, Y H:i T" }}{% else %}-{% endif %}</div>
         </div>
     </div>
 
-    <!-- Send action -->
+    {% include "panel/_child_version.html" %}
+
+    <!-- Send action: the parents' email and the child version go out together -->
     {% if campaign.status != 'sent' %}
-    <div class="bg-surface-container border border-outline p-4 mb-8 flex items-center justify-between">
+    <div class="bg-surface-container border border-outline p-4 mb-8 flex flex-wrap items-center justify-between gap-4">
         <div>
-            <div class="font-semibold text-sm">Ready to send to {{ target_count }} recipient{{ target_count|pluralize }}?</div>
-            <div class="text-xs text-on-surface-variant mt-0.5">This action cannot be undone.</div>
+            <div class="font-semibold text-sm">Ready to send to {{ target_count }} parent{{ target_count|pluralize }}?</div>
+            <div class="text-xs text-on-surface-variant mt-0.5">{% if pack and not pack.is_published %}Sending also publishes the child version above. {% endif %}This action cannot be undone.</div>
         </div>
-        <form data-page-loader method="post" action="{% url 'panel_send_campaign' campaign.pk %}"
-              data-confirm="Send this campaign to {{ target_count }} recipient{{ target_count|pluralize }}? This action cannot be undone."
+        <form data-page-loader method="post" action="{% url 'panel_send_campaign' campaign.pk %}" class="flex flex-wrap items-center gap-3"
+              data-confirm="Send this campaign to {{ target_count }} parent{{ target_count|pluralize }}{% if pack and not pack.is_published %} and publish the child version{% endif %}? This action cannot be undone."
               data-confirm-btn="Send Campaign">
             {% csrf_token %}
+            {% if not pack %}
+            <label class="text-sm flex items-center gap-2"><input type="checkbox" name="without_child" value="1"> Send without a child version</label>
+            {% elif not pack.is_published and pack.safety_warnings %}
+            <label class="text-sm flex items-center gap-2"><input type="checkbox" name="publish_override" value="1"> I checked the child version's safety notes</label>
+            {% endif %}
             <button type="submit" class="bg-teal text-white px-6 py-2 font-semibold border-2 border-teal hover:bg-primary transition-colors text-sm">
-                Send Campaign
+                {% if pack and not pack.is_published %}Send campaign and child version{% else %}Send Campaign{% endif %}
             </button>
         </form>
     </div>
@@ -88,7 +95,7 @@
     <div class="mb-10 pt-8 border-t border-outline">
         <div class="flex items-center justify-between mb-4">
             <h2 class="font-semibold text-sm text-on-surface-variant uppercase tracking-wider">
-                Target Recipients &mdash;
+                Target Recipients ·
                 <span id="selectedCount" class="text-teal">{{ target_count }}</span> selected
             </h2>
         </div>
@@ -276,7 +283,7 @@
                             </span>
                         </td>
                         <td class="px-4 py-2 text-xs text-on-surface-variant" data-label="Sent At">
-                            {% if d.sent_at %}{{ d.sent_at|date:"M d, Y H:i" }}{% else %}-{% endif %}
+                            {% if d.sent_at %}{{ d.sent_at|date:"M d, Y H:i T" }}{% else %}-{% endif %}
                         </td>
                     </tr>
                     {% endfor %}

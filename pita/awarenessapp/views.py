@@ -2,6 +2,7 @@ import logging
 import json
 import os
 from django.shortcuts import render, redirect, get_object_or_404
+from django.urls import reverse
 from django.http import JsonResponse
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
@@ -99,7 +100,7 @@ def register_user(request):
         if password1 != password2:
             return JsonResponse({'error': 'Passwords do not match'}, status=400)
         if Users.objects.filter(email=email).exists():
-            return JsonResponse({'error': 'Email already registered'}, status=400)
+            return JsonResponse({'error': 'This email already has a Guardian account. Sign in instead (with Google if you used it before), or choose "Forgot password?" on the sign-in page.'}, status=400)
 
         user = Users.objects.create_user(email=email, password=password1, role=ROLE_PARENT)
         user.backend = 'awarenessapp.backends.EmailBackend'
@@ -128,7 +129,7 @@ def login_user(request):
             if not url_has_allowed_host_and_scheme(next_url, allowed_hosts={request.get_host()}):
                 next_url = role_home_url(user)
             return JsonResponse({'message': 'Login successful', 'user_id': user.id, 'email': user.email, 'role': user.role, 'next': next_url}, status=200)
-        return JsonResponse({'error': 'Invalid email or password'}, status=401)
+        return JsonResponse({'error': 'Invalid email or password. If you signed up with Google, use the Google button, or choose "Forgot password?" to add a password.'}, status=401)
 
     next_url = request.GET.get('next', '')
     return render(request, 'login.html', {'next': next_url, 'google_login_enabled': _google_login_enabled()})
@@ -255,8 +256,35 @@ def get_csrf_token(request):
 # Staff views
 # ──────────────────────────────────────────────
 
+def _family_redirect(request, content=None, quiz=None):
+    """The old library is the analysts' view. Parents and children get the same topics in their own spaces,
+    with their navigation and (for parents) sending to their children."""
+    role = getattr(request.user, 'role', None)
+    if role == ROLE_PARENT:
+        if content is None and quiz is not None:
+            content = quiz.content
+            if content is None:
+                from phishsim.models import TopicPack
+                pack = TopicPack.objects.filter(child_quiz=quiz).select_related('content').first()
+                content = pack.content if pack else None
+        if content is not None and content.status in (AwarenessContent.STATUS_APPROVED, AwarenessContent.STATUS_SENT):
+            return redirect(reverse('parent_news_detail', args=[content.pk]) + ('#quiz' if quiz else ''))
+        return redirect('parent_news')
+    if role == ROLE_CHILD:
+        from phishsim.models import TopicPack
+        pack = None
+        if content is not None:
+            pack = TopicPack.objects.filter(content=content, status=TopicPack.STATUS_PUBLISHED).first()
+        elif quiz is not None:
+            pack = TopicPack.objects.filter(child_quiz=quiz, status=TopicPack.STATUS_PUBLISHED).first()
+        return redirect(reverse('lesson', args=[pack.pk])) if pack else redirect('child_lessons')
+    return None
+
+
 @login_required(login_url='login_user')
 def library(request):
+    if (r := _family_redirect(request)):
+        return r
     threat_filter = request.GET.get('threat', '')
     search = request.GET.get('q', '').strip()
 
@@ -290,7 +318,9 @@ def library(request):
 
 @login_required(login_url='login_user')
 def content_view(request, pk):
-    content = get_object_or_404(AwarenessContent, pk=pk, status=AwarenessContent.STATUS_APPROVED)
+    content = get_object_or_404(AwarenessContent, pk=pk, status__in=(AwarenessContent.STATUS_APPROVED, AwarenessContent.STATUS_SENT))
+    if (r := _family_redirect(request, content=content)):
+        return r
 
     # Record interaction
     interaction, _ = UserContentInteraction.objects.get_or_create(
@@ -316,6 +346,8 @@ def content_view(request, pk):
 
 @login_required(login_url='login_user')
 def quizzes(request):
+    if (r := _family_redirect(request)):
+        return r
     quiz_list = Quiz.objects.filter(is_active=True).select_related('content').order_by('-created_at')
     attempt_counts = {
         row['quiz_id']: row['cnt']
@@ -337,6 +369,8 @@ MAX_QUIZ_ATTEMPTS = 2
 @login_required(login_url='login_user')
 def take_quiz(request, pk):
     quiz = get_object_or_404(Quiz, pk=pk, is_active=True)
+    if (r := _family_redirect(request, quiz=quiz)):
+        return r
     questions = quiz.questions.prefetch_related('choices').all()
 
     prior_attempts = list(
@@ -400,6 +434,8 @@ def take_quiz(request, pk):
 @login_required(login_url='login_user')
 def quiz_result(request, attempt_pk):
     attempt = get_object_or_404(QuizAttempt, pk=attempt_pk, user=request.user)
+    if (r := _family_redirect(request, quiz=attempt.quiz)):
+        return r
     attempts_taken = QuizAttempt.objects.filter(user=request.user, quiz=attempt.quiz).count()
     ctx = {
         'attempt': attempt,
@@ -411,6 +447,8 @@ def quiz_result(request, attempt_pk):
 @login_required(login_url='login_user')
 def quiz_review(request, attempt_pk):
     attempt = get_object_or_404(QuizAttempt, pk=attempt_pk, user=request.user)
+    if (r := _family_redirect(request, quiz=attempt.quiz)):
+        return r
     answers = (
         attempt.question_answers
         .select_related('question', 'selected_choice')
@@ -428,6 +466,8 @@ def quiz_review(request, attempt_pk):
 
 @login_required(login_url='login_user')
 def progress(request):
+    if (r := _family_redirect(request)):
+        return r
     interactions = UserContentInteraction.objects.filter(user=request.user).select_related('content')
     total_viewed = interactions.filter(viewed=True).count()
 
@@ -709,7 +749,13 @@ def panel_approve_content(request, pk):
     content.reviewed_by = request.user
     content.reviewed_at = timezone.now()
     content.save(update_fields=['status', 'reviewed_by', 'reviewed_at'])
-    messages.success(request, f'"{content.title}" approved.')
+    from phishsim.models import TopicPack
+    from phishsim.services import autogen
+    if not TopicPack.objects.filter(content=content).exists() and autogen.start(content, request.user):
+        messages.success(request, f'"{content.title}" approved. Guardian is preparing the parent and child versions '
+                                  f'now (about a minute); review and publish them under Family versions.')
+    else:
+        messages.success(request, f'"{content.title}" approved.')
     return redirect('panel_content_list')
 
 
@@ -791,11 +837,15 @@ def panel_create_campaign(request, content_pk):
             campaign.body_html = build_email_body(campaign)
             campaign.save(update_fields=['body_html'])
 
-        messages.success(request, f'Campaign "{subject}" created as draft.')
+        from phishsim.models import TopicPack
+        from phishsim.services import autogen
+        if not TopicPack.objects.filter(content=content).exists():
+            autogen.start(content, request.user)      # the child version is prepared alongside the parents' email
+        messages.success(request, f'Campaign "{subject}" created as draft. Review the child version on this page too.')
         return redirect('panel_campaign_detail', pk=campaign.pk)
 
     # Pre-fill subject
-    default_subject = f"[Guardian] Security Awareness: {content.title}"
+    default_subject = f"[Guardian] Family safety: {content.title}"
     ctx = {'content': content, 'default_subject': default_subject}
     return render(request, 'panel/create_campaign.html', ctx)
 
@@ -829,7 +879,14 @@ def panel_campaign_detail(request, pk):
     else:
         target_count = campaign.target_recipients.filter(is_active=True).count() + extra_count
 
+    from phishsim.models import ChildVersionRequest, TopicPack
+    from phishsim.services import autogen
+    pack = TopicPack.objects.filter(content=campaign.content).select_related('child_quiz').first()
     ctx = {
+        'pack': pack,
+        'auto': autogen.status(campaign.content_id),
+        'requests': list(ChildVersionRequest.objects.filter(content=campaign.content).select_related('parent')),
+        'child_questions': list(pack.child_quiz.questions.all()) if pack and pack.child_quiz else [],
         'campaign': campaign,
         'deliveries': deliveries,
         'all_staff': all_staff,
@@ -903,11 +960,29 @@ def panel_send_campaign(request, pk):
         messages.warning(request, 'Campaign already sent.')
         return redirect('panel_campaign_detail', pk=pk)
 
+    # The parents' email goes out together with the child lesson and practice message (plan.md §8.0)
+    from phishsim.models import TopicPack
+    from phishsim.services import autogen, versions
+    pack = TopicPack.objects.filter(content=campaign.content).first()
+    if pack is None and not request.POST.get('without_child'):
+        if (autogen.status(campaign.content_id) or {}).get('state') != 'running':
+            autogen.start(campaign.content, request.user)
+        messages.error(request, 'The child version is not ready yet, so nothing was sent. Guardian AI is preparing it; '
+                                'review it below, then send. (Or tick "Send without a child version".)')
+        return redirect(reverse('panel_campaign_detail', args=[pk]) + '#child-version')
+    if pack and not pack.is_published and pack.safety_warnings and not request.POST.get('publish_override'):
+        messages.error(request, 'The child version has safety notes. Fix them (or tick that you checked them), then send.')
+        return redirect(reverse('panel_campaign_detail', args=[pk]) + '#child-version')
+
     result = send_campaign(campaign)
     if 'error' in result:
         messages.error(request, result['error'])
-    else:
-        messages.success(request, f"Campaign sent: {result['sent']} delivered, {result['failed']} failed.")
+        return redirect('panel_campaign_detail', pk=pk)
+    messages.success(request, f"Campaign sent: {result['sent']} delivered, {result['failed']} failed.")
+    if pack and not pack.is_published:
+        sent = versions.publish(pack)
+        messages.success(request, 'Child lesson and practice message published with the campaign'
+                                  + (f'; {sent} automatic practice email(s) sent to children.' if sent else '.'))
     return redirect('panel_campaign_detail', pk=pk)
 
 

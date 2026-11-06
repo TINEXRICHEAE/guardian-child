@@ -215,7 +215,7 @@
                     </td>
                     <td class="px-4 py-2 text-center text-xs font-semibold
                         {% if a.attempt_delta is not None %}{% if a.attempt_delta > 0 %}text-teal{% elif a.attempt_delta < 0 %}text-error{% else %}text-on-surface-variant{% endif %}{% else %}text-on-surface-variant{% endif %}" data-label="Change">
-                        {% if a.attempt_delta is not None %}{% if a.attempt_delta > 0 %}+{% endif %}{{ a.attempt_delta }}%{% else %}&mdash;{% endif %}
+                        {% if a.attempt_delta is not None %}{% if a.attempt_delta > 0 %}+{% endif %}{{ a.attempt_delta }}%{% else %}-{% endif %}
                     </td>
                     <td class="px-4 py-2 text-center" data-label="Rating">
                         {% if a.percentage >= 80 %}<span class="text-xs border border-teal text-teal px-1.5 py-0.5">Excellent</span>
@@ -223,7 +223,7 @@
                         {% else %}<span class="text-xs border border-error text-error px-1.5 py-0.5">Poor</span>
                         {% endif %}
                     </td>
-                    <td class="px-4 py-2 text-xs text-on-surface-variant" data-label="Date">{{ a.completed_at|date:"M d, Y H:i" }}</td>
+                    <td class="px-4 py-2 text-xs text-on-surface-variant" data-label="Date">{{ a.completed_at|date:"M d, Y H:i T" }}</td>
                 </tr>
                 {% empty %}
                 <tr><td colspan="8" class="px-4 py-8 text-center text-on-surface-variant">No quiz attempts yet.</td></tr>

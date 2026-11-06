@@ -34,7 +34,7 @@ Return ONLY this JSON (all text in plain English):
  "practice": {{"sender_name": "a made-up sender name", "subject": "an email subject a child would want to open",
                "body": "a short, exciting fake message (3-5 sentences) that invites the child to tap {{link}}",
                "sms": "the same message as one SMS under 280 characters, including {{link}}",
-               "red_flags": [{{"label": "the warning sign", "excerpt": "the exact words from the body that show it"}}]}}
+               "red_flags": [{{"label": "a short name for the warning sign, e.g. Too good to be true", "excerpt": "the exact words from the body that show it"}}]}}
 }}
 
 Rules:
@@ -43,12 +43,18 @@ Rules:
   schools or any real brand), invent web addresses ending in .example, never ask for a PIN, password or code
   directly in the message, and never use threats, fear, violence, police, exams failing, family emergencies or
   anything sexual. Use rewards, prizes, free data, game credits, scholarships or "you are selected" style hooks.
-- Include {{link}} exactly once in "body" and once in "sms".
+- Write the placeholder {{link}} exactly once in "body" and once in "sms", where the web address would go. Do not
+  write any web address yourself: Guardian puts the real practice link in place of {{link}}.
+- The practice message must look like a real scam. Never say inside it that it is fake, a test or not real, and never
+  tell the reader not to click: the lesson they see after clicking explains that.
 - Start "body" with "Hi {{name}}," ({{name}} is replaced with each child's own name). Do not invent a name for the reader.
+- Use {{name}} and {{link}} ONLY in the practice "body" and "sms". The child lesson (title, story, points, action) is
+  written about a child in the story, so never put {{name}}, {{link}} or any other placeholder there.
 - Give 3 red flags whose excerpts appear word for word in "body".
 """
 
 _BANNED = re.compile(r'(?i)\b(police|arrest|kill|die|dead|naked|nude|sex|blackmail|threat|weapon|suicide|accident|kidnap|exam(s)? fail)\b')
+_GIVEAWAY = re.compile(r"(?i)(not real|is fake|this is a test|practice message|don'?t (?:click|open)|do not (?:click|open)|you are safe)")
 _FORMATS = {'quiz': 'story', 'article': 'story', 'scenario': '"what would you do?" scenario', 'link': 'story', 'policy': 'story'}
 
 
@@ -63,6 +69,8 @@ def _safety_screen(pack: dict) -> list[str]:
             warnings.append(f'Practice message names a real organisation ({org}); use a made-up name.')
     if re.search(r'(?i)\b(pin|password|otp|code)\b', practice['body']) and re.search(r'(?i)\b(send|reply|enter|type)\b', practice['body']):
         warnings.append('Practice message seems to ask for a PIN, password or code; keep it to a link only.')
+    if _GIVEAWAY.search(practice['body'] + ' ' + practice['sms']):
+        warnings.append('Practice message gives the exercise away (says it is fake or not to click); the lesson does that after the click.')
     for key in ('body', 'sms'):
         if practice[key].count('{link}') != 1:
             warnings.append(f'Practice {key} must contain {{link}} exactly once.')
@@ -78,6 +86,46 @@ def _safety_screen(pack: dict) -> list[str]:
     return warnings
 
 
+_ANY_URL = re.compile(r'(?i)\b(?:https?://|www\.)[^\s<>"\')]+|\b[a-z0-9-]+(?:\.[a-z0-9-]+)*\.(?:example|com|net|org|ug|info|xyz|top)(?:/[^\s<>"\')]*)?')
+
+
+def _repair_link(text: str) -> str:
+    """Guarantee exactly one {link}: small models often write their own web address instead of the placeholder."""
+    if '{link}' not in text:
+        text, n = _ANY_URL.subn('{link}', text, count=1)
+        if not n:
+            text = text.rstrip() + ' {link}'
+    first = text.index('{link}') + len('{link}')
+    return text[:first] + _ANY_URL.sub('', text[first:].replace('{link}', ''))
+
+
+def fit_field(model, field: str, value: str) -> tuple[str, bool]:
+    """Clean a submitted value for `model.field`: browser line breaks (CRLF) become plain ones, and text over the
+    column limit is shortened, keeping {link} at the end. Returns (value, was_shortened)."""
+    value = (value or '').replace('\r\n', '\n').replace('\r', '\n').strip()
+    limit = model._meta.get_field(field).max_length
+    if not limit or len(value) <= limit:
+        return value, False
+    if '{link}' in value:
+        room = limit - len(' {link}')
+        return value.replace('{link}', ' ').strip()[:room].rstrip() + ' {link}', True
+    return value[:limit].rstrip(), True
+
+
+def _drop_giveaways(text: str) -> str:
+    """Remove sentences that give the exercise away ("don't click, it's not real"): the lesson says that after the click."""
+    tokens = re.split(r'(?<=[.!?])(\s+)', text)          # sentence, gap, sentence, gap ...
+    out = []
+    for i in range(0, len(tokens), 2):
+        gap = tokens[i + 1] if i + 1 < len(tokens) else ''
+        if not _GIVEAWAY.search(tokens[i]):
+            out.append(tokens[i] + gap)
+        elif out and '\n' in gap:                         # keep a paragraph break that followed a dropped sentence
+            out[-1] = out[-1].rstrip() + gap
+    kept = ''.join(out).strip()
+    return kept or text
+
+
 def _normalise(data: dict) -> dict:
     """Coerce the model's JSON into the expected shape; raise ValueError if it is unusable."""
     try:
@@ -91,7 +139,8 @@ def _normalise(data: dict) -> dict:
             'quiz': [{'q': str(q['q']), 'choices': [str(c) for c in q['choices']][:4], 'correct': int(q.get('correct', 0)),
                       'explanation': str(q.get('explanation', ''))} for q in quiz][:5],
             'practice': {'sender_name': str(practice['sender_name'])[:80], 'subject': str(practice['subject'])[:160],
-                         'body': str(practice['body']), 'sms': str(practice.get('sms', ''))[:320],
+                         'body': _repair_link(_drop_giveaways(str(practice['body']))),
+                         'sms': _repair_link(_drop_giveaways(str(practice.get('sms', '')))[:290]),
                          'red_flags': [{'label': str(f.get('label', '')), 'excerpt': str(f.get('excerpt', ''))}
                                        for f in practice.get('red_flags', []) if isinstance(f, dict)][:5]},
         }
@@ -99,6 +148,10 @@ def _normalise(data: dict) -> dict:
         raise ValueError(f'the model reply is missing a part ({e})') from e
     if not out['quiz']:
         raise ValueError('the model reply has no quiz questions')
+    body = out['practice']['body']
+    for flag in out['practice']['red_flags']:   # keep the warning sign; drop a quote that is not really in the message
+        if flag['excerpt'] and flag['excerpt'] not in body:
+            flag['excerpt'] = ''
     return no_em_dash(out)
 
 
