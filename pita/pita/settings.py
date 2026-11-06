@@ -337,6 +337,10 @@ CLASSIFIER_THRESHOLD = float(os.getenv('CLASSIFIER_THRESHOLD', '0.5'))
 # Practice (simulated phishing) emails and learner sessions (plan.md §8.5)
 GUARDIAN_SIM_DOMAIN = os.getenv('GUARDIAN_SIM_DOMAIN', 'practice.guardian.local')
 GUARDIAN_SIM_MAX_PER_MONTH = int(os.getenv('GUARDIAN_SIM_MAX_PER_MONTH', 2))
+# Demo mode (on for now): any child with an email can be sent practice messages, again and again; the welcome note
+# goes out automatically with the first one; consent and the monthly limit are not checked. Addresses that asked
+# Guardian to stop stay blocked. Set GUARDIAN_PRACTICE_OPEN=False to restore the full rules (plan.md §8.1).
+GUARDIAN_PRACTICE_OPEN = os.getenv('GUARDIAN_PRACTICE_OPEN', 'True') == 'True'
 GUARDIAN_SIM_QUIET_HOURS = os.getenv('GUARDIAN_SIM_QUIET_HOURS', '21-7')
 GUARDIAN_MAX_CHILD_EMAILS_PER_PARENT = int(os.getenv('GUARDIAN_MAX_CHILD_EMAILS_PER_PARENT', 5))
 GUARDIAN_LEARNER_SESSION_DAYS = int(os.getenv('GUARDIAN_LEARNER_SESSION_DAYS', 7))

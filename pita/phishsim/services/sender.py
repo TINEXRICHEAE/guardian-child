@@ -38,6 +38,8 @@ def why_not_eligible(child) -> str:
         return 'No email address yet'
     if child.email_blocked:
         return 'The email address asked Guardian to stop'
+    if getattr(settings, 'GUARDIAN_PRACTICE_OPEN', False):
+        return ''                    # demo mode: welcome note is sent with the first practice email
     if not ConsentRecord.active(child, ConsentRecord.KIND_SIMULATION):
         return 'Practice emails are turned off'
     if not child.notice_sent_at:
@@ -103,6 +105,8 @@ def send_delivery(delivery: PracticeDelivery) -> PracticeDelivery:
         delivery.status, delivery.skip_reason = 'skipped', reason
         delivery.save(update_fields=['status', 'skip_reason'])
         return delivery
+    if not delivery.child.notice_sent_at:
+        send_notice(delivery.child)  # demo mode: the welcome note goes out together with the first practice email
     html, text = render_practice(delivery)
     msg = EmailMultiAlternatives(subject=practice_subject(delivery), body=text,
                                  from_email=_from(delivery.pack.practice_sender), to=[delivery.child.email],
@@ -120,8 +124,11 @@ def send_delivery(delivery: PracticeDelivery) -> PracticeDelivery:
     return delivery
 
 
-def send_pack_to_children(pack, parent, children, *, automated=False) -> list[PracticeDelivery]:
-    """One delivery per child (re-sending a failed one retries it). Only the parent's own linked children."""
+def send_pack_to_children(pack, parent, children, *, automated=False, resend=None) -> list[PracticeDelivery]:
+    """One delivery per child (re-sending a failed one retries it). Only the parent's own linked children.
+    In demo mode (GUARDIAN_PRACTICE_OPEN) a parent may send the same practice message again."""
+    if resend is None:
+        resend = getattr(settings, 'GUARDIAN_PRACTICE_OPEN', False) and not automated
     from .versions import active_edit
     own = set(GuardianChildLink.objects.filter(guardian=parent, active=True).values_list('child_id', flat=True))
     edit = active_edit(pack, parent)          # the parent's own wording, if they edited it
@@ -131,7 +138,7 @@ def send_pack_to_children(pack, parent, children, *, automated=False) -> list[Pr
             continue
         delivery, created = PracticeDelivery.objects.get_or_create(
             pack=pack, child=child, channel='email', defaults={'sent_by': parent, 'automated': automated})
-        if not created and delivery.status == 'sent':
+        if not created and delivery.status == 'sent' and not resend:
             results.append(delivery)
             continue
         if delivery.lesson_edit_id != getattr(edit, 'pk', None):

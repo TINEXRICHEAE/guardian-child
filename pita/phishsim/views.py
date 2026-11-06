@@ -214,6 +214,7 @@ def parent_news_detail(request, pk):
         'content': content, 'pack': pack, 'rows': rows, 'quiz': quiz, 'questions': questions, 'result': result,
         'last_attempt': last, 'children': children, 'edit_errors': edit_errors,
         'preview_name': children[0].nickname if len(children) == 1 else 'your child',
+        'practice_open': getattr(settings, 'GUARDIAN_PRACTICE_OPEN', False),
         'v': versions.version_for_parent(pack, request.user) if pack else None, 'my_edit': my_edit,
         'form_data': request.POST if edit_errors else None,
         'child_request': ChildVersionRequest.objects.filter(content=content, parent=request.user, resolved_at__isnull=True).first(),
@@ -298,6 +299,8 @@ def why_not_eligible_for_link(child) -> str:
     from safety.models import ConsentRecord
     if child.email_blocked:
         return 'blocked'
+    if getattr(settings, 'GUARDIAN_PRACTICE_OPEN', False):
+        return ''
     if not ConsentRecord.active(child, ConsentRecord.KIND_SIMULATION):
         return 'consent revoked'
     return ''

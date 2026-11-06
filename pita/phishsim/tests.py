@@ -113,6 +113,7 @@ class PracticeFlowTests(TestCase):
         # a link-signed session cannot change the account
         self.assertEqual(self.client.post(reverse('user_profile'), '{}', content_type='application/json').status_code, 403)
 
+    @override_settings(GUARDIAN_PRACTICE_OPEN=False)
     def test_link_stops_working_when_consent_is_revoked(self):
         pack = self.publish()
         self.turn_on_practice()
@@ -122,6 +123,7 @@ class PracticeFlowTests(TestCase):
         self.client.logout()
         self.assertEqual(self.client.get(reverse('practice_open', args=[d.token])).status_code, 410)
 
+    @override_settings(GUARDIAN_PRACTICE_OPEN=False)
     def test_no_practice_without_notice_or_consent(self):
         pack = self.publish()
         self.client.login(email='p@x.ug', password=PASSWORD)
@@ -426,6 +428,7 @@ class AnalystSaveTests(TestCase):
 
 @override_settings(EMAIL_BACKEND='django.core.mail.backends.locmem.EmailBackend', SITE_URL='http://testserver')
 class WelcomeNoteFromTopicPageTests(TestCase):
+    @override_settings(GUARDIAN_PRACTICE_OPEN=False)
     def test_parent_sends_the_missing_welcome_note_then_the_practice(self):
         cache.clear()
         analyst = Users.objects.create_user(email='a@x.ug', password=PASSWORD, role=ROLE_ANALYST)
@@ -448,3 +451,36 @@ class WelcomeNoteFromTopicPageTests(TestCase):
         self.assertEqual(mail.outbox[-1].subject, 'Your family set up Guardian for you')
         self.client.post(url, {'action': 'send', 'children': [child.pk]})
         self.assertEqual(PracticeDelivery.objects.get(child=child).status, 'sent')
+
+
+@override_settings(EMAIL_BACKEND='django.core.mail.backends.locmem.EmailBackend', SITE_URL='http://testserver',
+                   GUARDIAN_PRACTICE_OPEN=True)
+class OpenPracticeDemoTests(TestCase):
+    """Demo mode: any child with an email can be sent the practice message, with the welcome note, and re-sent."""
+
+    def test_new_child_gets_welcome_note_and_practice_together_and_can_be_resent(self):
+        cache.clear()
+        analyst = Users.objects.create_user(email='a@x.ug', password=PASSWORD, role=ROLE_ANALYST)
+        parent = Users.objects.create_user(email='p@x.ug', password=PASSWORD, role=ROLE_PARENT)
+        content = AwarenessContent.objects.create(created_by=analyst, threat_type='reward', title='T', risk='r',
+                                                  action='a', status='approved')
+        with fake_generate():
+            pack = generate_pack(content, user=analyst)
+        pack.status = TopicPack.STATUS_PUBLISHED
+        pack.save()
+        child = ChildProfile.objects.create(nickname='Marvin', age_band='11-13', created_by=parent, email='marvin@x.ug')
+        GuardianChildLink.objects.create(guardian=parent, child=child)          # no consent, no welcome note yet
+        no_email = ChildProfile.objects.create(nickname='NoMail', age_band='8-10', created_by=parent)
+        GuardianChildLink.objects.create(guardian=parent, child=no_email)
+        self.client.login(email='p@x.ug', password=PASSWORD)
+        url = reverse('parent_news_detail', args=[content.pk])
+        page = self.client.get(url).content.decode()
+        self.assertIn(f'value="{child.pk}" class="mt-1" checked', page)          # selectable straight away
+        self.assertIn('No email address yet', page)                              # children without email still cannot be sent
+        self.client.post(url, {'action': 'send', 'children': [child.pk]})
+        subjects = [m.subject for m in mail.outbox]
+        self.assertIn('Your family set up Guardian for you', subjects)           # welcome note first
+        self.assertEqual(len(mail.outbox), 2)                                    # then the practice email
+        self.client.post(url, {'action': 'send', 'children': [child.pk]})        # resend for the demo
+        self.assertEqual(len(mail.outbox), 3)                                    # practice again, no second welcome note
+        self.assertContains(self.client.get(url), 'tick to send again')

@@ -129,11 +129,11 @@
             {% for r in rows %}{% with d=r.delivery %}
             <div class="border-b border-outline pb-3 last:border-b-0">
                 <label class="flex items-start gap-2 text-sm">
-                    <input type="checkbox" name="children" value="{{ r.child.pk }}" class="mt-1" {% if r.reason or d.status == 'sent' %}disabled{% else %}checked{% endif %}>
+                    <input type="checkbox" name="children" value="{{ r.child.pk }}" class="mt-1" {% if r.reason %}disabled{% elif d.status == 'sent' %}{% if not practice_open %}disabled{% endif %}{% else %}checked{% endif %}>
                     <span><strong>{{ r.child.nickname }}</strong>
                     {% if d.status == 'sent' %}<span class="block text-xs text-on-surface-variant">Sent {{ d.sent_at|timesince }} ago ·
                         {% if d.reported_at %}<span class="text-teal font-semibold">spotted it and checked it</span>{% elif d.clicked_at %}opened the link{% else %}not opened yet{% endif %}
-                        {% if d.lesson_viewed_at %} · read the lesson{% endif %}{% if d.quiz_attempt %} · quiz {{ d.quiz_attempt.score }}/{{ d.quiz_attempt.total }}{% endif %}</span>
+                        {% if d.lesson_viewed_at %} · read the lesson{% endif %}{% if d.quiz_attempt %} · quiz {{ d.quiz_attempt.score }}/{{ d.quiz_attempt.total }}{% endif %}{% if practice_open %} · tick to send again{% endif %}</span>
                     {% elif r.reason %}<span class="block text-xs text-on-surface-variant">{{ r.reason }}{% if r.reason == 'Practice emails are turned off' or r.reason == 'No email address yet' %} · <a class="text-teal" href="{% url 'child_edit' r.child.pk %}">change this</a>{% elif r.reason == 'Welcome note not delivered yet' %}. Guardian first sends a short note explaining practice emails, with a "this isn't me" link.{% endif %}</span>
                     {% if r.reason == 'Welcome note not delivered yet' %}<button type="submit" form="notice-{{ r.child.pk }}" class="mt-2 text-xs px-3 py-1.5 font-semibold border-2 border-teal text-teal hover:bg-teal hover:text-white">Send welcome note now</button>{% endif %}
                     {% elif d.status == 'failed' %}<span class="block text-xs text-error">Last try did not send; tick to try again</span>{% endif %}</span>
