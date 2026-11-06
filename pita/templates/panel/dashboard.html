@@ -1,0 +1,97 @@
+{% extends "panel/base_panel.html" %}
+{% block title %}Admin Dashboard{% endblock %}
+
+{% block panel_content %}
+<h1 class="text-3xl font-bold mb-8">Dashboard</h1>
+
+<!-- KPI cards -->
+<div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-10">
+    <div class="bg-white border border-outline p-4">
+        <div class="text-xs font-bold uppercase tracking-wider text-on-surface-variant mb-1">Content Sources</div>
+        <div class="text-2xl sm:text-4xl font-bold text-teal">{{ total_sources }}</div>
+    </div>
+    <div class="bg-white border border-outline p-4">
+        <div class="text-xs font-bold uppercase tracking-wider text-on-surface-variant mb-1">Pending Review</div>
+        <div class="text-2xl sm:text-4xl font-bold {% if pending_review > 0 %}text-error{% else %}text-teal{% endif %}">{{ pending_review }}</div>
+    </div>
+    <div class="bg-white border border-outline p-4">
+        <div class="text-xs font-bold uppercase tracking-wider text-on-surface-variant mb-1">Campaigns Sent</div>
+        <div class="text-2xl sm:text-4xl font-bold text-teal">{{ sent_campaigns }}</div>
+    </div>
+    <div class="bg-white border border-outline p-4">
+        <div class="text-xs font-bold uppercase tracking-wider text-on-surface-variant mb-1">Total Children</div>
+        <div class="text-2xl sm:text-4xl font-bold text-teal">{{ total_staff }}</div>
+    </div>
+</div>
+
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+
+    <!-- Recent content -->
+    <div>
+        <div class="flex items-center justify-between mb-4 border-b border-outline pb-2">
+            <h2 class="font-semibold">Recent Awareness Content</h2>
+            <a href="{% url 'panel_content_list' %}" class="text-xs text-teal hover:underline">View all</a>
+        </div>
+        {% if recent_contents %}
+        <div class="space-y-2">
+            {% for c in recent_contents %}
+            <a href="{% url 'panel_content_detail' c.pk %}" class="flex items-center justify-between bg-white border border-outline p-3 hover:border-teal transition-colors">
+                <div>
+                    <div class="text-sm font-medium leading-snug">{{ c.title }}</div>
+                    <div class="text-xs text-on-surface-variant mt-0.5">{{ c.get_threat_type_display }} · {{ c.created_at|date:"M d, Y" }}</div>
+                </div>
+                <span class="text-xs font-bold uppercase px-2 py-0.5 border
+                    {% if c.status == 'approved' %}border-teal text-teal
+                    {% elif c.status == 'rejected' %}border-error text-error
+                    {% elif c.status == 'sent' %}border-primary text-primary
+                    {% else %}border-on-surface-variant text-on-surface-variant{% endif %}">
+                    {{ c.get_status_display }}
+                </span>
+            </a>
+            {% endfor %}
+        </div>
+        {% else %}
+        <p class="text-sm text-on-surface-variant">No content yet. <a href="{% url 'panel_sources' %}" class="text-teal hover:underline">Add a source</a> to get started.</p>
+        {% endif %}
+    </div>
+
+    <!-- Recent campaigns -->
+    <div>
+        <div class="flex items-center justify-between mb-4 border-b border-outline pb-2">
+            <h2 class="font-semibold">Recent Campaigns</h2>
+            <a href="{% url 'panel_campaigns' %}" class="text-xs text-teal hover:underline">View all</a>
+        </div>
+        {% if recent_campaigns %}
+        <div class="space-y-2">
+            {% for cam in recent_campaigns %}
+            <a href="{% url 'panel_campaign_detail' cam.pk %}" class="flex items-center justify-between bg-white border border-outline p-3 hover:border-teal transition-colors">
+                <div>
+                    <div class="text-sm font-medium leading-snug">{{ cam.subject }}</div>
+                    <div class="text-xs text-on-surface-variant mt-0.5">{{ cam.created_at|date:"M d, Y" }}</div>
+                </div>
+                <span class="text-xs font-bold uppercase px-2 py-0.5 border
+                    {% if cam.status == 'sent' %}border-teal text-teal
+                    {% elif cam.status == 'sending' %}border-primary text-primary
+                    {% else %}border-on-surface-variant text-on-surface-variant{% endif %}">
+                    {{ cam.get_status_display }}
+                </span>
+            </a>
+            {% endfor %}
+        </div>
+        {% else %}
+        <p class="text-sm text-on-surface-variant">No campaigns yet.</p>
+        {% endif %}
+    </div>
+
+</div>
+
+<!-- Quick actions -->
+<div class="mt-10 pt-8 border-t border-outline">
+    <h2 class="font-semibold mb-4">Quick Actions</h2>
+    <div class="flex flex-wrap gap-3">
+        <a href="{% url 'panel_add_source' %}" class="bg-teal text-white px-5 py-2 font-semibold border-2 border-teal hover:bg-primary transition-colors text-sm">+ Add Source</a>
+        <a href="{% url 'panel_raw_contents' %}" class="bg-white text-on-surface px-5 py-2 font-semibold border border-on-surface hover:bg-surface transition-colors text-sm">View Raw Content</a>
+        <a href="{% url 'panel_content_list' %}?status=pending" class="bg-white text-on-surface px-5 py-2 font-semibold border border-on-surface hover:bg-surface transition-colors text-sm">Review Pending ({{ pending_review }})</a>
+    </div>
+</div>
+{% endblock %}

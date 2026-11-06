@@ -1,0 +1,20 @@
+{% extends "app/child_base.html" %}
+{% block title %}Talk to someone{% endblock %}
+{% block child_content %}
+<div class="text-xs font-bold uppercase tracking-wider text-on-surface-variant mb-1">Uganda Child Helpline</div>
+<h1 class="text-2xl md:text-3xl font-bold mb-6">Talk to someone</h1>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+    <section class="bg-white border border-outline p-6">
+        <h2 class="text-xl font-bold mb-2">You don't have to handle this alone.</h2>
+        <p class="text-sm mb-4">If something online is worrying you, talk to a trusted adult if it is safe. You can also call Sauti 116 for free support.</p>
+        <a href="tel:116" class="block text-center bg-primary text-white px-5 py-3 font-semibold hover:bg-primary-container">Open phone dialler · 116</a>
+        <p class="text-xs text-on-surface-variant mt-2">This opens your phone app. No call is made until you choose to call.</p>
+    </section>
+    <section class="bg-white border border-outline p-6">
+        <div class="text-xs font-bold uppercase tracking-wider text-on-surface-variant mb-1">If something feels wrong</div>
+        <h2 class="text-xl font-bold mb-3">Take it one step at a time.</h2>
+        <ol class="space-y-2 text-sm list-decimal list-inside">{% for s in steps %}<li>{{ s }}</li>{% endfor %}</ol>
+        <p class="text-xs text-on-surface-variant mt-3">This is general guidance, not a live conversation or emergency response.</p>
+    </section>
+</div>
+{% endblock %}

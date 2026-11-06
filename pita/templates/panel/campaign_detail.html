@@ -1,0 +1,390 @@
+{% extends "panel/base_panel.html" %}
+{% block title %}Campaign: {{ campaign.subject }}{% endblock %}
+
+{% block panel_content %}
+<div class="max-w-4xl">
+    <a href="{% url 'panel_campaigns' %}" class="text-sm text-teal font-semibold hover:underline mb-6 inline-block">&larr; Back to Campaigns</a>
+
+    <div class="flex items-start justify-between gap-4 mb-6">
+        <h1 class="text-2xl font-bold leading-tight">{{ campaign.subject }}</h1>
+        <span class="text-xs font-bold uppercase px-3 py-1 border whitespace-nowrap
+            {% if campaign.status == 'sent' %}border-teal text-teal
+            {% elif campaign.status == 'sending' %}border-primary text-primary
+            {% else %}border-on-surface-variant text-on-surface-variant{% endif %}">
+            {{ campaign.get_status_display }}
+        </span>
+    </div>
+
+    <!-- Meta -->
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8 text-sm">
+        <div>
+            <div class="text-xs font-bold uppercase tracking-wider text-on-surface-variant mb-1">Content</div>
+            <a href="{% url 'panel_content_detail' campaign.content.pk %}" class="text-teal hover:underline">{{ campaign.content.title|truncatechars:40 }}</a>
+        </div>
+        <div>
+            <div class="text-xs font-bold uppercase tracking-wider text-on-surface-variant mb-1">Target</div>
+            <div>
+                {% if campaign.target_all_staff %}All parents{% else %}Custom{% endif %}
+                &mdash; <strong>{{ target_count }}</strong> recipient{{ target_count|pluralize }}
+            </div>
+        </div>
+        <div>
+            <div class="text-xs font-bold uppercase tracking-wider text-on-surface-variant mb-1">Created</div>
+            <div>{{ campaign.created_at|date:"M d, Y H:i" }}</div>
+        </div>
+        <div>
+            <div class="text-xs font-bold uppercase tracking-wider text-on-surface-variant mb-1">Sent At</div>
+            <div>{% if campaign.sent_at %}{{ campaign.sent_at|date:"M d, Y H:i" }}{% else %}-{% endif %}</div>
+        </div>
+    </div>
+
+    <!-- Send action -->
+    {% if campaign.status != 'sent' %}
+    <div class="bg-surface-container border border-outline p-4 mb-8 flex items-center justify-between">
+        <div>
+            <div class="font-semibold text-sm">Ready to send to {{ target_count }} recipient{{ target_count|pluralize }}?</div>
+            <div class="text-xs text-on-surface-variant mt-0.5">This action cannot be undone.</div>
+        </div>
+        <form data-page-loader method="post" action="{% url 'panel_send_campaign' campaign.pk %}"
+              data-confirm="Send this campaign to {{ target_count }} recipient{{ target_count|pluralize }}? This action cannot be undone."
+              data-confirm-btn="Send Campaign">
+            {% csrf_token %}
+            <button type="submit" class="bg-teal text-white px-6 py-2 font-semibold border-2 border-teal hover:bg-primary transition-colors text-sm">
+                Send Campaign
+            </button>
+        </form>
+    </div>
+    {% endif %}
+
+    <!-- Edit form for drafts -->
+    {% if campaign.status == 'draft' %}
+    <form method="post" class="space-y-4 mb-10">
+        {% csrf_token %}
+        <div>
+            <label class="block text-xs font-bold uppercase tracking-wider mb-1">Subject</label>
+            <input type="text" name="subject" value="{{ campaign.subject }}"
+                class="w-full px-3 py-2 border border-on-surface focus:outline-none focus:border-2 focus:border-teal text-sm">
+        </div>
+        <div>
+            <label class="block text-xs font-bold uppercase tracking-wider mb-1">HTML Body</label>
+            <textarea name="body_html" rows="12" class="w-full px-3 py-2 border border-on-surface focus:outline-none focus:border-2 focus:border-teal text-sm font-mono resize-y">{{ campaign.body_html }}</textarea>
+        </div>
+        <button type="submit" class="bg-teal text-white px-6 py-2 font-semibold border-2 border-teal hover:bg-primary transition-colors text-sm">Save Changes</button>
+    </form>
+    {% else %}
+    <!-- Email preview for sent campaigns -->
+    <div class="mb-10">
+        <h2 class="font-semibold mb-3 text-sm text-on-surface-variant uppercase tracking-wider">Email Body Preview</h2>
+        <div class="border border-outline bg-white p-1">
+            <iframe srcdoc="{{ campaign.body_html }}" class="email-preview w-full h-96 border-0" title="Email preview"></iframe>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- ══════════════════════════════════════════════════════
+         TARGET RECIPIENTS  (draft / sending only)
+    ══════════════════════════════════════════════════════ -->
+    {% if campaign.status != 'sent' %}
+    <div class="mb-10 pt-8 border-t border-outline">
+        <div class="flex items-center justify-between mb-4">
+            <h2 class="font-semibold text-sm text-on-surface-variant uppercase tracking-wider">
+                Target Recipients &mdash;
+                <span id="selectedCount" class="text-teal">{{ target_count }}</span> selected
+            </h2>
+        </div>
+
+        <form method="post" action="{% url 'panel_campaign_targets' campaign.pk %}"
+              enctype="multipart/form-data" id="targetsForm"
+              data-all-staff="{{ all_staff.count }}">
+            {% csrf_token %}
+
+            <!-- Mode toggle -->
+            <div class="flex gap-6 mb-6 p-4 bg-surface border border-outline">
+                <label class="flex items-center gap-2 cursor-pointer">
+                    <input type="radio" name="target_mode" value="all" id="modeAll"
+                        {% if campaign.target_all_staff %}checked{% endif %}
+                        onchange="onModeChange('all')">
+                    <span class="text-sm font-semibold">All Active Parents</span>
+                    <span class="text-xs text-on-surface-variant">({{ all_staff.count }} member{{ all_staff.count|pluralize }})</span>
+                </label>
+                <label class="flex items-center gap-2 cursor-pointer">
+                    <input type="radio" name="target_mode" value="custom" id="modeCustom"
+                        {% if not campaign.target_all_staff %}checked{% endif %}
+                        onchange="onModeChange('custom')">
+                    <span class="text-sm font-semibold">Custom Selection</span>
+                </label>
+            </div>
+
+            <!-- Custom selection panel -->
+            <div id="customPanel" class="{% if campaign.target_all_staff %}hidden{% endif %}">
+
+                <!-- Filter bar -->
+                <div class="flex flex-wrap gap-2 mb-3 p-3 bg-surface border border-outline">
+                    <input type="text" id="staffSearch" placeholder="Search name or email..."
+                        oninput="filterStaff()"
+                        class="px-3 py-1.5 border border-on-surface text-sm focus:outline-none focus:border-teal flex-1 min-w-40">
+                    <select id="filterDept" onchange="filterStaff()"
+                        class="px-3 py-1.5 border border-on-surface text-sm focus:outline-none focus:border-teal bg-white">
+                        <option value="">All Departments</option>
+                        {% for dept in departments %}
+                        <option value="{{ dept|lower }}">{{ dept }}</option>
+                        {% endfor %}
+                    </select>
+                    <select id="filterCategory" onchange="filterStaff()"
+                        class="px-3 py-1.5 border border-on-surface text-sm focus:outline-none focus:border-teal bg-white">
+                        <option value="">All Categories</option>
+                        <option value="core">Core</option>
+                        <option value="third_party">Third Party</option>
+                        <option value="support">Support</option>
+                    </select>
+                    <select id="filterTerms" onchange="filterStaff()"
+                        class="px-3 py-1.5 border border-on-surface text-sm focus:outline-none focus:border-teal bg-white">
+                        <option value="">All Employment</option>
+                        <option value="permanent">Permanent</option>
+                        <option value="temporary">Temporary</option>
+                        <option value="contractor">Contractor</option>
+                    </select>
+                    <button type="button" onclick="selectAllVisible()"
+                        class="px-3 py-1.5 text-xs font-bold border border-teal text-teal hover:bg-teal hover:text-white transition-colors whitespace-nowrap">
+                        Select Visible
+                    </button>
+                    <button type="button" onclick="clearAllVisible()"
+                        class="px-3 py-1.5 text-xs font-bold border border-on-surface-variant text-on-surface-variant hover:bg-surface transition-colors whitespace-nowrap">
+                        Clear Visible
+                    </button>
+                </div>
+
+                <!-- Parent recipients table -->
+                <div class="bg-white border border-outline overflow-x-auto max-h-72 overflow-y-auto mb-5">
+                    <table class="w-full text-sm">
+                        <thead class="border-b border-outline sticky top-0 bg-white z-10">
+                            <tr>
+                                <th class="px-3 py-2 text-left w-8">
+                                    <input type="checkbox" id="selectAllCheckbox"
+                                        onchange="toggleSelectAll(this.checked)"
+                                        title="Toggle all visible">
+                                </th>
+                                <th class="px-3 py-2 text-left text-xs font-bold uppercase tracking-wider text-on-surface-variant">Name</th>
+                                <th class="px-3 py-2 text-left text-xs font-bold uppercase tracking-wider text-on-surface-variant">Email</th>
+                                <th class="px-3 py-2 text-left text-xs font-bold uppercase tracking-wider text-on-surface-variant">Department</th>
+                                <th class="px-3 py-2 text-left text-xs font-bold uppercase tracking-wider text-on-surface-variant">Category</th>
+                                <th class="px-3 py-2 text-left text-xs font-bold uppercase tracking-wider text-on-surface-variant">Terms</th>
+                            </tr>
+                        </thead>
+                        <tbody id="staffTableBody">
+                            {% for staff in all_staff %}
+                            <tr class="border-b border-outline hover:bg-surface staff-row"
+                                data-email="{{ staff.email|lower }}"
+                                data-name="{{ staff.profile.full_name|lower|default:'' }}"
+                                data-dept="{{ staff.profile.department|lower|default:'' }}"
+                                data-category="{{ staff.profile.staff_category|default:'' }}"
+                                data-terms="{{ staff.profile.employment_terms|default:'' }}">
+                                <td class="px-3 py-2">
+                                    <input type="checkbox" name="recipient_ids" value="{{ staff.pk }}"
+                                        class="recipient-check"
+                                        {% if staff.pk in selected_recipient_ids %}checked{% endif %}
+                                        onchange="updateSelectedCount()">
+                                </td>
+                                <td class="px-3 py-2 font-medium">{{ staff.profile.full_name|default:staff.email|truncatechars:28 }}</td>
+                                <td class="px-3 py-2 text-xs text-on-surface-variant">{{ staff.email }}</td>
+                                <td class="px-3 py-2 text-xs text-on-surface-variant">{{ staff.profile.department|default:"-" }}</td>
+                                <td class="px-3 py-2">
+                                    {% if staff.profile.staff_category %}
+                                    <span class="text-xs px-1.5 py-0.5 border border-outline">{{ staff.profile.get_staff_category_display }}</span>
+                                    {% else %}<span class="text-xs text-on-surface-variant">-</span>{% endif %}
+                                </td>
+                                <td class="px-3 py-2 text-xs text-on-surface-variant">
+                                    {% if staff.profile.employment_terms %}{{ staff.profile.get_employment_terms_display }}{% else %}-{% endif %}
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="6" class="px-3 py-8 text-center text-on-surface-variant text-sm">
+                                    No active parent accounts found.
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div><!-- /customPanel -->
+
+            <!-- Extra emails (always visible) -->
+            <div class="mb-4">
+                <label class="block text-xs font-bold uppercase tracking-wider mb-2">
+                    Additional Email Addresses
+                    <span class="font-normal normal-case text-on-surface-variant ml-1">- one per line; for recipients not in the parent list</span>
+                </label>
+                <textarea name="extra_emails" id="extraEmailsArea" rows="4"
+                    placeholder="user@example.com&#10;another@example.com"
+                    oninput="updateSelectedCount()"
+                    class="w-full px-3 py-2 border border-on-surface focus:outline-none focus:border-2 focus:border-teal text-sm font-mono resize-y">{{ extra_emails }}</textarea>
+                <div class="text-xs text-on-surface-variant mt-1">
+                    <span id="extraCount">0</span> additional address(es)
+                </div>
+            </div>
+
+            <!-- File upload -->
+            <div class="mb-6">
+                <label class="block text-xs font-bold uppercase tracking-wider mb-2">
+                    Upload Email List
+                    <span class="font-normal normal-case text-on-surface-variant ml-1">- .txt file, one email per line (appended to above)</span>
+                </label>
+                <input type="file" name="email_file" accept=".txt"
+                    onchange="previewEmailFile(this)"
+                    class="text-sm text-on-surface
+                           file:mr-3 file:px-3 file:py-1.5 file:border file:border-teal
+                           file:text-teal file:bg-white file:font-semibold file:text-xs
+                           file:cursor-pointer hover:file:bg-surface">
+                <div id="filePreview" class="hidden mt-2 text-xs text-on-surface-variant p-2 bg-surface border border-outline"></div>
+            </div>
+
+            <button type="submit"
+                class="bg-teal text-white px-6 py-2 font-semibold border-2 border-teal hover:bg-primary transition-colors text-sm">
+                Save Targets
+            </button>
+        </form>
+    </div>
+    {% endif %}
+
+    <!-- Delivery stats -->
+    {% if deliveries %}
+    <div class="pt-8 border-t border-outline">
+        <h2 class="font-semibold mb-3 text-sm text-on-surface-variant uppercase tracking-wider">Delivery Status ({{ deliveries.count }})</h2>
+        <div class="bg-white border border-outline overflow-x-auto mob-cards">
+            <table class="w-full text-sm">
+                <thead class="border-b border-outline">
+                    <tr>
+                        <th class="text-left px-4 py-2 text-xs font-bold uppercase tracking-wider text-on-surface-variant">Recipient</th>
+                        <th class="text-left px-4 py-2 text-xs font-bold uppercase tracking-wider text-on-surface-variant">Status</th>
+                        <th class="text-left px-4 py-2 text-xs font-bold uppercase tracking-wider text-on-surface-variant">Sent At</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for d in deliveries %}
+                    <tr class="border-b border-outline hover:bg-surface">
+                        <td class="px-4 py-2 text-on-surface-variant" data-label="Recipient">
+                            {% if d.email %}{{ d.email }}{% elif d.recipient %}{{ d.recipient.email }}{% else %}-{% endif %}
+                            {% if not d.recipient %}<span class="ml-1 text-xs text-on-surface-variant">(ext.)</span>{% endif %}
+                        </td>
+                        <td class="px-4 py-2" data-label="Status">
+                            <span class="text-xs font-bold uppercase px-2 py-0.5 border
+                                {% if d.status == 'sent' or d.status == 'opened' or d.status == 'clicked' %}border-teal text-teal
+                                {% elif d.status == 'failed' %}border-error text-error
+                                {% else %}border-on-surface-variant text-on-surface-variant{% endif %}">
+                                {{ d.get_status_display }}
+                            </span>
+                        </td>
+                        <td class="px-4 py-2 text-xs text-on-surface-variant" data-label="Sent At">
+                            {% if d.sent_at %}{{ d.sent_at|date:"M d, Y H:i" }}{% else %}-{% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+const ALL_STAFF_COUNT = parseInt(document.getElementById('targetsForm')?.dataset.allStaff || '0', 10);
+
+function onModeChange(mode) {
+    const panel = document.getElementById('customPanel');
+    if (mode === 'custom') {
+        panel.classList.remove('hidden');
+    } else {
+        panel.classList.add('hidden');
+    }
+    updateSelectedCount();
+}
+
+function filterStaff() {
+    const search = document.getElementById('staffSearch').value.toLowerCase();
+    const dept   = document.getElementById('filterDept').value.toLowerCase();
+    const cat    = document.getElementById('filterCategory').value;
+    const terms  = document.getElementById('filterTerms').value;
+
+    document.querySelectorAll('.staff-row').forEach(row => {
+        const matchSearch = !search || row.dataset.email.includes(search) || row.dataset.name.includes(search);
+        const matchDept   = !dept   || row.dataset.dept === dept;
+        const matchCat    = !cat    || row.dataset.category === cat;
+        const matchTerms  = !terms  || row.dataset.terms === terms;
+
+        row.classList.toggle('hidden', !(matchSearch && matchDept && matchCat && matchTerms));
+    });
+
+    syncSelectAllCheckbox();
+}
+
+function selectAllVisible() {
+    document.querySelectorAll('.staff-row:not(.hidden) .recipient-check').forEach(cb => cb.checked = true);
+    updateSelectedCount();
+    syncSelectAllCheckbox();
+}
+
+function clearAllVisible() {
+    document.querySelectorAll('.staff-row:not(.hidden) .recipient-check').forEach(cb => cb.checked = false);
+    updateSelectedCount();
+    syncSelectAllCheckbox();
+}
+
+function toggleSelectAll(checked) {
+    document.querySelectorAll('.staff-row:not(.hidden) .recipient-check').forEach(cb => cb.checked = checked);
+    updateSelectedCount();
+}
+
+function syncSelectAllCheckbox() {
+    const visible  = document.querySelectorAll('.staff-row:not(.hidden) .recipient-check');
+    const checked  = document.querySelectorAll('.staff-row:not(.hidden) .recipient-check:checked');
+    const cb = document.getElementById('selectAllCheckbox');
+    if (!cb || visible.length === 0) return;
+    cb.checked       = visible.length === checked.length;
+    cb.indeterminate = checked.length > 0 && checked.length < visible.length;
+}
+
+function updateSelectedCount() {
+    const modeAll = document.getElementById('modeAll')?.checked;
+
+    const extraLines = (document.getElementById('extraEmailsArea')?.value || '')
+        .split('\n').filter(l => l.trim()).length;
+
+    let total;
+    if (modeAll) {
+        total = ALL_STAFF_COUNT + extraLines;
+    } else {
+        const staffChecked = document.querySelectorAll('.recipient-check:checked').length;
+        total = staffChecked + extraLines;
+    }
+
+    const el = document.getElementById('selectedCount');
+    if (el) el.textContent = total;
+
+    const extraEl = document.getElementById('extraCount');
+    if (extraEl) extraEl.textContent = extraLines;
+}
+
+async function previewEmailFile(input) {
+    const file = input.files[0];
+    const preview = document.getElementById('filePreview');
+    if (!file || !preview) return;
+    try {
+        const text = await file.text();
+        const emails = text.split('\n').map(l => l.trim()).filter(l => l && l.includes('@'));
+        preview.textContent = `${emails.length} email address(es) found in "${file.name}"`;
+        preview.classList.remove('hidden');
+    } catch (e) {
+        preview.textContent = 'Could not read file.';
+        preview.classList.remove('hidden');
+    }
+}
+
+document.addEventListener('DOMContentLoaded', function () {
+    updateSelectedCount();
+    syncSelectAllCheckbox();
+});
+</script>
+{% endblock %}

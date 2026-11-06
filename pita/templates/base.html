@@ -1,0 +1,81 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <script>(function(){try{var s=localStorage.getItem('guardian-theme');var p=window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches;if(s==='dark'||(s===null&&p))document.documentElement.classList.add('dark');}catch(e){}})();</script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Guardian{% endblock %} - Guardian</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'primary': '#003732',
+                        'primary-container': '#005049',
+                        'on-primary': '#ffffff',
+                        'on-primary-container': '#81c1b7',
+                        'surface': '#f9f9f9',
+                        'surface-container': '#eeeeee',
+                        'on-surface': '#1a1c1c',
+                        'on-surface-variant': '#3f4947',
+                        'outline': '#6f7977',
+                        'teal': '#005049',
+                        'error': '#ba1a1a',
+                    },
+                    fontFamily: { 'inter': ['Inter', 'sans-serif'] },
+                }
+            }
+        }
+    </script>
+    {% block extra_head %}{% endblock %}
+</head>
+<body class="font-inter bg-surface text-on-surface min-h-screen flex flex-col">
+
+    {% include "navbar_base.html" %}
+
+    {% if messages %}
+    <script>
+    window._djangoMessages = [{% for msg in messages %}{"message":"{{ msg|escapejs }}","tags":"{{ msg.tags }}"}{% if not forloop.last %},{% endif %}{% endfor %}];
+    </script>
+    {% endif %}
+
+    <main class="flex-1">
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer class="bg-on-surface text-white py-10 mt-auto">
+        <div class="max-w-6xl mx-auto px-4 md:px-8">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-6">
+                <div>
+                    <div class="font-bold mb-3 text-lg">Guardian</div>
+                    <p class="text-sm opacity-75">Scam and phishing safety for children and families in Uganda. Android app and web app; works in any browser on iPhone, Mac and computers.</p>
+                </div>
+                <div>
+                    <div class="font-bold mb-3">For Children</div>
+                    <ul class="space-y-1 text-sm opacity-75">
+                        <li><a href="{% url 'library' %}" class="hover:text-on-primary-container transition-colors">Training Library</a></li>
+                        <li><a href="{% url 'quizzes' %}" class="hover:text-on-primary-container transition-colors">Quizzes</a></li>
+                        <li><a href="{% url 'progress' %}" class="hover:text-on-primary-container transition-colors">My Progress</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <div class="font-bold mb-3">For Analysts</div>
+                    <ul class="space-y-1 text-sm opacity-75">
+                        <li><a href="{% url 'panel_dashboard' %}" class="hover:text-on-primary-container transition-colors">Dashboard</a></li>
+                        <li><a href="{% url 'panel_content_list' %}" class="hover:text-on-primary-container transition-colors">Content Review</a></li>
+                        <li><a href="{% url 'panel_analytics' %}" class="hover:text-on-primary-container transition-colors">Analytics</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="border-t border-outline pt-6 text-center text-sm opacity-60">
+                &copy; 2026 Guardian · Child online safety · Sauti 116 is free
+            </div>
+        </div>
+    </footer>
+
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

@@ -1,0 +1,43 @@
+Thu Nov  5 19:19:56 2026       
++-----------------------------------------------------------------------------------------+
+| NVIDIA-SMI 580.159.06             Driver Version: 582.66         CUDA Version: 13.0     |
++-----------------------------------------+------------------------+----------------------+
+| GPU  Name                 Persistence-M | Bus-Id          Disp.A | Volatile Uncorr. ECC |
+| Fan  Temp   Perf          Pwr:Usage/Cap |           Memory-Usage | GPU-Util  Compute M. |
+|                                         |                        |               MIG M. |
+|=========================================+========================+======================|
+|   0  NVIDIA GeForce GTX 1060        On  |   00000000:01:00.0  On |                  N/A |
+| N/A   75C    P2             33W /   78W |    5861MiB /   6144MiB |      0%      Default |
+|                                         |                        |                  N/A |
++-----------------------------------------+------------------------+----------------------+
+
++-----------------------------------------------------------------------------------------+
+| Processes:                                                                              |
+|  GPU   GI   CI              PID   Type   Process name                        GPU Memory |
+|        ID   ID                                                               Usage      |
+|=========================================================================================|
+|    0   N/A  N/A           13221      C   /python3.12                           N/A      |
++-----------------------------------------------------------------------------------------+
+
+DESKTOP-3CGBSSB
+Linux DESKTOP-3CGBSSB 6.18.33.2-microsoft-standard-WSL2 #1 SMP PREEMPT_DYNAMIC Thu Jun 18 21:54:43 UTC 2026 x86_64 x86_64 x86_64 GNU/Linux
+{"at": "2026-11-05T16:01:14+00:00", "endpoint": "embed", "status": "ok", "backend": "minilm", "model": "sentence-transformers/all-MiniLM-L6-v2", "host": "DESKTOP-3CGBSSB", "gpu": "NVIDIA GeForce GTX 1060, 1512 MiB, 6144 MiB", "latencyMs": 633, "inputBytes": 100, "inputSha256": "387f4588b71abe27a9647564d735d8a29407adf8fc7d5adc2d81f4a9fd263d30"}
+{"at": "2026-11-05T16:02:27+00:00", "endpoint": "classify-url", "status": "ok", "backend": "url-onnx", "model": "pirocheto/phishing-url-detection", "host": "DESKTOP-3CGBSSB", "gpu": "NVIDIA GeForce GTX 1060, 1512 MiB, 6144 MiB", "latencyMs": 1156, "inputBytes": 64, "inputSha256": "43a2f0d12647dbb45a70d4371de05d32821ca56719a51685fa19f8d8a74cce13"}
+{"at": "2026-11-05T16:02:49+00:00", "endpoint": "explain", "status": "ok", "backend": "qwen-hf", "model": "Qwen/Qwen3-VL-2B-Instruct", "host": "DESKTOP-3CGBSSB", "gpu": "NVIDIA GeForce GTX 1060, 1512 MiB, 6144 MiB", "latencyMs": 21891, "inputBytes": 409, "inputSha256": "4261e3d5305594e600ea62526d7961b85604a49dc3df1712defbdf1a5201f33b"}
+{"at": "2026-11-05T16:03:31+00:00", "endpoint": "explain", "status": "ok", "backend": "qwen-hf", "model": "Qwen/Qwen3-VL-2B-Instruct", "host": "DESKTOP-3CGBSSB", "gpu": "NVIDIA GeForce GTX 1060, 5032 MiB, 6144 MiB", "latencyMs": 28884, "inputBytes": 454, "inputSha256": "85a5d6c5789a0cc9eaef3c2f60db980df6669a3cba7a3460aef29b92aca3ecc1"}
+{"at": "2026-11-05T16:04:12+00:00", "endpoint": "generate", "status": "ok", "backend": "qwen-hf", "model": "Qwen/Qwen3-VL-2B-Instruct", "host": "DESKTOP-3CGBSSB", "gpu": "NVIDIA GeForce GTX 1060, 5042 MiB, 6144 MiB", "latencyMs": 40877, "inputBytes": 275, "inputSha256": "456b3c27dda0e38bc0f5a8599a1cb1e15c5e10df8f829e00ba265483d92091f4"}
+{"at": "2026-11-05T16:05:06+00:00", "endpoint": "extract", "status": "ok", "backend": "qwen-hf", "model": "Qwen/Qwen3-VL-2B-Instruct", "host": "DESKTOP-3CGBSSB", "gpu": "NVIDIA GeForce GTX 1060, 5106 MiB, 6144 MiB", "latencyMs": 53854, "inputBytes": 31369, "inputSha256": "f1f5cdf5b894fd5c9f9c3563de455d02ae6a25dca99438cbba84cbf1aa1063d2"}
+{"at": "2026-11-05T16:06:18+00:00", "endpoint": "explain", "status": "ok", "backend": "qwen-hf", "model": "Qwen/Qwen3-VL-2B-Instruct", "host": "DESKTOP-3CGBSSB", "gpu": "NVIDIA GeForce GTX 1060, 1512 MiB, 6144 MiB", "latencyMs": 9453, "inputBytes": 392, "inputSha256": "d2a13d81fdcfd4c563ae93eccec3175ec1652387ef1c45c7ea06c481119b6328"}
+{"at": "2026-11-05T16:06:24+00:00", "endpoint": "explain", "status": "ok", "backend": "qwen-hf", "model": "Qwen/Qwen3-VL-2B-Instruct", "host": "DESKTOP-3CGBSSB", "gpu": "NVIDIA GeForce GTX 1060, 1512 MiB, 6144 MiB", "latencyMs": 6010, "inputBytes": 392, "inputSha256": "d2a13d81fdcfd4c563ae93eccec3175ec1652387ef1c45c7ea06c481119b6328"}
+{"at": "2026-11-05T16:06:47+00:00", "endpoint": "extract", "status": "ok", "backend": "qwen-hf", "model": "Qwen/Qwen3-VL-2B-Instruct", "host": "DESKTOP-3CGBSSB", "gpu": "NVIDIA GeForce GTX 1060, 5791 MiB, 6144 MiB", "latencyMs": 23551, "inputBytes": 31369, "inputSha256": "f1f5cdf5b894fd5c9f9c3563de455d02ae6a25dca99438cbba84cbf1aa1063d2"}
+{"at": "2026-11-05T16:08:24+00:00", "endpoint": "classify", "status": "ok", "backend": "onnx", "model": "masterburator3301/distilbert-spam-phishing-classification-onnx", "host": "DESKTOP-3CGBSSB", "gpu": "NVIDIA GeForce GTX 1060, 5791 MiB, 6144 MiB", "latencyMs": 1039, "inputBytes": 98, "inputSha256": "993c3119232de4446e252eee9ccd3a756eb02751b314cd0996bef4d279edca70"}
+{"at": "2026-11-05T16:08:25+00:00", "endpoint": "classify-url", "status": "ok", "backend": "url-onnx", "model": "pirocheto/phishing-url-detection", "host": "DESKTOP-3CGBSSB", "gpu": "NVIDIA GeForce GTX 1060, 5791 MiB, 6144 MiB", "latencyMs": 943, "inputBytes": 68, "inputSha256": "c5230a4082e1417c7157507e9c731f316551b579aebaf15f88d76cfb5b40be38"}
+{"at": "2026-11-05T16:13:34+00:00", "endpoint": "generate", "status": "unavailable", "backend": null, "model": null, "host": "DESKTOP-3CGBSSB", "gpu": "NVIDIA GeForce GTX 1060, 5845 MiB, 6144 MiB", "latencyMs": 257739, "inputBytes": 2427, "inputSha256": "2f3be54be5dd04c390df8ca0a6acafcd80892073885a1b3fcb0733e8508e3b8b"}
+{"at": "2026-11-05T16:13:51+00:00", "endpoint": "generate", "status": "ok", "backend": "qwen-hf", "model": "Qwen/Qwen3-VL-2B-Instruct", "host": "DESKTOP-3CGBSSB", "gpu": "NVIDIA GeForce GTX 1060, 5845 MiB, 6144 MiB", "latencyMs": 4266, "inputBytes": 107, "inputSha256": "1a49c4e7525b6e5e56f08ce9a6155f15d9978289e401371088e6a795307285ce"}
+{"at": "2026-11-05T16:14:09+00:00", "endpoint": "generate", "status": "ok", "backend": "qwen-hf", "model": "Qwen/Qwen3-VL-2B-Instruct", "host": "DESKTOP-3CGBSSB", "gpu": "NVIDIA GeForce GTX 1060, 5861 MiB, 6144 MiB", "latencyMs": 16400, "inputBytes": 107, "inputSha256": "1a49c4e7525b6e5e56f08ce9a6155f15d9978289e401371088e6a795307285ce"}
+{"at": "2026-11-05T16:18:42+00:00", "endpoint": "generate", "status": "ok", "backend": "qwen-hf", "model": "Qwen/Qwen3-VL-2B-Instruct", "host": "DESKTOP-3CGBSSB", "gpu": "NVIDIA GeForce GTX 1060, 5861 MiB, 6144 MiB", "latencyMs": 258456, "inputBytes": 2427, "inputSha256": "2f3be54be5dd04c390df8ca0a6acafcd80892073885a1b3fcb0733e8508e3b8b"}
+{"at": "2026-11-05T16:19:25+00:00", "endpoint": "classify", "status": "ok", "backend": "onnx", "model": "masterburator3301/distilbert-spam-phishing-classification-onnx", "host": "DESKTOP-3CGBSSB", "gpu": "NVIDIA GeForce GTX 1060, 5861 MiB, 6144 MiB", "latencyMs": 291, "inputBytes": 102, "inputSha256": "e5b87f94539fa327701b2b3ab07aa56d4e7722ab3bd1aa40c816d6a5648a1bea"}
+{"at": "2026-11-05T16:19:26+00:00", "endpoint": "classify-url", "status": "ok", "backend": "url-onnx", "model": "pirocheto/phishing-url-detection", "host": "DESKTOP-3CGBSSB", "gpu": "NVIDIA GeForce GTX 1060, 5861 MiB, 6144 MiB", "latencyMs": 14, "inputBytes": 132, "inputSha256": "d08bed638f894b553c93002902697f403ffecd67d52d6d333f3c068e72c2f475"}
+{"at": "2026-11-05T16:19:26+00:00", "endpoint": "embed", "status": "ok", "backend": "minilm", "model": "sentence-transformers/all-MiniLM-L6-v2", "host": "DESKTOP-3CGBSSB", "gpu": "NVIDIA GeForce GTX 1060, 5861 MiB, 6144 MiB", "latencyMs": 214, "inputBytes": 70, "inputSha256": "da4a6d30f19ba22ba1720a212dc4a10176b181f8cd8f4eb79f067c2df5171e90"}
+{"at": "2026-11-05T16:19:32+00:00", "endpoint": "explain", "status": "ok", "backend": "qwen-hf", "model": "Qwen/Qwen3-VL-2B-Instruct", "host": "DESKTOP-3CGBSSB", "gpu": "NVIDIA GeForce GTX 1060, 5861 MiB, 6144 MiB", "latencyMs": 6221, "inputBytes": 392, "inputSha256": "d2a13d81fdcfd4c563ae93eccec3175ec1652387ef1c45c7ea06c481119b6328"}
+{"at": "2026-11-05T16:19:55+00:00", "endpoint": "extract", "status": "ok", "backend": "qwen-hf", "model": "Qwen/Qwen3-VL-2B-Instruct", "host": "DESKTOP-3CGBSSB", "gpu": "NVIDIA GeForce GTX 1060, 5861 MiB, 6144 MiB", "latencyMs": 22626, "inputBytes": 31369, "inputSha256": "f1f5cdf5b894fd5c9f9c3563de455d02ae6a25dca99438cbba84cbf1aa1063d2"}

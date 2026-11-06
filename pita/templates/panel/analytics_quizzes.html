@@ -1,0 +1,235 @@
+{% extends "panel/base_panel.html" %}
+{% block title %}Quiz Performance Analytics{% endblock %}
+
+{% block extra_head %}
+<style>
+@media print {
+    nav, .no-print { display: none !important; }
+    body { background: white; font-size: 11px; }
+    .print-header { display: block !important; }
+    .page-break { page-break-before: always; }
+    a { text-decoration: none; color: inherit; }
+}
+.print-header { display: none; }
+</style>
+{% endblock %}
+
+{% block panel_content %}
+<div class="print-header mb-6 pb-4 border-b-2 border-on-surface">
+    <div class="text-xl font-bold">Guardian - Cybersecurity Awareness Platform</div>
+    <div class="text-sm text-on-surface-variant">Quiz Performance Analytics Report</div>
+</div>
+
+<div class="flex items-center justify-between mb-6 no-print">
+    <div>
+        <a href="{% url 'panel_analytics' %}" class="text-sm text-teal font-semibold hover:underline">&larr; Analytics</a>
+        <h1 class="text-2xl font-bold mt-1">Quiz Performance</h1>
+    </div>
+    <button onclick="window.print()" class="bg-teal text-white px-5 py-2 font-semibold border-2 border-teal hover:bg-primary transition-colors text-sm">
+        Print / Export
+    </button>
+</div>
+
+<!-- Summary -->
+<div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-8">
+    <div class="bg-white border border-outline p-3 text-center">
+        <div class="text-2xl sm:text-3xl font-bold text-teal">{{ quizzes.count }}</div>
+        <div class="text-xs font-bold uppercase tracking-wider text-on-surface-variant mt-1">Active Quizzes</div>
+    </div>
+    <div class="bg-white border border-outline p-3 text-center">
+        <div class="text-2xl sm:text-3xl font-bold text-teal">{{ total_attempts }}</div>
+        <div class="text-xs font-bold uppercase tracking-wider text-on-surface-variant mt-1">Total Attempts</div>
+    </div>
+    <div class="bg-white border border-outline p-3 text-center">
+        <div class="text-2xl sm:text-3xl font-bold text-teal">{{ retake_count }}</div>
+        <div class="text-xs font-bold uppercase tracking-wider text-on-surface-variant mt-1">Retake Sessions</div>
+    </div>
+    <div class="bg-white border border-outline p-3 text-center">
+        <div class="text-2xl sm:text-3xl font-bold text-teal">{{ staff_stats|length }}</div>
+        <div class="text-xs font-bold uppercase tracking-wider text-on-surface-variant mt-1">Children Participated</div>
+    </div>
+</div>
+
+<!-- Per-quiz breakdown -->
+<div class="mb-8">
+    <h2 class="font-semibold mb-3 text-sm uppercase tracking-wider text-on-surface-variant border-b border-outline pb-2">Quiz Breakdown</h2>
+    <div class="bg-white border border-outline overflow-x-auto mob-cards">
+        <table class="w-full text-sm">
+            <thead class="bg-surface border-b border-outline">
+                <tr>
+                    <th class="px-4 py-3 text-left text-xs font-bold uppercase tracking-wider text-on-surface-variant">Quiz Title</th>
+                    <th class="px-4 py-3 text-left text-xs font-bold uppercase tracking-wider text-on-surface-variant">Content</th>
+                    <th class="px-4 py-3 text-left text-xs font-bold uppercase tracking-wider text-on-surface-variant">Threat Type</th>
+                    <th class="px-4 py-3 text-center text-xs font-bold uppercase tracking-wider text-on-surface-variant">Attempts</th>
+                    <th class="px-4 py-3 text-center text-xs font-bold uppercase tracking-wider text-on-surface-variant">Avg Score</th>
+                    <th class="px-4 py-3 text-center text-xs font-bold uppercase tracking-wider text-on-surface-variant">Avg %</th>
+                    <th class="px-4 py-3 text-left text-xs font-bold uppercase tracking-wider text-on-surface-variant">Impact Rating</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for q in quizzes %}
+                <tr class="border-b border-outline hover:bg-surface">
+                    <td class="px-4 py-3 font-medium" data-label="Quiz">{{ q.title|truncatechars:40 }}</td>
+                    <td class="px-4 py-3 text-xs text-on-surface-variant" data-label="Content">
+                        {% if q.content %}
+                        <a href="{% url 'analytics_content_detail' q.content.pk %}" class="hover:text-teal hover:underline no-print">{{ q.content.title|truncatechars:30 }}</a>
+                        <span class="print-only">{{ q.content.title|truncatechars:30 }}</span>
+                        {% else %}-{% endif %}
+                    </td>
+                    <td class="px-4 py-3 text-xs text-on-surface-variant" data-label="Threat">
+                        {% if q.content %}{{ q.content.get_threat_type_display }}{% else %}-{% endif %}
+                    </td>
+                    <td class="px-4 py-3 text-center font-semibold" data-label="Attempts">{{ q.attempt_count }}</td>
+                    <td class="px-4 py-3 text-center text-teal font-semibold" data-label="Avg Score">
+                        {% if q.avg_score %}{{ q.avg_score|floatformat:1 }}{% else %}-{% endif %}
+                    </td>
+                    <td class="px-4 py-3 text-center" data-label="Avg %">
+                        {% if q.avg_score and q.avg_total and q.avg_total > 0 %}
+                        {% widthratio q.avg_score q.avg_total 100 %}%
+                        {% else %}-{% endif %}
+                    </td>
+                    <td class="px-4 py-3" data-label="Impact">
+                        {% if q.avg_score and q.avg_total and q.avg_total > 0 %}
+                        {% widthratio q.avg_score q.avg_total 100 as pct %}
+                        {% if pct >= 80 %}<span class="text-xs font-bold text-teal border border-teal px-2 py-0.5">High</span>
+                        {% elif pct >= 60 %}<span class="text-xs font-bold text-on-surface border border-outline px-2 py-0.5">Moderate</span>
+                        {% else %}<span class="text-xs font-bold text-error border border-error px-2 py-0.5">Needs Attention</span>
+                        {% endif %}
+                        {% else %}<span class="text-xs text-on-surface-variant">No data</span>{% endif %}
+                    </td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="7" class="px-4 py-8 text-center text-on-surface-variant">No quizzes found.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Retake Progression (most improved) -->
+{% if retake_progressions %}
+<div class="mb-8">
+    <h2 class="font-semibold mb-3 text-sm uppercase tracking-wider text-on-surface-variant border-b border-outline pb-2">Retake Progression, Most Improved</h2>
+    <div class="bg-white border border-outline overflow-x-auto mob-cards">
+        <table class="w-full text-sm">
+            <thead class="bg-surface border-b border-outline">
+                <tr>
+                    <th class="px-4 py-3 text-left text-xs font-bold uppercase tracking-wider text-on-surface-variant">Child</th>
+                    <th class="px-4 py-3 text-left text-xs font-bold uppercase tracking-wider text-on-surface-variant">Quiz</th>
+                    <th class="px-4 py-3 text-center text-xs font-bold uppercase tracking-wider text-on-surface-variant">Attempts</th>
+                    <th class="px-4 py-3 text-center text-xs font-bold uppercase tracking-wider text-on-surface-variant">1st Score</th>
+                    <th class="px-4 py-3 text-center text-xs font-bold uppercase tracking-wider text-on-surface-variant">Latest Score</th>
+                    <th class="px-4 py-3 text-center text-xs font-bold uppercase tracking-wider text-on-surface-variant">Change</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for r in retake_progressions %}
+                <tr class="border-b border-outline hover:bg-surface">
+                    <td class="px-4 py-2" data-label="Child">
+                        <div>{{ r.user_name|default:r.user_email }}</div>
+                        <div class="text-xs text-on-surface-variant">{{ r.user_email }}</div>
+                    </td>
+                    <td class="px-4 py-2 text-xs text-on-surface-variant" data-label="Quiz">{{ r.quiz_title|truncatechars:40 }}</td>
+                    <td class="px-4 py-2 text-center font-semibold" data-label="Attempts">{{ r.attempt_count }}</td>
+                    <td class="px-4 py-2 text-center text-on-surface-variant" data-label="1st">{{ r.first_pct }}%</td>
+                    <td class="px-4 py-2 text-center font-semibold text-teal" data-label="Latest">{{ r.latest_pct }}%</td>
+                    <td class="px-4 py-2 text-center font-bold
+                        {% if r.delta > 0 %}text-teal{% elif r.delta < 0 %}text-error{% else %}text-on-surface-variant{% endif %}" data-label="Change">
+                        {% if r.delta > 0 %}+{% endif %}{{ r.delta }}%
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endif %}
+
+<!-- Per-child summary -->
+{% if staff_stats %}
+<div class="mb-8 page-break">
+    <h2 class="font-semibold mb-3 text-sm uppercase tracking-wider text-on-surface-variant border-b border-outline pb-2">Children Quiz Summary</h2>
+    <div class="bg-white border border-outline overflow-x-auto mob-cards">
+        <table class="w-full text-sm">
+            <thead class="bg-surface border-b border-outline">
+                <tr>
+                    <th class="px-4 py-3 text-left text-xs font-bold uppercase tracking-wider text-on-surface-variant">Name</th>
+                    <th class="px-4 py-3 text-left text-xs font-bold uppercase tracking-wider text-on-surface-variant">Email</th>
+                    <th class="px-4 py-3 text-center text-xs font-bold uppercase tracking-wider text-on-surface-variant">Attempts</th>
+                    <th class="px-4 py-3 text-center text-xs font-bold uppercase tracking-wider text-on-surface-variant">Quizzes</th>
+                    <th class="px-4 py-3 text-center text-xs font-bold uppercase tracking-wider text-on-surface-variant">Avg First</th>
+                    <th class="px-4 py-3 text-center text-xs font-bold uppercase tracking-wider text-on-surface-variant">Avg Latest</th>
+                    <th class="px-4 py-3 text-center text-xs font-bold uppercase tracking-wider text-on-surface-variant">Net Change</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for s in staff_stats %}
+                <tr class="border-b border-outline hover:bg-surface">
+                    <td class="px-4 py-2" data-label="Name">{{ s.name|default:"-" }}</td>
+                    <td class="px-4 py-2 text-xs text-on-surface-variant" data-label="Email">{{ s.email }}</td>
+                    <td class="px-4 py-2 text-center font-semibold" data-label="Attempts">{{ s.total_attempts }}</td>
+                    <td class="px-4 py-2 text-center text-on-surface-variant" data-label="Quizzes">{{ s.quiz_count }}</td>
+                    <td class="px-4 py-2 text-center text-on-surface-variant" data-label="1st Avg">{{ s.avg_first_pct }}%</td>
+                    <td class="px-4 py-2 text-center font-semibold text-teal" data-label="Latest">{{ s.avg_latest_pct }}%</td>
+                    <td class="px-4 py-2 text-center font-bold
+                        {% if s.avg_delta > 0 %}text-teal{% elif s.avg_delta < 0 %}text-error{% else %}text-on-surface-variant{% endif %}" data-label="Change">
+                        {% if s.avg_delta > 0 %}+{% endif %}{{ s.avg_delta }}%
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endif %}
+
+<!-- Full attempt log -->
+<div class="page-break">
+    <h2 class="font-semibold mb-3 text-sm uppercase tracking-wider text-on-surface-variant border-b border-outline pb-2">All Quiz Attempts</h2>
+    <div class="bg-white border border-outline overflow-x-auto mob-cards">
+        <table class="w-full text-sm">
+            <thead class="bg-surface border-b border-outline">
+                <tr>
+                    <th class="px-4 py-2 text-left text-xs font-bold uppercase tracking-wider text-on-surface-variant">Child</th>
+                    <th class="px-4 py-2 text-left text-xs font-bold uppercase tracking-wider text-on-surface-variant">Quiz</th>
+                    <th class="px-4 py-2 text-center text-xs font-bold uppercase tracking-wider text-on-surface-variant">#</th>
+                    <th class="px-4 py-2 text-center text-xs font-bold uppercase tracking-wider text-on-surface-variant">Score</th>
+                    <th class="px-4 py-2 text-center text-xs font-bold uppercase tracking-wider text-on-surface-variant">%</th>
+                    <th class="px-4 py-2 text-center text-xs font-bold uppercase tracking-wider text-on-surface-variant">Change</th>
+                    <th class="px-4 py-2 text-center text-xs font-bold uppercase tracking-wider text-on-surface-variant">Rating</th>
+                    <th class="px-4 py-2 text-left text-xs font-bold uppercase tracking-wider text-on-surface-variant">Completed At</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for a in attempts %}
+                <tr class="border-b border-outline hover:bg-surface">
+                    <td class="px-4 py-2" data-label="Child">
+                        <div>{{ a.user.profile.full_name|default:a.user.email }}</div>
+                        <div class="text-xs text-on-surface-variant">{{ a.user.email }}</div>
+                    </td>
+                    <td class="px-4 py-2 text-xs text-on-surface-variant" data-label="Quiz">{{ a.quiz.title|truncatechars:35 }}</td>
+                    <td class="px-4 py-2 text-center text-xs text-on-surface-variant font-semibold" data-label="Attempt #">{{ a.attempt_number }}</td>
+                    <td class="px-4 py-2 text-center font-bold text-teal" data-label="Score">{{ a.score }}/{{ a.total }}</td>
+                    <td class="px-4 py-2 text-center font-semibold {% if a.percentage >= 70 %}text-teal{% else %}text-error{% endif %}" data-label="%">
+                        {{ a.percentage }}%
+                    </td>
+                    <td class="px-4 py-2 text-center text-xs font-semibold
+                        {% if a.attempt_delta is not None %}{% if a.attempt_delta > 0 %}text-teal{% elif a.attempt_delta < 0 %}text-error{% else %}text-on-surface-variant{% endif %}{% else %}text-on-surface-variant{% endif %}" data-label="Change">
+                        {% if a.attempt_delta is not None %}{% if a.attempt_delta > 0 %}+{% endif %}{{ a.attempt_delta }}%{% else %}&mdash;{% endif %}
+                    </td>
+                    <td class="px-4 py-2 text-center" data-label="Rating">
+                        {% if a.percentage >= 80 %}<span class="text-xs border border-teal text-teal px-1.5 py-0.5">Excellent</span>
+                        {% elif a.percentage >= 60 %}<span class="text-xs border border-outline text-on-surface-variant px-1.5 py-0.5">Good</span>
+                        {% else %}<span class="text-xs border border-error text-error px-1.5 py-0.5">Poor</span>
+                        {% endif %}
+                    </td>
+                    <td class="px-4 py-2 text-xs text-on-surface-variant" data-label="Date">{{ a.completed_at|date:"M d, Y H:i" }}</td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="8" class="px-4 py-8 text-center text-on-surface-variant">No quiz attempts yet.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

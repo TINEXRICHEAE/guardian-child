@@ -1,0 +1,42 @@
+{
+    "status": "ok",
+    "results": [
+        {
+            "url": "http://mtn-ug-rewards.example/claim.php?id=88",
+            "phishingScore": 0.7853,
+            "label": 1
+        },
+        {
+            "url": "https://www.mtn.co.ug/",
+            "phishingScore": 0.0243,
+            "label": 0
+        },
+        {
+            "url": "http://192.168.4.20/login/verify-account",
+            "phishingScore": 1.0,
+            "label": 1
+        },
+        {
+            "url": "https://www.mak.ac.ug/",
+            "phishingScore": 0.0047,
+            "label": 0
+        }
+    ],
+    "scoreKind": "uncalibrated-model-score",
+    "calibrated": false,
+    "meta": {
+        "host": "DESKTOP-3CGBSSB",
+        "gpu": "NVIDIA GeForce GTX 1060, 5861 MiB, 6144 MiB",
+        "backend": "url-onnx",
+        "model": "pirocheto/phishing-url-detection",
+        "cloud": false,
+        "mode": "live",
+        "latencyMs": 14,
+        "attempts": [
+            {
+                "backend": "url-onnx",
+                "ok": true
+            }
+        ]
+    }
+}

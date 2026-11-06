@@ -1,0 +1,80 @@
+{% extends "panel/base_panel.html" %}
+{% block title %}Content Sources{% endblock %}
+
+{% block panel_content %}
+<div class="flex items-center justify-between mb-6">
+    <div>
+        <h1 class="text-3xl font-bold">Content Sources</h1>
+        <p class="text-on-surface-variant text-sm mt-1">Manage API feeds, uploaded documents, and manual prompts.</p>
+    </div>
+    <div class="flex gap-3">
+        <a href="{% url 'panel_raw_contents' %}" class="bg-white text-on-surface px-4 py-2 font-semibold border border-on-surface hover:bg-surface transition-colors text-sm">Raw Content</a>
+        <a href="{% url 'panel_add_source' %}" class="bg-teal text-white px-4 py-2 font-semibold border-2 border-teal hover:bg-primary transition-colors text-sm">+ Add Source</a>
+    </div>
+</div>
+
+{% if page_obj.object_list %}
+<div class="bg-white border border-outline overflow-x-auto mob-cards">
+    <table class="w-full text-sm">
+        <thead class="border-b border-outline">
+            <tr>
+                <th class="text-left px-4 py-3 text-xs font-bold uppercase tracking-wider text-on-surface-variant">Name</th>
+                <th class="text-left px-4 py-3 text-xs font-bold uppercase tracking-wider text-on-surface-variant">Type</th>
+                <th class="text-left px-4 py-3 text-xs font-bold uppercase tracking-wider text-on-surface-variant">Threat</th>
+                <th class="text-left px-4 py-3 text-xs font-bold uppercase tracking-wider text-on-surface-variant">Last Fetched</th>
+                <th class="text-left px-4 py-3 text-xs font-bold uppercase tracking-wider text-on-surface-variant">Raw Items</th>
+                <th class="px-4 py-3"></th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for source in page_obj %}
+            <tr class="border-b border-outline hover:bg-surface transition-colors">
+                <td class="px-4 py-3 font-medium" data-label="Name">{{ source.name }}</td>
+                <td class="px-4 py-3" data-label="Type">
+                    <span class="border border-outline px-2 py-0.5 text-xs">{{ source.get_source_type_display }}</span>
+                </td>
+                <td class="px-4 py-3 text-on-surface-variant" data-label="Threat">{{ source.get_threat_type_display }}</td>
+                <td class="px-4 py-3 text-on-surface-variant" data-label="Fetched">
+                    {% if source.last_fetched %}{{ source.last_fetched|date:"M d, Y H:i" }}{% else %}Never{% endif %}
+                </td>
+                <td class="px-4 py-3 text-teal font-semibold" data-label="Raw Items">{{ source.raw_contents.count }}</td>
+                <td class="px-4 py-3 text-right">
+                    <div class="flex items-center justify-end gap-2">
+                        <form method="post" action="{% url 'panel_ingest_source' source.pk %}" class="inline">
+                            {% csrf_token %}
+                            <button type="submit" class="text-xs bg-teal text-white px-3 py-1 border-2 border-teal hover:bg-primary transition-colors font-semibold">
+                                Ingest Now
+                            </button>
+                        </form>
+                        <form method="post" action="{% url 'panel_delete_source' source.pk %}" class="inline"
+                              data-confirm="Delete source &quot;{{ source.name|escapejs }}&quot;? This will permanently delete its {{ source.raw_contents.count }} raw content item(s). This cannot be undone."
+                              data-confirm-btn="Delete">
+                            {% csrf_token %}
+                            <button type="submit" class="text-xs text-error border border-error px-3 py-1 hover:bg-error hover:text-white transition-colors font-semibold">
+                                Delete
+                            </button>
+                        </form>
+                    </div>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+{% if page_obj.has_other_pages %}
+<div class="flex gap-2 justify-center mt-6">
+    {% if page_obj.has_previous %}<a href="?page={{ page_obj.previous_page_number }}" class="px-4 py-2 border border-on-surface hover:bg-surface text-sm font-medium">&laquo; Prev</a>{% endif %}
+    <span class="px-4 py-2 bg-teal text-white text-sm font-medium">{{ page_obj.number }} / {{ page_obj.paginator.num_pages }}</span>
+    {% if page_obj.has_next %}<a href="?page={{ page_obj.next_page_number }}" class="px-4 py-2 border border-on-surface hover:bg-surface text-sm font-medium">Next &raquo;</a>{% endif %}
+</div>
+{% endif %}
+
+{% else %}
+<div class="bg-white border border-outline p-12 text-center">
+    <div class="flex justify-center mb-4 text-on-surface-variant"><svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M13.19 8.688a4.5 4.5 0 0 1 1.242 7.244l-4.5 4.5a4.5 4.5 0 0 1-6.364-6.364l1.757-1.757m13.35-.622 1.757-1.757a4.5 4.5 0 0 0-6.364-6.364l-4.5 4.5a4.5 4.5 0 0 0 1.242 7.244"/></svg></div>
+    <p class="text-on-surface-variant mb-4">No sources added yet.</p>
+    <a href="{% url 'panel_add_source' %}" class="inline-block bg-teal text-white px-6 py-2 font-semibold border-2 border-teal hover:bg-primary transition-colors text-sm">Add Your First Source</a>
+</div>
+{% endif %}
+{% endblock %}

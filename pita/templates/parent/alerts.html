@@ -1,0 +1,22 @@
+{% extends "app/parent_base.html" %}{% load app_ui %}
+{% block title %}Safety alerts{% endblock %}
+{% block parent_content %}
+<div class="flex flex-wrap items-end justify-between gap-4 mb-6">
+    <div><h1 class="text-2xl md:text-3xl font-bold mb-1">Safety alerts</h1><p class="text-on-surface-variant">The type of threat, what to do, and when. Never the message itself.</p></div>
+    {% if alerts %}<form method="post">{% csrf_token %}<button class="bg-white text-on-surface px-4 py-2 text-sm font-semibold border border-on-surface hover:bg-surface">Mark all as read</button></form>{% endif %}
+</div>
+<div class="bg-white border border-outline">
+    {% for a in alerts %}
+    <div class="px-5 py-4 border-b border-outline last:border-b-0">
+        <div class="flex flex-wrap items-center gap-2 mb-1"><strong>{{ a.title }}</strong>
+            <span class="text-xs font-semibold px-2 py-0.5 {{ a.severity|risk_badge }}">{{ a.severity|capfirst }}</span>
+            {% if not a.read_at %}<span class="text-xs font-semibold px-2 py-0.5 bg-teal text-white">New</span>{% endif %}</div>
+        <p class="text-sm mb-1">{{ a.safety_action }}</p>
+        <div class="text-xs text-on-surface-variant">{{ a.child.nickname }} · {{ a.created_at|date:"D j M, H:i" }} · from a {{ a.source }}</div>
+    </div>
+    {% empty %}
+    <div class="p-6 text-sm text-on-surface-variant">No safety alerts. Alerts appear here when a child with safety alerts turned on checks something high-risk.</div>
+    {% endfor %}
+</div>
+<div class="mt-6 p-4 bg-surface border border-outline text-sm text-on-surface-variant"><strong class="text-on-surface">What you can see.</strong> The type of threat, an important safety action, and the time. Full messages, screenshots and private reports stay hidden.</div>
+{% endblock %}

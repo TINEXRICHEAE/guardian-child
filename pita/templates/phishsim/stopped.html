@@ -1,0 +1,14 @@
+{% extends "app/child_base.html" %}
+{% block title %}Stop Guardian emails{% endblock %}
+{% block child_content %}
+<div class="bg-white border border-outline p-6 max-w-xl">
+    {% if done %}
+    <h1 class="text-2xl font-bold mb-2">Done. Guardian will not email this address again.</h1>
+    <p class="text-sm text-on-surface-variant">The family that added it will see that this address asked to stop.</p>
+    {% else %}
+    <h1 class="text-2xl font-bold mb-2">Stop Guardian emails to this address?</h1>
+    <p class="text-sm text-on-surface-variant mb-4">Use this if you don't know the family that added you, or you don't want practice messages.</p>
+    <form method="post">{% csrf_token %}<button class="bg-primary text-white px-5 py-2 text-sm font-semibold hover:bg-primary-container">Yes, stop all emails</button></form>
+    {% endif %}
+</div>
+{% endblock %}

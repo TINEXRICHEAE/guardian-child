@@ -1,0 +1,35 @@
+{% extends "panel/base_panel.html" %}
+{% block title %}Create Campaign{% endblock %}
+
+{% block panel_content %}
+<div class="max-w-2xl">
+    <a href="{% url 'panel_content_detail' content.pk %}" class="text-sm text-teal font-semibold hover:underline mb-6 inline-block">&larr; Back to Content</a>
+    <h1 class="text-3xl font-bold mb-2">Create Email Campaign</h1>
+    <p class="text-on-surface-variant text-sm mb-8">Compose the campaign email for: <strong>{{ content.title }}</strong></p>
+
+    <!-- Content preview -->
+    <div class="bg-surface-container border border-outline p-4 mb-6">
+        <div class="text-xs font-bold uppercase tracking-wider text-on-surface-variant mb-2">Content Preview</div>
+        <div class="text-sm font-semibold mb-1">{{ content.title }}</div>
+        <div class="text-sm text-on-surface-variant line-clamp-2">{{ content.risk }}</div>
+    </div>
+
+    <form method="post" class="space-y-5">
+        {% csrf_token %}
+        <div>
+            <label class="block text-xs font-bold uppercase tracking-wider mb-1">Email Subject *</label>
+            <input type="text" name="subject" value="{{ default_subject }}" required
+                class="w-full px-3 py-2 border border-on-surface focus:outline-none focus:border-2 focus:border-teal text-sm">
+        </div>
+        <div>
+            <label class="block text-xs font-bold uppercase tracking-wider mb-1">Custom HTML Body <span class="font-normal text-on-surface-variant">(leave blank to auto-generate)</span></label>
+            <textarea name="body_html" rows="8" placeholder="Leave empty to auto-generate from the awareness content..."
+                class="w-full px-3 py-2 border border-on-surface focus:outline-none focus:border-2 focus:border-teal text-sm font-mono resize-y"></textarea>
+        </div>
+        <div class="flex gap-3 pt-2">
+            <button type="submit" class="bg-teal text-white px-6 py-2 font-semibold border-2 border-teal hover:bg-primary transition-colors text-sm">Create Draft</button>
+            <a href="{% url 'panel_content_detail' content.pk %}" class="bg-white text-on-surface px-6 py-2 font-semibold border border-on-surface hover:bg-surface transition-colors text-sm">Cancel</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

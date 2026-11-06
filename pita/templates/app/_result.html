@@ -1,0 +1,23 @@
+{% load app_ui %}
+<section class="border-l-4 border p-6 mb-5 {{ sub.risk_level|risk_panel }}" role="status">
+    <div class="text-xs font-bold uppercase tracking-wider text-on-surface-variant mb-2">{{ sub.mode|mode_label }}</div>
+    <h2 class="text-2xl font-bold mb-2">{{ sub.risk_level|risk_heading }}</h2>
+    <p class="text-sm">{{ sub.explanation }}</p>
+</section>
+{% if sub.signals %}
+<section class="bg-white border border-outline p-5 mb-5">
+    <h3 class="text-lg font-semibold mb-3 border-b border-outline pb-2">What we noticed</h3>
+    <ul class="space-y-2 text-sm list-disc list-inside">{% for s in sub.signals %}<li>{{ s }}</li>{% endfor %}</ul>
+</section>
+{% endif %}
+<section class="bg-white border border-outline p-5 mb-5">
+    <h3 class="text-lg font-semibold mb-3 border-b border-outline pb-2">What to do now</h3>
+    <ol class="space-y-2 text-sm list-decimal list-inside">{% for a in sub.recommended_actions %}<li>{{ a }}</li>{% endfor %}</ol>
+</section>
+{% if sub.urls %}
+<section class="bg-white border border-outline p-5 mb-5">
+    <h3 class="text-lg font-semibold mb-3 border-b border-outline pb-2">Links in this message</h3>
+    <ul class="space-y-1 text-sm font-mono break-all">{% for u in sub.urls %}<li>{{ u }}</li>{% endfor %}</ul>
+    <p class="text-xs text-on-surface-variant mt-2">Shown as text only. Guardian did not open them.</p>
+</section>
+{% endif %}

@@ -1,0 +1,58 @@
+{
+    "status": "ready",
+    "service": "guardian-ai",
+    "version": "0.1.0",
+    "host": "DESKTOP-3CGBSSB",
+    "gpu": "NVIDIA GeForce GTX 1060, 5861 MiB, 6144 MiB",
+    "mode": "live",
+    "backends": {
+        "classify": [
+            {
+                "name": "onnx",
+                "ready": true,
+                "cloud": false,
+                "model": "masterburator3301/distilbert-spam-phishing-classification-onnx"
+            }
+        ],
+        "classify_url": [
+            {
+                "name": "url-onnx",
+                "ready": true,
+                "cloud": false,
+                "model": "pirocheto/phishing-url-detection"
+            }
+        ],
+        "embed": [
+            {
+                "name": "minilm",
+                "ready": true,
+                "cloud": false,
+                "model": "sentence-transformers/all-MiniLM-L6-v2"
+            }
+        ],
+        "extract": [
+            {
+                "name": "qwen-hf",
+                "ready": true,
+                "cloud": false,
+                "model": "Qwen/Qwen3-VL-2B-Instruct"
+            }
+        ],
+        "explain": [
+            {
+                "name": "qwen-hf",
+                "ready": true,
+                "cloud": false,
+                "model": "Qwen/Qwen3-VL-2B-Instruct"
+            }
+        ],
+        "generate": [
+            {
+                "name": "qwen-hf",
+                "ready": true,
+                "cloud": false,
+                "model": "Qwen/Qwen3-VL-2B-Instruct"
+            }
+        ]
+    }
+}

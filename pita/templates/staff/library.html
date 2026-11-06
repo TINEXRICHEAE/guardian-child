@@ -1,0 +1,90 @@
+{% extends "base.html" %}
+{% block title %}Training Library{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 py-8">
+
+    <div class="mb-6">
+        <h1 class="text-3xl font-bold mb-1">Training Library</h1>
+        <p class="text-on-surface-variant text-sm">Lessons about scams and staying safe online, published by authorised child online-safety analysts.</p>
+    </div>
+
+    {% if page_obj.object_list %}
+    <!-- Client-side filter (no form submit) -->
+    <div class="flex flex-col sm:flex-row gap-3 mb-6 items-stretch sm:items-end">
+        <div class="flex-1">
+            <label class="block text-xs font-bold uppercase tracking-wider mb-1 text-on-surface-variant">Search</label>
+            <input type="text" id="librarySearch" placeholder="Search by title or description..."
+                class="w-full px-3 py-2 border border-on-surface focus:outline-none focus:border-2 focus:border-teal text-sm">
+        </div>
+        <div>
+            <label class="block text-xs font-bold uppercase tracking-wider mb-1 text-on-surface-variant">Threat Type</label>
+            <select id="libraryThreat" class="w-full sm:w-auto px-3 py-2 border border-on-surface focus:outline-none focus:border-teal text-sm bg-white">
+                <option value="">All Types</option>
+                {% for val, label in threat_choices %}
+                <option value="{{ val }}">{{ label }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <button type="button" data-clear-library class="bg-white text-on-surface px-5 py-2 font-semibold border border-on-surface hover:bg-surface transition-colors text-sm whitespace-nowrap">Clear</button>
+    </div>
+
+    <div id="libraryGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
+        {% for content in page_obj %}
+        <a href="{% url 'content_view' content.pk %}"
+           class="block bg-white border border-outline hover:border-teal transition-colors group"
+           data-title="{{ content.title|lower }}"
+           data-threat="{{ content.threat_type }}"
+           data-risk="{{ content.risk|lower|truncatechars:200 }}">
+            <div class="p-4">
+                <div class="flex items-center justify-between mb-3">
+                    <span class="text-xs font-bold uppercase tracking-wider px-2 py-1 border
+                        {% if content.threat_type == 'compromised' %}border-teal text-teal
+                        {% elif content.threat_type == 'negligent' %}border-on-surface-variant text-on-surface-variant
+                        {% elif content.threat_type == 'malicious' %}border-error text-error
+                        {% else %}border-primary text-primary{% endif %}">
+                        {{ content.get_threat_type_display }}
+                    </span>
+                    {% if content.pk in viewed_ids %}
+                    <span class="text-xs text-on-surface-variant shrink-0 flex items-center gap-1"><svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5"/></svg> Viewed</span>
+                    {% endif %}
+                </div>
+                <h3 class="font-semibold text-sm mb-2 group-hover:text-teal transition-colors leading-snug">{{ content.title }}</h3>
+                <p class="text-sm text-on-surface-variant line-clamp-2 mb-4">{{ content.risk }}</p>
+                <div class="flex items-center justify-between text-xs text-on-surface-variant">
+                    <span class="border border-outline px-2 py-0.5">{{ content.get_engagement_type_display }}</span>
+                    <span>{{ content.created_at|date:"M d, Y" }}</span>
+                </div>
+            </div>
+        </a>
+        {% endfor %}
+    </div>
+
+    <!-- JS filter empty state (hidden initially) -->
+    <div id="libraryEmpty" class="hidden bg-white border border-outline p-10 text-center mb-8">
+        <div class="flex justify-center mb-3 text-on-surface-variant"><svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 0 0 6 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 0 1 6 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 0 1 6-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0 0 18 18a8.967 8.967 0 0 0-6 2.292m0-14.25v14.25"/></svg></div>
+        <p class="text-on-surface-variant text-sm mb-3">No content matches your search.</p>
+        <button type="button" data-clear-library class="text-teal font-semibold text-sm hover:underline">Clear filters</button>
+    </div>
+
+    {% if page_obj.has_other_pages %}
+    <div class="flex gap-2 justify-center">
+        {% if page_obj.has_previous %}
+        <a href="?page={{ page_obj.previous_page_number }}" class="px-4 py-2 border border-on-surface hover:bg-surface text-sm font-medium">&laquo; Prev</a>
+        {% endif %}
+        <span class="px-4 py-2 bg-teal text-white text-sm font-medium">{{ page_obj.number }} / {{ page_obj.paginator.num_pages }}</span>
+        {% if page_obj.has_next %}
+        <a href="?page={{ page_obj.next_page_number }}" class="px-4 py-2 border border-on-surface hover:bg-surface text-sm font-medium">Next &raquo;</a>
+        {% endif %}
+    </div>
+    {% endif %}
+
+    {% else %}
+    <div class="bg-white border border-outline p-12 text-center">
+        <div class="flex justify-center mb-4 text-on-surface-variant"><svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 0 0 6 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 0 1 6 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 0 1 6-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0 0 18 18a8.967 8.967 0 0 0-6 2.292m0-14.25v14.25"/></svg></div>
+        <p class="text-on-surface-variant">No awareness content available yet. Check back after your admin publishes content.</p>
+    </div>
+    {% endif %}
+
+</div>
+{% endblock %}

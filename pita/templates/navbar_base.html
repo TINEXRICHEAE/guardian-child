@@ -1,0 +1,405 @@
+{% load static %}
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+    tailwind.config = {
+        theme: {
+            extend: {
+                colors: {
+                    'primary': '#003732',
+                    'primary-container': '#005049',
+                    'on-primary': '#ffffff',
+                    'on-primary-container': '#81c1b7',
+                    'surface': '#f9f9f9',
+                    'surface-container': '#eeeeee',
+                    'on-surface': '#1a1c1c',
+                    'on-surface-variant': '#3f4947',
+                    'outline': '#6f7977',
+                    'teal': '#005049',
+                    'error': '#ba1a1a',
+                },
+            }
+        }
+    }
+</script>
+
+<nav class="bg-primary-container text-white border-b border-outline sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto px-4">
+        <div class="flex justify-between items-center h-14">
+            <a href="{% url 'home' %}" class="flex items-center gap-2 text-lg font-bold tracking-tight">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75m-3-7.036A11.959 11.959 0 0 1 3.598 6 11.99 11.99 0 0 0 3 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z"/></svg>
+                <span>Guardian</span>
+            </a>
+
+            <!-- Desktop nav -->
+            <div class="hidden md:flex items-center gap-5 text-sm">
+                <a href="{% url 'home' %}" class="border-b-2 border-transparent hover:border-white transition-all py-1">Home</a>
+
+                <span id="staffLinks" class="hidden contents">
+                    <a href="{% url 'child_home' %}" class="border-b-2 border-transparent hover:border-white transition-all py-1">My space</a>
+                    <a href="{% url 'child_check' %}" class="border-b-2 border-transparent hover:border-white transition-all py-1">Is this safe?</a>
+                    <a href="{% url 'child_lessons' %}" class="border-b-2 border-transparent hover:border-white transition-all py-1">My lessons</a>
+                    <a href="{% url 'library' %}" class="border-b-2 border-transparent hover:border-white transition-all py-1">Library</a>
+                    <a href="{% url 'quizzes' %}" class="border-b-2 border-transparent hover:border-white transition-all py-1">Quizzes</a>
+                    <a href="{% url 'progress' %}" class="border-b-2 border-transparent hover:border-white transition-all py-1">Progress</a>
+                </span>
+
+                <span id="parentLinks" class="hidden contents">
+                    <a href="{% url 'parent_home' %}" class="border-b-2 border-transparent hover:border-white transition-all py-1">My family</a>
+                    <a href="{% url 'parent_news' %}" class="border-b-2 border-transparent hover:border-white transition-all py-1">News</a>
+                    <a href="{% url 'parent_check' %}" class="border-b-2 border-transparent hover:border-white transition-all py-1">Check something</a>
+                    <a href="{% url 'parent_alerts' %}" class="border-b-2 border-transparent hover:border-white transition-all py-1">Alerts</a>
+                </span>
+
+                <span id="adminLinks" class="hidden contents">
+                    <a href="{% url 'panel_dashboard' %}" class="border-b-2 border-transparent hover:border-white transition-all py-1">Dashboard</a>
+                    <a href="{% url 'panel_sources' %}" class="border-b-2 border-transparent hover:border-white transition-all py-1">Sources</a>
+                    <a href="{% url 'panel_content_list' %}" class="border-b-2 border-transparent hover:border-white transition-all py-1">Content</a>
+                    <a href="{% url 'panel_campaigns' %}" class="border-b-2 border-transparent hover:border-white transition-all py-1">Campaigns</a>
+                    <a href="{% url 'panel_analytics' %}" class="border-b-2 border-transparent hover:border-white transition-all py-1">Analytics</a>
+                </span>
+
+                <button onclick="toggleDark()" title="Toggle dark / light mode"
+                    class="p-1.5 opacity-75 hover:opacity-100 transition-opacity shrink-0" aria-label="Toggle theme">
+                    <span class="dark-toggle-icon leading-none"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M21.752 15.002A9.718 9.718 0 0 1 18 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 0 0 3 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 0 0 9.002-5.998z"/></svg></span>
+                </button>
+
+                <button id="profileBtn" onclick="openProfileModal()" class="hidden items-center gap-2 bg-white text-primary pl-1 pr-3 py-1 font-semibold border-2 border-white hover:bg-surface transition-colors text-sm">
+                    <span id="navAvatar" class="relative w-7 h-7 rounded-full bg-teal text-white flex items-center justify-center text-xs font-bold overflow-hidden shrink-0">
+                        <span id="navAvatarInitials"></span>
+                        <img id="navAvatarImg" src="" alt="" class="hidden absolute inset-0 w-full h-full object-cover">
+                    </span>
+                    <span id="navUserEmail">Profile</span>
+                </button>
+                <a href="{% url 'login_user' %}" id="loginLink" class="hidden bg-white text-primary px-3 py-1.5 font-semibold border-2 border-white hover:bg-surface transition-colors text-sm">Login</a>
+            </div>
+
+            <!-- Mobile: theme toggle + hamburger -->
+            <div class="flex md:hidden items-center gap-1">
+                <button onclick="toggleDark()" class="p-2 opacity-75 hover:opacity-100 transition-opacity" aria-label="Toggle theme">
+                    <span class="dark-toggle-icon leading-none"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M21.752 15.002A9.718 9.718 0 0 1 18 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 0 0 3 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 0 0 9.002-5.998z"/></svg></span>
+                </button>
+                <button id="hamburger" onclick="toggleMobileMenu()" class="flex flex-col gap-1 p-2" aria-label="Menu">
+                    <span class="w-5 h-0.5 bg-on-primary block transition-all"></span>
+                    <span class="w-5 h-0.5 bg-on-primary block transition-all"></span>
+                    <span class="w-5 h-0.5 bg-on-primary block transition-all"></span>
+                </button>
+            </div>
+        </div>
+    </div>
+</nav>
+
+<!-- Mobile Menu -->
+<div id="mobileMenu" class="hidden md:hidden bg-primary-container text-white border-b border-outline">
+    <div class="px-4 py-3 space-y-1 text-sm">
+        <div id="mobileProfileSection" class="hidden mb-3 pb-3 border-b border-outline">
+            <div id="mobileUserEmail" class="font-semibold mb-2 break-words text-xs opacity-75">User Profile</div>
+            <button onclick="openProfileModal(); closeMobileMenu();" class="bg-white text-primary px-4 py-2 font-semibold w-full text-sm">Manage Profile</button>
+        </div>
+
+        <a href="{% url 'home' %}" class="block py-2 border-b border-outline border-opacity-40">Home</a>
+
+        <span id="mobileStaffLinks" class="hidden">
+            <a href="{% url 'child_home' %}" class="block py-2 border-b border-outline border-opacity-40">My space</a>
+            <a href="{% url 'child_check' %}" class="block py-2 border-b border-outline border-opacity-40">Is this safe?</a>
+            <a href="{% url 'library' %}" class="block py-2 border-b border-outline border-opacity-40">Library</a>
+            <a href="{% url 'quizzes' %}" class="block py-2 border-b border-outline border-opacity-40">Quizzes</a>
+            <a href="{% url 'progress' %}" class="block py-2 border-b border-outline border-opacity-40">Progress</a>
+        </span>
+
+        <span id="mobileParentLinks" class="hidden">
+            <a href="{% url 'parent_home' %}" class="block py-2 border-b border-outline border-opacity-40">My family</a>
+            <a href="{% url 'parent_news' %}" class="block py-2 border-b border-outline border-opacity-40">News for families</a>
+            <a href="{% url 'parent_check' %}" class="block py-2 border-b border-outline border-opacity-40">Check something</a>
+            <a href="{% url 'parent_alerts' %}" class="block py-2 border-b border-outline border-opacity-40">Alerts</a>
+            <a href="{% url 'parent_settings' %}" class="block py-2 border-b border-outline border-opacity-40">Preferences</a>
+        </span>
+
+        <span id="mobileAdminLinks" class="hidden">
+            <a href="{% url 'panel_dashboard' %}" class="block py-2 border-b border-outline border-opacity-40">Dashboard</a>
+            <a href="{% url 'panel_sources' %}" class="block py-2 border-b border-outline border-opacity-40">Sources</a>
+            <a href="{% url 'panel_content_list' %}" class="block py-2 border-b border-outline border-opacity-40">Content</a>
+            <a href="{% url 'panel_campaigns' %}" class="block py-2 border-b border-outline border-opacity-40">Campaigns</a>
+            <a href="{% url 'panel_analytics' %}" class="block py-2 border-b border-outline border-opacity-40">Analytics</a>
+        </span>
+
+        <a href="{% url 'login_user' %}" id="mobileLoginLink" class="hidden block py-2">Login</a>
+    </div>
+</div>
+
+<!-- Profile Modal -->
+<div id="profileModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden items-center justify-center p-4">
+    <div class="bg-white border-2 border-on-surface max-w-lg w-full p-6 max-h-[90vh] overflow-y-auto">
+        <div class="flex justify-between items-center mb-5">
+            <h2 class="text-xl font-bold">Profile Settings</h2>
+            <button onclick="closeProfileModal()" class="text-2xl leading-none hover:text-teal">&times;</button>
+        </div>
+
+        <!-- Avatar -->
+        <div class="flex items-center gap-4 mb-5">
+            <div class="relative shrink-0">
+                <div id="modalAvatar" class="relative w-16 h-16 rounded-full bg-teal text-white flex items-center justify-center text-2xl font-bold overflow-hidden border-2 border-outline">
+                    <span id="modalAvatarInitials"></span>
+                    <img id="modalAvatarImg" src="" alt="" class="hidden absolute inset-0 w-full h-full object-cover">
+                </div>
+                <label for="pictureUpload" id="pictureUploadLabel" title="Change profile picture"
+                    class="absolute -bottom-1 -right-1 w-6 h-6 bg-teal border-2 border-white flex items-center justify-center cursor-pointer rounded-full hover:bg-primary transition-colors">
+                    <svg class="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15.232 5.232l3.536 3.536M9 11l6-6 3 3-6 6H9v-3z"/>
+                    </svg>
+                </label>
+                <input type="file" id="pictureUpload" accept="image/*" class="hidden" onchange="previewProfilePicture(this)">
+            </div>
+            <div class="min-w-0 flex-1">
+                <div id="modalAvatarName" class="font-semibold text-sm truncate">-</div>
+                <div id="pictureUploadHint" class="text-xs text-on-surface-variant mt-0.5">Click the pencil to change photo</div>
+                <div id="pictureUploadStatus" class="text-xs mt-1 hidden"></div>
+            </div>
+        </div>
+
+        <!-- Picture preview (hidden until a file is chosen) -->
+        <div id="picturePreviewArea" class="hidden mb-5 border border-outline p-3 bg-surface">
+            <div class="flex items-center gap-3 mb-3">
+                <img id="picturePreviewImg" src="" alt="Preview" class="w-16 h-16 rounded-full object-cover border-2 border-outline shrink-0">
+                <div class="text-xs text-on-surface-variant leading-relaxed">
+                    <div class="font-semibold text-on-surface mb-0.5">New photo preview</div>
+                    <div id="picturePreviewFileName" class="truncate max-w-[160px]"></div>
+                </div>
+            </div>
+            <div class="flex gap-2">
+                <button type="button" onclick="confirmProfilePicture()"
+                    class="flex-1 bg-teal text-white py-1.5 text-xs font-semibold border-2 border-teal hover:bg-primary transition-colors">
+                    Use this
+                </button>
+                <button type="button" onclick="document.getElementById('pictureUpload').click()"
+                    class="px-3 py-1.5 text-xs font-semibold border border-on-surface hover:bg-surface transition-colors">
+                    Reselect
+                </button>
+                <button type="button" onclick="cancelProfilePicture()"
+                    class="px-3 py-1.5 text-xs font-semibold border border-on-surface hover:bg-surface transition-colors">
+                    Cancel
+                </button>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3 mb-5 p-3 bg-surface border border-outline text-sm">
+            <div>
+                <div class="text-xs font-bold uppercase tracking-wider text-on-surface-variant mb-1">Email</div>
+                <div id="modalUserEmail" class="break-all text-sm">loading...</div>
+            </div>
+            <div>
+                <div class="text-xs font-bold uppercase tracking-wider text-on-surface-variant mb-1">Role</div>
+                <div id="modalUserRole" class="text-sm">loading...</div>
+            </div>
+        </div>
+
+        <div class="space-y-3 mb-5">
+            <div>
+                <label for="fullNameInput" class="block text-xs font-bold uppercase tracking-wider mb-1">Full Name</label>
+                <input type="text" id="fullNameInput" placeholder="e.g., Jane Doe"
+                    class="w-full px-3 py-2 border border-on-surface focus:outline-none focus:border-2 focus:border-teal text-sm">
+            </div>
+            <div>
+                <label for="phoneInput" class="block text-xs font-bold uppercase tracking-wider mb-1">Phone</label>
+                <input type="tel" id="phoneInput" placeholder="+256700000000"
+                    class="w-full px-3 py-2 border border-on-surface focus:outline-none focus:border-2 focus:border-teal text-sm">
+            </div>
+        </div>
+
+        <div class="mb-5 p-3 bg-surface border border-outline text-xs text-on-surface-variant">
+            Your role is set when your account is created and cannot be changed here.
+        </div>
+
+        <div class="space-y-2">
+            <button id="saveProfileBtn" onclick="saveProfile()"
+                class="w-full bg-teal text-white py-2.5 font-semibold border-2 border-teal hover:bg-primary transition-colors flex items-center justify-center gap-2 text-sm">
+                <span id="saveProfileText">Save Changes</span>
+                <span id="saveProfileSpinner" class="hidden">
+                    <svg class="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                </span>
+            </button>
+            <button onclick="closeProfileModal()" class="w-full bg-white text-on-surface py-2.5 font-semibold border border-on-surface hover:bg-surface transition-colors text-sm">Cancel</button>
+            <button onclick="handleLogout()" class="w-full bg-white text-on-surface py-2.5 font-semibold border border-on-surface hover:bg-surface transition-colors text-sm">Logout</button>
+        </div>
+        <div class="mt-6 pt-6 border-t border-outline">
+            <strong class="text-error text-sm">Danger Zone</strong>
+            <p class="text-sm text-on-surface-variant mt-2 mb-3">Deactivate your account. Your organisational records will be retained.</p>
+            <button onclick="handleDeleteAccount()" class="w-full text-white py-2.5 font-semibold border-2 hover:opacity-90 transition-opacity text-sm" style="background-color:#ba1a1a;border-color:#ba1a1a;">
+                Deactivate Account
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Page transition loader -->
+<div id="gPageLoader" class="hidden fixed inset-0 z-[9990] items-center justify-center">
+    <div class="absolute inset-0 bg-black bg-opacity-25" style="backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px);"></div>
+    <div class="relative z-10">
+        <svg class="animate-spin h-12 w-12 text-white drop-shadow-lg" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+        </svg>
+    </div>
+</div>
+
+<!-- Confirm Modal -->
+<div id="gConfirmOverlay" class="hidden fixed inset-0 bg-black bg-opacity-50 z-[200] items-center justify-center p-4">
+    <div class="bg-white border-2 border-on-surface max-w-sm w-full p-5">
+        <p id="gConfirmMsg" class="text-sm text-on-surface mb-5 leading-relaxed"></p>
+        <div class="flex gap-3 justify-end">
+            <button id="gConfirmCancel" class="px-4 py-2 text-sm font-semibold border border-on-surface hover:bg-surface transition-colors">Cancel</button>
+            <button id="gConfirmBtn" class="px-4 py-2 text-sm font-semibold bg-teal text-white border-2 border-teal hover:bg-primary transition-colors">Confirm</button>
+        </div>
+    </div>
+</div>
+
+<!-- Toast -->
+<div id="toast" class="toast fixed bottom-4 right-4 z-[9999] text-sm px-4 py-3 border-2 text-white max-w-xs"></div>
+
+<style>
+/* ── Toast animation ─────────────────────────────────────────────────── */
+.toast { opacity: 0; transform: translateY(8px); transition: opacity 0.25s, transform 0.25s; pointer-events: none; }
+.toast.show { opacity: 1; transform: translateY(0); pointer-events: auto; }
+.toast.error { background-color: #ba1a1a; border-color: #ba1a1a; }
+.toast.success { background-color: #005049; border-color: #005049; }
+
+/* ══════════════════════════════════════════════════════════════════════
+   DARK MODE: applied when <html class="dark">
+══════════════════════════════════════════════════════════════════════ */
+html.dark { color-scheme: dark; }
+html.dark body { background-color: #0d1615; }
+html.dark .bg-white { background-color: #1a2423 !important; }
+html.dark .bg-surface { background-color: #0d1615 !important; }
+html.dark .bg-surface-container { background-color: #1a2423 !important; }
+html.dark .bg-primary-container { background-color: #001e1c !important; }
+html.dark .bg-primary { background-color: #002724 !important; }
+html.dark .bg-on-surface { background-color: #050c0b !important; }
+html.dark .text-on-surface { color: #dce4e2 !important; }
+html.dark .text-on-surface-variant { color: #8bb5b1 !important; }
+html.dark .text-teal { color: #4db8aa !important; }
+html.dark .text-error { color: #ffb4ab !important; }
+html.dark .border-outline { border-color: #2b3e3c !important; }
+html.dark .border-on-surface { border-color: #4a5c5a !important; }
+html.dark .border-teal { border-color: #4db8aa !important; }
+html.dark .border-error { border-color: #ffb4ab !important; }
+html.dark .divide-outline > * { border-color: #2b3e3c !important; }
+html.dark .hover\:border-teal:hover { border-color: #4db8aa !important; }
+html.dark .hover\:text-teal:hover { color: #4db8aa !important; }
+html.dark .hover\:bg-surface:hover { background-color: #1a2423 !important; }
+html.dark .hover\:bg-primary:hover { background-color: #002724 !important; }
+html.dark .group:hover .group-hover\:text-teal { color: #4db8aa !important; }
+html.dark a.hover\:text-teal:hover { color: #4db8aa !important; }
+/* inputs & selects */
+html.dark input:not([type="checkbox"]):not([type="radio"]):not([type="file"]):not([type="submit"]),
+html.dark textarea,
+html.dark select {
+    background-color: #1a2423 !important;
+    color: #dce4e2 !important;
+    border-color: #4a5c5a !important;
+}
+html.dark input::placeholder,
+html.dark textarea::placeholder { color: #567370 !important; }
+/* table rows */
+html.dark tr:hover { background-color: #1e2c2b !important; }
+/* modals */
+html.dark #profileModal > div { background-color: #1a2423 !important; }
+html.dark #gConfirmOverlay > div { background-color: #1a2423 !important; }
+/* primary colour, dark green in light mode, readable teal-mint in dark */
+html.dark .text-primary { color: #7ecfc5 !important; }
+html.dark .border-primary { border-color: #7ecfc5 !important; }
+html.dark .hover\:text-primary:hover { color: #7ecfc5 !important; }
+/* on-surface-variant border, barely visible in dark without this */
+html.dark .border-on-surface-variant { border-color: #8bb5b1 !important; }
+/* teal / error opacity variants */
+html.dark .bg-teal\/5 { background-color: rgba(77,184,170,0.1) !important; }
+html.dark .bg-teal\/10 { background-color: rgba(77,184,170,0.18) !important; }
+html.dark .bg-error\/5 { background-color: rgba(255,180,171,0.1) !important; }
+html.dark .bg-error\/10 { background-color: rgba(255,180,171,0.18) !important; }
+/* Email previews show the light email as inboxes do; in dark mode render a dark approximation (photos keep colour) */
+html.dark iframe.email-preview { filter: invert(0.88) hue-rotate(180deg); background: #fff; }
+/* Suspicious (amber) states used by the child/parent safety pages */
+html.dark .border-amber-600 { border-color: #e0b062 !important; }
+html.dark .text-amber-800 { color: #f0c27a !important; }
+html.dark .bg-amber-500\/5 { background-color: rgba(224,176,98,0.10) !important; }
+
+/* ══════════════════════════════════════════════════════════════════════
+   MOBILE CARD TABLES: add class "mob-cards" to the overflow-x-auto
+   wrapper div; add data-label="..." to every <td>
+══════════════════════════════════════════════════════════════════════ */
+@media (max-width: 640px) {
+    .mob-cards { overflow-x: visible !important; }
+    .mob-cards table { display: block; width: 100%; }
+    .mob-cards thead { display: none !important; }
+    .mob-cards tbody { display: block; }
+    .mob-cards tr {
+        display: block;
+        border: 1px solid #b0bfbd;
+        margin-bottom: 0.75rem;
+        padding: 0.625rem 0.75rem;
+        background-color: #fff;
+    }
+    .mob-cards td {
+        display: flex;
+        gap: 0.625rem;
+        padding: 0.2rem 0;
+        font-size: 0.8125rem;
+        align-items: flex-start;
+        border: none !important;
+    }
+    .mob-cards td[data-label]::before {
+        content: attr(data-label);
+        font-weight: 700;
+        font-size: 0.6rem;
+        text-transform: uppercase;
+        letter-spacing: 0.07em;
+        min-width: 68px;
+        max-width: 68px;
+        flex-shrink: 0;
+        color: #3f4947;
+        padding-top: 0.125rem;
+        line-height: 1.4;
+    }
+    /* Action cells, no label, right-aligned buttons */
+    .mob-cards td:not([data-label]) {
+        flex-wrap: wrap;
+        gap: 0.375rem;
+        padding-top: 0.5rem;
+        margin-top: 0.25rem;
+        border-top: 1px solid #e4e8e7 !important;
+        justify-content: flex-start;
+    }
+    .mob-cards td:empty { display: none !important; }
+}
+/* dark mob-cards */
+html.dark .mob-cards tr { background-color: #1a2423 !important; border-color: #2b3e3c !important; }
+html.dark .mob-cards td[data-label]::before { color: #8bb5b1 !important; }
+html.dark .mob-cards td:not([data-label]) { border-color: #2b3e3c !important; }
+</style>
+
+<script>
+window.GUARDIAN_URLS = {
+    csrf:           "{% url 'get_csrf' %}",
+    checkAuth:      "{% url 'check_auth' %}",
+    userProfile:    "{% url 'user_profile' %}",
+    profilePicture: "{% url 'upload_profile_picture' %}",
+    deleteAccount:  "{% url 'delete_account' %}",
+    logout:         "{% url 'logout_user' %}",
+    login:          "{% url 'login_user' %}",
+    home:           "{% url 'home' %}"
+};
+</script>
+<script src="{% static 'js/navbar.js' %}"></script>
+<script src="{% static 'js/guardian.js' %}"></script>
+<script>
+var _NAV_MOON = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M21.752 15.002A9.718 9.718 0 0 1 18 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 0 0 3 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 0 0 9.002-5.998z"/></svg>`;
+var _NAV_SUN = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M12 3v2.25m6.364.386-1.591 1.591M21 12h-2.25m-.386 6.364-1.591-1.591M12 18.75V21m-4.773-4.227-1.591 1.591M5.25 12H3m4.227-4.773L5.636 5.636M15.75 12a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0z"/></svg>`;
+function toggleDark() {
+    var isDark = document.documentElement.classList.toggle('dark');
+    localStorage.setItem('guardian-theme', isDark ? 'dark' : 'light');
+    document.querySelectorAll('.dark-toggle-icon').forEach(function(el) {
+        el.innerHTML = isDark ? _NAV_SUN : _NAV_MOON;
+    });
+}
+</script>

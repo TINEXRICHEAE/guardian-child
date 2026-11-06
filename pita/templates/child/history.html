@@ -1,0 +1,16 @@
+{% extends "app/child_base.html" %}{% load app_ui %}
+{% block title %}My checks{% endblock %}
+{% block child_content %}
+<h1 class="text-2xl md:text-3xl font-bold mb-1">My recent checks</h1>
+<p class="text-on-surface-variant mb-6">Only you can see this list. Parents do not see your messages.</p>
+<div class="bg-white border border-outline">
+    {% for s in subs %}
+    <a href="{% url 'child_result' s.pk %}" class="flex items-center justify-between gap-3 px-5 py-4 border-b border-outline last:border-b-0 hover:bg-surface">
+        <span><span class="block font-semibold text-sm">{{ s.label }}</span><span class="block text-xs text-on-surface-variant">{{ s.created_at|date:"D j M, H:i" }}</span></span>
+        <span class="text-xs font-semibold px-2 py-0.5 {{ s.risk_level|risk_badge }}">{{ s.get_risk_level_display }}</span>
+    </a>
+    {% empty %}
+    <div class="p-6"><p class="text-sm text-on-surface-variant mb-3">No checks yet.</p><a href="{% url 'child_check' %}" class="inline-block bg-primary text-white px-5 py-2 text-sm font-semibold hover:bg-primary-container">Check something now</a></div>
+    {% endfor %}
+</div>
+{% endblock %}

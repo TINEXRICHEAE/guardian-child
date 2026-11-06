@@ -1,0 +1,38 @@
+{
+    "status": "ok",
+    "messages": [
+        {
+            "sender_role": "other",
+            "text": "MAKERERE FULL SCHOLARSHIP 2027! You are shortlisted. Pay UGX 35,000 processing fee today to reserve your place: mak-bursary.example/apply"
+        },
+        {
+            "sender_role": "child",
+            "text": "Is this real?"
+        },
+        {
+            "sender_role": "other",
+            "text": "Yes. Offer expires tonight. Send fee to 0770 000 111 now."
+        }
+    ],
+    "urls": [
+        "mak-bursary.example/apply"
+    ],
+    "phone_numbers_present": true,
+    "claimed_organisation": "Makerere Bursary Desk",
+    "language": "en",
+    "meta": {
+        "host": "DESKTOP-3CGBSSB",
+        "gpu": "NVIDIA GeForce GTX 1060, 5861 MiB, 6144 MiB",
+        "backend": "qwen-hf",
+        "model": "Qwen/Qwen3-VL-2B-Instruct",
+        "cloud": false,
+        "mode": "live",
+        "latencyMs": 22626,
+        "attempts": [
+            {
+                "backend": "qwen-hf",
+                "ok": true
+            }
+        ]
+    }
+}

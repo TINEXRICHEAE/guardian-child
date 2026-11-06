@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block title %}Quiz Result{% endblock %}
+
+{% block content %}
+<div class="max-w-xl mx-auto px-4 py-16 text-center">
+    <div class="bg-white border border-outline p-10">
+        <div class="flex justify-center mb-4 {% if attempt.percentage >= 80 %}text-teal{% elif attempt.percentage >= 50 %}text-primary{% else %}text-on-surface-variant{% endif %}">
+            {% if attempt.percentage >= 80 %}
+            <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M16.5 18.75h-9m9 0a3 3 0 0 1 3 3h-15a3 3 0 0 1 3-3m9 0v-3.375c0-.621-.503-1.125-1.125-1.125h-.871M7.5 18.75v-3.375c0-.621.504-1.125 1.125-1.125h.872m5.007 0H9.497m5.007 0a7.454 7.454 0 0 1-.982-3.172M9.497 14.25a7.454 7.454 0 0 0 .981-3.172M5.25 4.236c-.982.143-1.954.317-2.916.52A6.003 6.003 0 0 0 7.73 9.728M5.25 4.236V4.5c0 2.108.966 3.99 2.48 5.228M5.25 4.236V2.721C7.456 2.41 9.71 2.25 12 2.25c2.291 0 4.545.16 6.75.47v1.516M7.73 9.728a6.726 6.726 0 0 0 2.748 1.35m8.272-6.842V4.5c0 2.108-.966 3.99-2.48 5.228m2.48-5.492a46.32 46.32 0 0 1 2.916.52 6.003 6.003 0 0 1-5.395 4.972m0 0a6.726 6.726 0 0 1-2.749 1.35m0 0a6.772 6.772 0 0 1-3.044 0"/></svg>
+            {% elif attempt.percentage >= 50 %}
+            <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M4.26 10.147a60.438 60.438 0 0 0-.491 6.347A48.62 48.62 0 0 1 12 20.904a48.62 48.62 0 0 1 8.232-4.41 60.46 60.46 0 0 0-.491-6.347m-15.482 0a50.636 50.636 0 0 0-2.658-.813A59.906 59.906 0 0 1 12 3.493a59.903 59.903 0 0 1 10.399 5.84c-.896.248-1.783.52-2.658.814m-15.482 0A50.717 50.717 0 0 1 12 13.489a50.702 50.702 0 0 1 3.741-1.342m-7.477-3.996-.08.084M12 9a3 3 0 1 0 0 6 3 3 0 0 0 0-6z"/></svg>
+            {% else %}
+            <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 0 0 6 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 0 1 6 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 0 1 6-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0 0 18 18a8.967 8.967 0 0 0-6 2.292m0-14.25v14.25"/></svg>
+            {% endif %}
+        </div>
+        <h1 class="text-2xl sm:text-3xl font-bold mb-2">
+            {% if attempt.percentage >= 80 %}Excellent!{% elif attempt.percentage >= 50 %}Good effort!{% else %}Keep learning!{% endif %}
+        </h1>
+        <p class="text-on-surface-variant mb-6 text-sm">{{ attempt.quiz.title }}</p>
+
+        <div class="text-3xl sm:text-5xl font-bold text-teal mb-2">{{ attempt.score }} / {{ attempt.total }}</div>
+        <div class="text-lg sm:text-xl font-semibold mb-6">{{ attempt.percentage }}%</div>
+
+        <div class="flex flex-col gap-3">
+            <a href="{% url 'quiz_review' attempt.pk %}"
+                class="bg-teal text-white py-3 px-6 font-semibold border-2 border-teal hover:bg-primary transition-colors">Review Answers</a>
+            {% if can_retake %}
+            <a href="{% url 'take_quiz' attempt.quiz.pk %}"
+                class="bg-white text-on-surface py-3 px-6 font-semibold border border-on-surface hover:bg-surface transition-colors">Retake Quiz</a>
+            {% endif %}
+            <a href="{% url 'library' %}"
+                class="bg-white text-on-surface py-3 px-6 font-semibold border border-on-surface hover:bg-surface transition-colors">Back to Library</a>
+            <a href="{% url 'progress' %}"
+                class="text-teal font-semibold hover:underline py-2">View My Progress</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

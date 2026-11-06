@@ -1,0 +1,24 @@
+{
+    "status": "ok",
+    "explanation": "The person is asking for your mobile money PIN, which is a secret code you use to send money. They are giving you a prize, but it's not real. You should not give your PIN or any money. If you don't know the PIN, call your bank or a trusted adult.",
+    "recommendedActions": [
+        "Don't give your PIN",
+        "Tell a trusted adult",
+        "Don't send money"
+    ],
+    "meta": {
+        "host": "DESKTOP-3CGBSSB",
+        "gpu": "NVIDIA GeForce GTX 1060, 5861 MiB, 6144 MiB",
+        "backend": "qwen-hf",
+        "model": "Qwen/Qwen3-VL-2B-Instruct",
+        "cloud": false,
+        "mode": "live",
+        "latencyMs": 6221,
+        "attempts": [
+            {
+                "backend": "qwen-hf",
+                "ok": true
+            }
+        ]
+    }
+}

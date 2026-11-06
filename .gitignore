@@ -1,0 +1,76 @@
+# ── Python ──
+__pycache__/
+*.py[cod]
+*$py.class
+*.pyo
+*.pyd
+.Python
+
+# ── Virtual environments ──
+pitaenv/
+pitamenv/
+venv/
+.venv/
+env/
+ENV/
+
+# ── Django ──
+*.log
+local_settings.py
+db.sqlite3
+db.sqlite3-journal
+staticfiles/
+media/
+
+# ── Environment / secrets ──
+.env
+.env.*
+!.env.example
+
+# ── Database dumps ──
+*.sql
+*.dump
+
+# ── Logs ──
+logs/*.log
+
+# ── Build / dist ──
+dist/
+build/
+*.egg-info/
+*.egg
+MANIFEST
+
+# ── Testing ──
+.coverage
+.tox/
+htmlcov/
+.pytest_cache/
+coverage.xml
+*.cover
+
+# ── IDEs ──
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# ── OS ──
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ── Temporary files ──
+*.tmp
+*.temp
+*.swp
+*.swo
+notes.txt
+notes.txt
+sumy.md
+prompt.txt
+client_secret_617353037065-42bdfft5l2o05rclrprf1jb1if2q86pc.apps.googleusercontent.com.json
+allauth_steps.md
+skills/
+# ── guardian-ai ──
+guardian-ai/logs/

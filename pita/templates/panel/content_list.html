@@ -1,0 +1,91 @@
+{% extends "panel/base_panel.html" %}
+{% block title %}Content Review{% endblock %}
+
+{% block panel_content %}
+<div class="flex items-center justify-between mb-4">
+    <h1 class="text-3xl font-bold">Content Review</h1>
+</div>
+
+<!-- Status filter tabs -->
+<div class="flex gap-1 mb-6 flex-wrap">
+    <a href="?status=" class="text-sm px-4 py-1.5 font-semibold border border-outline hover:border-teal transition-colors {% if not status_filter %}bg-teal text-white border-teal{% endif %}">All</a>
+    {% for val, label in status_choices %}
+    <a href="?status={{ val }}" class="text-sm px-4 py-1.5 font-semibold border border-outline hover:border-teal transition-colors {% if status_filter == val %}bg-teal text-white border-teal{% endif %}">{{ label }}</a>
+    {% endfor %}
+</div>
+
+{% if page_obj.object_list %}
+<div class="bg-white border border-outline overflow-x-auto mob-cards">
+    <table class="w-full text-sm">
+        <thead class="border-b border-outline">
+            <tr>
+                <th class="text-left px-4 py-3 text-xs font-bold uppercase tracking-wider text-on-surface-variant">Title</th>
+                <th class="text-left px-4 py-3 text-xs font-bold uppercase tracking-wider text-on-surface-variant">Threat</th>
+                <th class="text-left px-4 py-3 text-xs font-bold uppercase tracking-wider text-on-surface-variant">Engagement</th>
+                <th class="text-left px-4 py-3 text-xs font-bold uppercase tracking-wider text-on-surface-variant">Created</th>
+                <th class="text-left px-4 py-3 text-xs font-bold uppercase tracking-wider text-on-surface-variant">Status</th>
+                <th class="px-4 py-3"></th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for content in page_obj %}
+            <tr class="border-b border-outline hover:bg-surface transition-colors">
+                <td class="px-4 py-3 font-medium" data-label="Title">
+                    <a href="{% url 'panel_content_detail' content.pk %}" class="hover:text-teal transition-colors">{{ content.title|truncatechars:50 }}</a>
+                </td>
+                <td class="px-4 py-3 text-on-surface-variant" data-label="Threat">{{ content.get_threat_type_display }}</td>
+                <td class="px-4 py-3 text-on-surface-variant" data-label="Engagement">{{ content.get_engagement_type_display }}</td>
+                <td class="px-4 py-3 text-on-surface-variant text-xs" data-label="Created">{{ content.created_at|date:"M d, Y" }}</td>
+                <td class="px-4 py-3" data-label="Status">
+                    <span class="text-xs font-bold uppercase px-2 py-0.5 border
+                        {% if content.status == 'approved' %}border-teal text-teal
+                        {% elif content.status == 'rejected' %}border-error text-error
+                        {% elif content.status == 'sent' %}border-primary text-primary
+                        {% else %}border-on-surface-variant text-on-surface-variant{% endif %}">
+                        {{ content.get_status_display }}
+                    </span>
+                </td>
+                <td class="px-4 py-3 text-right">
+                    <div class="flex gap-2 justify-end flex-wrap">
+                        <a href="{% url 'panel_content_detail' content.pk %}" class="text-xs text-teal hover:underline font-semibold">Edit</a>
+                        {% if content.status == 'pending' %}
+                        <form method="post" action="{% url 'panel_approve_content' content.pk %}" class="inline">
+                            {% csrf_token %}
+                            <button type="submit" class="text-xs text-teal hover:underline font-semibold">Approve</button>
+                        </form>
+                        <form method="post" action="{% url 'panel_reject_content' content.pk %}" class="inline">
+                            {% csrf_token %}
+                            <button type="submit" class="text-xs text-error hover:underline font-semibold">Reject</button>
+                        </form>
+                        {% endif %}
+                        {% if content.status == 'approved' %}
+                        <a href="{% url 'panel_create_campaign' content.pk %}" class="text-xs bg-teal text-white px-2 py-0.5 border border-teal hover:bg-primary font-semibold transition-colors">Send</a>
+                        {% endif %}
+                        <form method="post" action="{% url 'panel_delete_content' content.pk %}" class="inline"
+                              data-confirm="Delete &quot;{{ content.title|escapejs }}&quot;? This cannot be undone."
+                              data-confirm-btn="Delete">
+                            {% csrf_token %}
+                            <button type="submit" class="text-xs text-error hover:underline font-semibold">Delete</button>
+                        </form>
+                    </div>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+{% if page_obj.has_other_pages %}
+<div class="flex gap-2 justify-center mt-6">
+    {% if page_obj.has_previous %}<a href="?page={{ page_obj.previous_page_number }}&status={{ status_filter }}" class="px-4 py-2 border border-on-surface hover:bg-surface text-sm font-medium">&laquo; Prev</a>{% endif %}
+    <span class="px-4 py-2 bg-teal text-white text-sm font-medium">{{ page_obj.number }} / {{ page_obj.paginator.num_pages }}</span>
+    {% if page_obj.has_next %}<a href="?page={{ page_obj.next_page_number }}&status={{ status_filter }}" class="px-4 py-2 border border-on-surface hover:bg-surface text-sm font-medium">Next &raquo;</a>{% endif %}
+</div>
+{% endif %}
+
+{% else %}
+<div class="bg-white border border-outline p-12 text-center">
+    <p class="text-on-surface-variant">No content found for the selected filter.</p>
+</div>
+{% endif %}
+{% endblock %}

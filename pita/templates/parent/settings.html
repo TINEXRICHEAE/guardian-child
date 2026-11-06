@@ -1,0 +1,30 @@
+{% extends "app/parent_base.html" %}
+{% block title %}Preferences{% endblock %}
+{% block parent_content %}
+<h1 class="text-2xl md:text-3xl font-bold mb-6">Preferences</h1>
+<form method="post" class="max-w-2xl space-y-6">{% csrf_token %}
+    <div class="bg-white border border-outline">
+        <div class="px-5 py-3 border-b border-outline bg-surface text-xs font-bold uppercase tracking-wider text-on-surface-variant">Choose useful alerts</div>
+        <div class="p-5 space-y-4">
+            <label class="flex items-start gap-3 text-sm"><input type="checkbox" name="alert_high" class="mt-1" {% if prefs.alert_high %}checked{% endif %}><span><strong>High-risk threat alerts</strong><span class="block text-xs text-on-surface-variant">PIN, OTP, account takeover, or strong scam evidence</span></span></label>
+            <label class="flex items-start gap-3 text-sm"><input type="checkbox" name="alert_suspicious" class="mt-1" {% if prefs.alert_suspicious %}checked{% endif %}><span><strong>Suspicious-message alerts</strong><span class="block text-xs text-on-surface-variant">Lower-confidence warning signs</span></span></label>
+            <label class="flex items-start gap-3 text-sm"><input type="checkbox" name="alert_email" class="mt-1" {% if prefs.alert_email %}checked{% endif %}><span><strong>Email me alerts too</strong><span class="block text-xs text-on-surface-variant">In addition to this page (coming soon)</span></span></label>
+        </div>
+    </div>
+    <div class="bg-white border border-outline">
+        <div class="px-5 py-3 border-b border-outline bg-surface text-xs font-bold uppercase tracking-wider text-on-surface-variant">Protection preferences · preparation mode</div>
+        <div class="p-5 space-y-4">
+            <p class="text-sm text-on-surface-variant">Choose what matters to your family. These are saved for when device protection arrives; no filtering or blocking is active yet.</p>
+            <label class="flex items-center gap-3 text-sm"><input type="checkbox" name="protect_fraud" {% if prefs.protect_fraud %}checked{% endif %}><strong>Fraud and phishing</strong></label>
+            <label class="flex items-center gap-3 text-sm"><input type="checkbox" name="protect_gambling" {% if prefs.protect_gambling %}checked{% endif %}><strong>Gambling</strong></label>
+            <label class="flex items-center gap-3 text-sm"><input type="checkbox" name="protect_adult" {% if prefs.protect_adult %}checked{% endif %}><strong>Adult content</strong></label>
+            <p class="text-xs text-on-surface-variant">Support services such as Sauti 116 and educational resources will always stay reachable.</p>
+        </div>
+    </div>
+    <div class="bg-white border border-outline">
+        <div class="px-5 py-3 border-b border-outline bg-surface text-xs font-bold uppercase tracking-wider text-on-surface-variant">Practice drills</div>
+        <div class="p-5"><label class="flex items-start gap-3 text-sm"><input type="checkbox" name="auto_drills" class="mt-1" {% if prefs.auto_drills %}checked{% endif %}><span><strong>Automate drills</strong><span class="block text-xs text-on-surface-variant">When a new topic is published, Guardian sends it to your children with practice emails turned on, at most {{ max_per_month }} a month each. You still see every result.</span></span></label></div>
+    </div>
+    <button class="bg-primary text-white px-5 py-2 text-sm font-semibold hover:bg-primary-container">Save preferences</button>
+</form>
+{% endblock %}

@@ -1,0 +1,36 @@
+{% extends "base.html" %}{% load app_ui %}
+{% block extra_head %}{% include "app/_bottom_nav_style.html" %}{% endblock %}
+{% comment %}Child space: Guardian layout with its own sub-nav, like the analyst panel (plan.md §1, §12).{% endcomment %}
+{% block content %}
+<div class="max-w-4xl mx-auto px-4 py-5 md:py-8">
+    {% if user.is_authenticated and user.is_child %}
+    <div class="flex items-center justify-between gap-3 mb-3">
+        <span class="text-xs font-bold uppercase tracking-wider text-on-surface-variant">Child space</span>
+        <a href="tel:116" class="text-xs font-bold uppercase tracking-wider text-teal hover:underline">Need help? Call 116</a>
+    </div>
+    <div class="hidden md:flex gap-1 mb-8 border-b border-outline pb-4 overflow-x-auto flex-nowrap">
+        {% with n=request.resolver_match.url_name %}
+        <a href="{% url 'child_home' %}" class="text-sm px-4 py-2 font-semibold border border-outline hover:border-teal hover:text-teal transition-colors whitespace-nowrap {% if n == 'child_home' %}bg-teal text-white border-teal{% endif %}">My space</a>
+        <a href="{% url 'child_check' %}" class="text-sm px-4 py-2 font-semibold border border-outline hover:border-teal hover:text-teal transition-colors whitespace-nowrap {% if n == 'child_check' or n == 'child_result' %}bg-teal text-white border-teal{% endif %}">Is this safe?</a>
+        <a href="{% url 'child_report' %}" class="text-sm px-4 py-2 font-semibold border border-outline hover:border-teal hover:text-teal transition-colors whitespace-nowrap {% if n == 'child_report' %}bg-teal text-white border-teal{% endif %}">Something happened</a>
+        <a href="{% url 'child_history' %}" class="text-sm px-4 py-2 font-semibold border border-outline hover:border-teal hover:text-teal transition-colors whitespace-nowrap {% if n == 'child_history' %}bg-teal text-white border-teal{% endif %}">My checks</a>
+        <a href="{% url 'child_lessons' %}" class="text-sm px-4 py-2 font-semibold border border-outline hover:border-teal hover:text-teal transition-colors whitespace-nowrap {% if n == 'child_lessons' or n == 'lesson' %}bg-teal text-white border-teal{% endif %}">Lessons</a>
+        <a href="{% url 'child_family' %}" class="text-sm px-4 py-2 font-semibold border border-outline hover:border-teal hover:text-teal transition-colors whitespace-nowrap {% if n == 'child_family' %}bg-teal text-white border-teal{% endif %}">My family</a>
+        <a href="{% url 'help' %}" class="text-sm px-4 py-2 font-semibold border border-outline hover:border-teal hover:text-teal transition-colors whitespace-nowrap {% if n == 'help' %}bg-teal text-white border-teal{% endif %}">Get help</a>
+        {% endwith %}
+    </div>
+    {% endif %}
+    {% block child_content %}{% endblock %}
+</div>
+{% if user.is_authenticated and user.is_child %}
+{% with n=request.resolver_match.url_name %}
+<nav class="app-tabbar md:hidden fixed bottom-0 inset-x-0 z-40 bg-white border-t border-outline grid grid-cols-5" aria-label="Child navigation">
+    <a href="{% url 'child_home' %}" class="flex flex-col items-center gap-1 py-2 text-xs font-semibold text-on-surface-variant border-t-2 border-transparent {% if n == 'child_home' %}active{% endif %}">{% icon 'home' 22 %}Home</a>
+    <a href="{% url 'child_check' %}" class="flex flex-col items-center gap-1 py-2 text-xs font-semibold text-on-surface-variant border-t-2 border-transparent {% if n == 'child_check' or n == 'child_result' %}active{% endif %}">{% icon 'shield-check' 22 %}Check</a>
+    <a href="{% url 'child_history' %}" class="flex flex-col items-center gap-1 py-2 text-xs font-semibold text-on-surface-variant border-t-2 border-transparent {% if n == 'child_history' %}active{% endif %}">{% icon 'clock' 22 %}History</a>
+    <a href="{% url 'child_lessons' %}" class="flex flex-col items-center gap-1 py-2 text-xs font-semibold text-on-surface-variant border-t-2 border-transparent {% if n == 'child_lessons' or n == 'lesson' %}active{% endif %}">{% icon 'flag' 22 %}Lessons</a>
+    <a href="{% url 'child_family' %}" class="flex flex-col items-center gap-1 py-2 text-xs font-semibold text-on-surface-variant border-t-2 border-transparent {% if n == 'child_family' %}active{% endif %}">{% icon 'users' 22 %}Family</a>
+</nav>
+{% endwith %}
+{% endif %}
+{% endblock %}

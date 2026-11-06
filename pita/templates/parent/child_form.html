@@ -1,0 +1,47 @@
+{% extends "app/parent_base.html" %}
+{% block title %}{% if adding %}Add a child{% else %}Edit {{ child.nickname }}{% endif %}{% endblock %}
+
+{% block parent_content %}
+<div class="max-w-xl">
+    <a href="{% url 'parent_home' %}" class="text-sm text-teal hover:underline">&larr; My family</a>
+    <h1 class="text-2xl md:text-3xl font-bold mt-2 mb-6">{% if adding %}Add a child{% else %}Edit {{ child.nickname }}{% endif %}</h1>
+
+    <form method="post" class="bg-white border border-outline p-6 space-y-5" novalidate>
+        {% csrf_token %}
+        {% for field in form %}
+        <div>
+            <label for="{{ field.id_for_label }}" class="block text-xs font-bold uppercase tracking-wider mb-1">{{ field.label }}</label>
+            {% if field.name == 'age_band' %}
+            <div class="flex flex-wrap gap-4 text-sm">{% for radio in field %}<label class="flex items-center gap-2">{{ radio.tag }} {{ radio.choice_label }}</label>{% endfor %}</div>
+            {% else %}{{ field }}{% endif %}
+            {% if field.help_text %}<p class="text-xs text-on-surface-variant mt-1">{{ field.help_text }}</p>{% endif %}
+            {% for e in field.errors %}<p class="text-xs text-error mt-1">{{ e }}</p>{% endfor %}
+        </div>
+        {% endfor %}
+
+        {% if adding %}
+        <fieldset class="border-t border-outline pt-5 space-y-3">
+            <legend class="text-xs font-bold uppercase tracking-wider mb-2">What Guardian does for this child</legend>
+            <label class="flex items-start gap-2 text-sm">
+                <input type="checkbox" name="alerts" value="1" class="mt-1" checked>
+                <span><strong>Safety alerts.</strong> If your child checks something high-risk, you get the type of scam and what to do. Never the message itself.</span>
+            </label>
+            <label class="flex items-start gap-2 text-sm">
+                <input type="checkbox" name="practice" value="1" class="mt-1">
+                <span><strong>Practice emails</strong> (needs the email above). Safe, made-up scam messages. Every link opens a short lesson about that kind of scam, and nothing is collected except whether the lesson was opened and the quiz score.</span>
+            </label>
+            <label class="flex items-start gap-2 text-sm pl-6">
+                <input type="checkbox" name="told_child" value="1" class="mt-1">
+                <span>I have told my child that Guardian may send practice messages.</span>
+            </label>
+            <p class="text-xs text-on-surface-variant">Guardian first sends your child a short welcome note explaining this, with a "this isn't me" link. You can turn either option off at any time.</p>
+        </fieldset>
+        {% endif %}
+
+        <div class="flex gap-3 pt-2">
+            <button class="bg-primary text-white px-5 py-2 text-sm font-semibold hover:bg-primary-container">{% if adding %}Add child{% else %}Save{% endif %}</button>
+            <a href="{% url 'parent_home' %}" class="px-5 py-2 text-sm border border-outline hover:bg-surface">Cancel</a>
+        </div>
+    </form>
+</div>
+{% endblock %}
