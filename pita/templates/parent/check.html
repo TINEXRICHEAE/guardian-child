@@ -1,0 +1,7 @@
+{% extends "app/parent_base.html" %}
+{% block title %}Check something{% endblock %}
+{% block parent_content %}
+<h1 class="text-2xl md:text-3xl font-bold mb-1">Check something</h1>
+<p class="text-on-surface-variant mb-6">Check a message, link or screenshot you or your child received.</p>
+<div class="max-w-2xl">{% include "app/_check_form.html" with show_acted=False %}</div>
+{% endblock %}

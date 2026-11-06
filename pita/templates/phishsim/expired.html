@@ -1,0 +1,9 @@
+{% extends "app/child_base.html" %}
+{% block title %}Link not available{% endblock %}
+{% block child_content %}
+<div class="bg-white border border-outline p-6 max-w-xl">
+    <h1 class="text-2xl font-bold mb-2">This link is not available</h1>
+    <p class="text-sm text-on-surface-variant mb-4">It may be old, or practice messages were turned off. You can still learn about scams and get help.</p>
+    <div class="flex flex-wrap gap-3"><a href="{% url 'help' %}" class="bg-primary text-white px-5 py-2 text-sm font-semibold hover:bg-primary-container">Safety steps</a><a href="tel:116" class="bg-white text-on-surface px-5 py-2 text-sm font-semibold border border-on-surface hover:bg-surface">Call 116</a></div>
+</div>
+{% endblock %}

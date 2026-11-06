@@ -1,0 +1,28 @@
+{% extends "app/child_base.html" %}
+{% block title %}My family{% endblock %}
+{% block child_content %}
+<h1 class="text-2xl md:text-3xl font-bold mb-2">My family</h1>
+{% if child %}
+<p class="text-on-surface-variant mb-6">
+    You're connected{% if guardians %} with {% for g in guardians %}{{ g.profile.display_name }}{% if not forloop.last %}, {% endif %}{% endfor %}{% endif %}.
+    {% if practice_on %}Practice messages are switched on: if you click one, you'll only see a short lesson.{% endif %}
+</p>
+{% else %}
+<p class="text-on-surface-variant mb-6">Your account isn't connected to a family yet. Ask your parent for a family code.</p>
+{% endif %}
+<div class="grid md:grid-cols-2 gap-4">
+    <div class="bg-white border border-outline p-5">
+        <div class="text-xs font-bold uppercase tracking-wider text-teal mb-3">Your parent can see</div>
+        <ul class="space-y-2 text-sm list-disc list-inside">{% for item in visibility.can %}<li>{{ item }}</li>{% endfor %}</ul>
+    </div>
+    <div class="bg-white border border-outline p-5">
+        <div class="text-xs font-bold uppercase tracking-wider text-error mb-3">Your parent cannot see</div>
+        <ul class="space-y-2 text-sm list-disc list-inside">{% for item in visibility.cannot %}<li>{{ item }}</li>{% endfor %}</ul>
+    </div>
+</div>
+<div class="mt-6 bg-white border border-outline p-5 text-sm flex flex-wrap items-center justify-between gap-3">
+    <span>Worried or need to talk to someone? Sauti is free and confidential.</span>
+    <a href="tel:116" class="border-2 border-primary text-primary px-4 py-2 font-semibold">Call 116</a>
+</div>
+<a href="{% url 'child_home' %}" class="inline-block mt-6 bg-primary text-white px-5 py-2 font-semibold hover:bg-primary-container">Continue to my space</a>
+{% endblock %}

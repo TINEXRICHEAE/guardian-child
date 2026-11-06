@@ -1,0 +1,27 @@
+{% extends "base.html" %}{% load app_ui %}
+{% block extra_head %}{% include "app/_bottom_nav_style.html" %}{% endblock %}
+{% comment %}Parent space: Guardian layout with its own sub-nav, like the analyst panel (plan.md §1, §12).{% endcomment %}
+{% block content %}
+<div class="max-w-6xl mx-auto px-4 py-5 md:py-8">
+    <div class="text-xs font-bold uppercase tracking-wider text-on-surface-variant mb-3">Parent space</div>
+    <div class="hidden md:flex gap-1 mb-8 border-b border-outline pb-4 overflow-x-auto flex-nowrap">
+        {% with n=request.resolver_match.url_name %}
+        <a href="{% url 'parent_home' %}" class="text-sm px-4 py-2 font-semibold border border-outline hover:border-teal hover:text-teal transition-colors whitespace-nowrap {% if n == 'parent_home' or n == 'child_add' or n == 'child_edit' or n == 'pairing_code' %}bg-teal text-white border-teal{% endif %}">My family</a>
+        <a href="{% url 'parent_news' %}" class="text-sm px-4 py-2 font-semibold border border-outline hover:border-teal hover:text-teal transition-colors whitespace-nowrap {% if n == 'parent_news' or n == 'parent_news_detail' %}bg-teal text-white border-teal{% endif %}">News for families</a>
+        <a href="{% url 'parent_check' %}" class="text-sm px-4 py-2 font-semibold border border-outline hover:border-teal hover:text-teal transition-colors whitespace-nowrap {% if n == 'parent_check' or n == 'parent_result' %}bg-teal text-white border-teal{% endif %}">Check something</a>
+        <a href="{% url 'parent_alerts' %}" class="text-sm px-4 py-2 font-semibold border border-outline hover:border-teal hover:text-teal transition-colors whitespace-nowrap {% if n == 'parent_alerts' %}bg-teal text-white border-teal{% endif %}">Safety alerts</a>
+        <a href="{% url 'parent_settings' %}" class="text-sm px-4 py-2 font-semibold border border-outline hover:border-teal hover:text-teal transition-colors whitespace-nowrap {% if n == 'parent_settings' %}bg-teal text-white border-teal{% endif %}">Preferences</a>
+        {% endwith %}
+    </div>
+    {% block parent_content %}{% endblock %}
+</div>
+{% with n=request.resolver_match.url_name %}
+<nav class="app-tabbar md:hidden fixed bottom-0 inset-x-0 z-40 bg-white border-t border-outline grid grid-cols-5" aria-label="Parent navigation">
+    <a href="{% url 'parent_home' %}" class="flex flex-col items-center gap-1 py-2 text-xs font-semibold text-on-surface-variant border-t-2 border-transparent {% if n == 'parent_home' or n == 'child_add' or n == 'child_edit' or n == 'pairing_code' %}active{% endif %}">{% icon 'users' 22 %}Family</a>
+    <a href="{% url 'parent_news' %}" class="flex flex-col items-center gap-1 py-2 text-xs font-semibold text-on-surface-variant border-t-2 border-transparent {% if n == 'parent_news' or n == 'parent_news_detail' %}active{% endif %}">{% icon 'flag' 22 %}News</a>
+    <a href="{% url 'parent_check' %}" class="flex flex-col items-center gap-1 py-2 text-xs font-semibold text-on-surface-variant border-t-2 border-transparent {% if n == 'parent_check' or n == 'parent_result' %}active{% endif %}">{% icon 'shield-check' 22 %}Check</a>
+    <a href="{% url 'parent_alerts' %}" class="flex flex-col items-center gap-1 py-2 text-xs font-semibold text-on-surface-variant border-t-2 border-transparent {% if n == 'parent_alerts' %}active{% endif %}">{% icon 'bell' 22 %}Alerts</a>
+    <a href="{% url 'parent_settings' %}" class="flex flex-col items-center gap-1 py-2 text-xs font-semibold text-on-surface-variant border-t-2 border-transparent {% if n == 'parent_settings' %}active{% endif %}">{% icon 'settings' 22 %}Settings</a>
+</nav>
+{% endwith %}
+{% endblock %}

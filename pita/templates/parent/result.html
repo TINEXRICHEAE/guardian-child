@@ -1,0 +1,13 @@
+{% extends "app/parent_base.html" %}
+{% block title %}Result{% endblock %}
+{% block parent_content %}
+<h1 class="text-2xl md:text-3xl font-bold mb-6">Result</h1>
+<div class="max-w-2xl">
+{% include "app/_result.html" %}
+<div class="p-4 bg-surface border border-outline text-sm mb-5"><strong>Talking to your child about this.</strong> Stay calm and thank them for asking. Look at the message together, and agree that PINs, passwords and codes are never shared, even with people who say they are from MTN, Airtel, a bank or a school.</div>
+<div class="flex flex-wrap gap-3">
+    <a href="{% url 'parent_check' %}" class="bg-primary text-white px-5 py-2 text-sm font-semibold hover:bg-primary-container">Check another</a>
+    <a href="{% url 'parent_home' %}" class="bg-white text-on-surface px-5 py-2 text-sm font-semibold border border-on-surface hover:bg-surface">Back to my family</a>
+</div>
+</div>
+{% endblock %}

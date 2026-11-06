@@ -1,0 +1,120 @@
+{% extends "base.html" %}
+{% block title %}My Progress{% endblock %}
+
+{% block content %}
+<div class="max-w-5xl mx-auto px-4 py-8">
+    <h1 class="text-3xl font-bold mb-1">My Progress</h1>
+    <p class="text-on-surface-variant mb-8">Track your learning journey across all awareness content.</p>
+
+    <!-- Stats row -->
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-10">
+        <div class="bg-white border border-outline p-4 text-center">
+            <div class="text-2xl sm:text-4xl font-bold text-teal mb-1">{{ total_viewed }}</div>
+            <div class="text-xs font-bold uppercase tracking-wider text-on-surface-variant">Articles Viewed</div>
+        </div>
+        <div class="bg-white border border-outline p-4 text-center">
+            <div class="text-2xl sm:text-4xl font-bold text-teal mb-1">{{ total_quizzes }}</div>
+            <div class="text-xs font-bold uppercase tracking-wider text-on-surface-variant">Total Attempts</div>
+        </div>
+        <div class="bg-white border border-outline p-4 text-center">
+            <div class="text-2xl sm:text-4xl font-bold text-teal mb-1">{{ quiz_count }}</div>
+            <div class="text-xs font-bold uppercase tracking-wider text-on-surface-variant">Unique Quizzes</div>
+        </div>
+        <div class="bg-white border border-outline p-4 text-center">
+            <div class="text-2xl sm:text-4xl font-bold text-teal mb-1">{{ avg_score }}%</div>
+            <div class="text-xs font-bold uppercase tracking-wider text-on-surface-variant">Avg. Score</div>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+
+        <!-- Quiz progression panels -->
+        <div class="lg:col-span-2">
+            <h2 class="text-lg font-semibold mb-4 border-b border-outline pb-2">Quiz Progression</h2>
+            {% if progressions %}
+            <div class="space-y-5">
+                {% for prog in progressions %}
+                <div class="bg-white border border-outline overflow-hidden">
+
+                    <!-- Quiz header -->
+                    <div class="px-5 py-4 flex items-center justify-between border-b border-outline bg-surface">
+                        <div>
+                            <div class="font-semibold text-sm">{{ prog.quiz.title }}</div>
+                            <div class="text-xs text-on-surface-variant mt-0.5">
+                                {{ prog.attempt_count }} attempt{{ prog.attempt_count|pluralize }}
+                                &nbsp;&bull;&nbsp; Best: <span class="font-semibold text-teal">{{ prog.best_pct }}%</span>
+                                {% if prog.delta is not None %}
+                                &nbsp;&bull;&nbsp;
+                                {% if prog.delta > 0 %}
+                                <span class="text-teal font-semibold">+{{ prog.delta }}% improvement</span>
+                                {% elif prog.delta < 0 %}
+                                <span class="text-error font-semibold">{{ prog.delta }}% change</span>
+                                {% else %}
+                                <span class="text-on-surface-variant">No change</span>
+                                {% endif %}
+                                {% endif %}
+                            </div>
+                        </div>
+                        <a href="{% url 'take_quiz' prog.quiz.pk %}"
+                            class="text-xs font-semibold text-teal hover:underline shrink-0 ml-4">
+                            {% if prog.attempt_count < 2 %}Retake{% else %}View Quiz{% endif %}
+                        </a>
+                    </div>
+
+                    <!-- Attempt trail -->
+                    <div class="divide-y divide-outline">
+                        {% for attempt in prog.attempts %}
+                        <div class="px-5 py-3 flex items-center justify-between text-sm">
+                            <div class="flex items-center gap-3">
+                                <span class="text-xs font-bold text-on-surface-variant w-16 shrink-0">
+                                    Attempt {{ attempt.attempt_number }}
+                                </span>
+                                <span class="text-xs text-on-surface-variant">{{ attempt.completed_at|date:"M d, Y H:i" }}</span>
+                            </div>
+                            <div class="flex items-center gap-4">
+                                {% if attempt.attempt_delta is not None %}
+                                <span class="text-xs font-semibold {% if attempt.attempt_delta > 0 %}text-teal{% elif attempt.attempt_delta < 0 %}text-error{% else %}text-on-surface-variant{% endif %}">
+                                    {% if attempt.attempt_delta > 0 %}+{% endif %}{{ attempt.attempt_delta }}%
+                                </span>
+                                {% endif %}
+                                <span class="font-bold {% if attempt.percentage >= 70 %}text-teal{% else %}text-error{% endif %}">
+                                    {{ attempt.score }}/{{ attempt.total }} &mdash; {{ attempt.percentage }}%
+                                </span>
+                                <a href="{% url 'quiz_review' attempt.pk %}"
+                                    class="text-xs text-on-surface-variant hover:text-teal hover:underline">Review</a>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <p class="text-sm text-on-surface-variant">No quiz attempts yet. <a href="{% url 'quizzes' %}" class="text-teal hover:underline">Take a quiz</a>.</p>
+            {% endif %}
+        </div>
+
+        <!-- Recommended content -->
+        <div>
+            <h2 class="text-lg font-semibold mb-4 border-b border-outline pb-2">Recent Awareness Content</h2>
+            {% if recent_contents %}
+            <div class="space-y-3">
+                {% for content in recent_contents %}
+                <a href="{% url 'content_view' content.pk %}" class="block bg-white border border-outline p-4 hover:border-teal transition-colors">
+                    <div class="flex items-center justify-between mb-1">
+                        <span class="text-xs font-bold uppercase tracking-wider text-on-surface-variant">{{ content.get_threat_type_display }}</span>
+                        <span class="text-xs text-on-surface-variant">{{ content.created_at|date:"M d" }}</span>
+                    </div>
+                    <div class="text-sm font-medium leading-snug">{{ content.title }}</div>
+                </a>
+                {% endfor %}
+            </div>
+            {% else %}
+            <p class="text-sm text-on-surface-variant">No content available yet.</p>
+            {% endif %}
+        </div>
+
+    </div>
+</div>
+{% endblock %}

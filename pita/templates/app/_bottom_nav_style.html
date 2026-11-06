@@ -1,0 +1,10 @@
+<style>
+/* Phones: app-style bottom tab bar (matches the Android app); keep page content clear of it */
+@media (max-width: 767px) {
+  body { padding-bottom: calc(72px + env(safe-area-inset-bottom)); }
+  body > footer { display: none; }   /* app screens on phones: no website footer, like the Android app */
+}
+.app-tabbar { padding-bottom: env(safe-area-inset-bottom); }
+.app-tabbar a.active { color: #005049; border-top-color: #005049; }
+html.dark .app-tabbar a.active { color: #4db8aa; border-top-color: #4db8aa; }
+</style>

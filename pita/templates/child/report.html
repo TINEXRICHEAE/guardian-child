@@ -1,0 +1,29 @@
+{% extends "app/child_base.html" %}
+{% block title %}Something happened{% endblock %}
+{% block child_content %}
+<h1 class="text-2xl md:text-3xl font-bold mb-1">Something happened</h1>
+<p class="text-on-surface-variant mb-6">You are not in trouble. Tell us what happened in your own words. Never type a PIN or password.</p>
+<form data-page-loader method="post" class="bg-white border border-outline p-6 space-y-5 max-w-2xl">{% csrf_token %}
+    <input type="hidden" name="submission" value="{{ from_check|default:'' }}">
+    {% if error %}<p class="text-sm text-error font-semibold" role="alert">{{ error }}</p>{% endif %}
+    <div>
+        <label class="block text-xs font-bold uppercase tracking-wider mb-1">What happened?</label>
+        <select name="category" class="w-full px-3 py-2 border border-on-surface focus:outline-none focus:border-teal text-sm bg-white">{% for v, l in categories %}<option value="{{ v }}">{{ l }}</option>{% endfor %}</select>
+    </div>
+    <div>
+        <label class="block text-xs font-bold uppercase tracking-wider mb-1">In your own words</label>
+        <textarea name="summary" rows="7" maxlength="4000" placeholder="Someone said I won a scholarship and asked me to send money…"
+            class="w-full px-3 py-2 border border-on-surface focus:outline-none focus:border-2 focus:border-teal text-sm bg-white">{{ summary|default:'' }}</textarea>
+    </div>
+    <label class="flex items-start gap-2 text-sm"><input type="checkbox" name="notify_parent" value="1" class="mt-1">
+        <span><strong>Let my parent know I reported something</strong><span class="block text-xs text-on-surface-variant">They see only the type of problem, not your words.</span></span></label>
+    <label class="flex items-start gap-2 text-sm"><input type="checkbox" name="confidential" value="1" class="mt-1">
+        <span><strong>Keep this private from my guardian</strong><span class="block text-xs text-on-surface-variant">Choose this if telling a guardian could make you less safe. Your guardian will not be told.</span></span></label>
+    <button type="submit" class="w-full bg-primary text-white px-5 py-3 font-semibold hover:bg-primary-container">Send my report</button>
+    <p class="text-xs text-on-surface-variant">Your report is saved in Guardian. It is <strong>not</strong> sent to UCC, the Police or 116.</p>
+</form>
+<div class="bg-white border border-outline p-5 mt-5 max-w-2xl">
+    <div class="text-xs font-bold uppercase tracking-wider text-on-surface-variant mb-1">In danger right now?</div>
+    <p class="text-sm mb-2">Talk to a safe adult or call Sauti 116 straight away.</p><a href="tel:116" class="text-sm font-semibold text-teal hover:underline">Call 116</a>
+</div>
+{% endblock %}

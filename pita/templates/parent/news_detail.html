@@ -1,0 +1,40 @@
+{% extends "app/parent_base.html" %}
+{% block title %}{{ pack.content.title }}{% endblock %}
+{% block parent_content %}
+<a href="{% url 'parent_news' %}" class="text-sm text-teal hover:underline">&larr; News for families</a>
+<h1 class="text-2xl md:text-3xl font-bold mt-2 mb-1">{{ pack.content.title }}</h1>
+<p class="text-xs font-bold uppercase tracking-wider text-on-surface-variant mb-6">{{ pack.published_at|date:"j M Y" }} · {{ pack.content.get_threat_type_display }}</p>
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-5">
+    <div class="lg:col-span-2 space-y-5">
+        <section class="bg-white border border-outline p-5"><p class="text-sm mb-3">{{ pack.parent_summary }}</p>{% if pack.parent_why %}<p class="text-sm text-on-surface-variant">{{ pack.parent_why }}</p>{% endif %}</section>
+        {% if pack.parent_tips %}<section class="bg-white border border-outline p-5"><div class="text-xs font-bold uppercase tracking-wider text-on-surface-variant mb-2">Talking with your child</div><ul class="space-y-2 text-sm list-disc list-inside">{% for t in pack.parent_tips %}<li>{{ t }}</li>{% endfor %}</ul></section>{% endif %}
+        <section class="bg-white border border-outline p-5">
+            <div class="text-xs font-bold uppercase tracking-wider text-on-surface-variant mb-2">What your child will receive</div>
+            <p class="text-sm mb-1"><strong>{{ pack.practice_sender }}</strong> · {{ pack.practice_subject }}</p>
+            <p class="text-sm text-on-surface-variant mb-3">A safe, made-up message. Tapping its link opens the lesson <strong>"{{ pack.child_title }}"</strong> and a short quiz on Guardian, already signed in. Nothing is collected except whether it was opened, the lesson read and the quiz score.</p>
+        </section>
+    </div>
+    <section class="bg-white border border-outline p-5 h-fit">
+        <div class="text-xs font-bold uppercase tracking-wider text-on-surface-variant mb-3">Send to my children</div>
+        {% if rows %}
+        <form method="post" data-page-loader class="space-y-3">{% csrf_token %}
+            {% for r in rows %}{% with d=r.delivery %}
+            <div class="border-b border-outline pb-3 last:border-b-0">
+                <label class="flex items-start gap-2 text-sm">
+                    <input type="checkbox" name="children" value="{{ r.child.pk }}" class="mt-1" {% if r.reason or d.status == 'sent' %}disabled{% else %}checked{% endif %}>
+                    <span><strong>{{ r.child.nickname }}</strong>
+                    {% if d.status == 'sent' %}<span class="block text-xs text-on-surface-variant">Sent {{ d.sent_at|timesince }} ago ·
+                        {% if d.reported_at %}<span class="text-teal font-semibold">spotted it and checked it</span>{% elif d.clicked_at %}opened the link{% else %}not opened yet{% endif %}
+                        {% if d.lesson_viewed_at %} · read the lesson{% endif %}{% if d.quiz_attempt %} · quiz {{ d.quiz_attempt.score }}/{{ d.quiz_attempt.total }}{% endif %}</span>
+                    {% elif r.reason %}<span class="block text-xs text-on-surface-variant">{{ r.reason }}{% if r.reason == 'Practice emails are turned off' or r.reason == 'No email address yet' %} · <a class="text-teal" href="{% url 'parent_home' %}">change in My family</a>{% endif %}</span>
+                    {% elif d.status == 'failed' %}<span class="block text-xs text-error">Last try did not send; tick to try again</span>{% endif %}</span>
+                </label>
+            </div>
+            {% endwith %}{% endfor %}
+            <button class="w-full bg-primary text-white px-5 py-2 text-sm font-semibold hover:bg-primary-container">Send practice message</button>
+        </form>
+        {% else %}<p class="text-sm text-on-surface-variant">Add a child in <a class="text-teal font-semibold" href="{% url 'parent_home' %}">My family</a> first.</p>{% endif %}
+        <p class="text-xs text-on-surface-variant mt-3">Prefer not to do this each time? Turn on <a class="text-teal" href="{% url 'parent_settings' %}">automatic drills</a>.</p>
+    </section>
+</div>
+{% endblock %}

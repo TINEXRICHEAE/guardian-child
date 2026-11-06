@@ -1,0 +1,99 @@
+{% extends "panel/base_panel.html" %}
+{% block title %}Family versions · {{ content.title }}{% endblock %}
+{% block panel_content %}
+<a href="{% url 'panel_content_detail' content.pk %}" class="text-sm text-teal hover:underline">&larr; Back to the topic</a>
+<div class="flex flex-wrap items-start justify-between gap-4 mt-2 mb-6">
+    <div>
+        <h1 class="text-2xl font-bold leading-tight">Family versions</h1>
+        <p class="text-sm text-on-surface-variant">{{ content.title }} · {{ content.get_engagement_type_display }} · topic {{ content.get_status_display|lower }}</p>
+    </div>
+    {% if pack %}<span class="text-xs font-bold uppercase tracking-wider px-3 py-1 border {% if pack.is_published %}border-teal text-teal{% else %}border-outline text-on-surface-variant{% endif %}">{{ pack.get_status_display }}</span>{% endif %}
+</div>
+
+<div class="bg-white border border-outline p-5 mb-6 text-sm">
+    <p class="mb-3">From one approved topic, Guardian writes the <strong>parent version</strong>, the <strong>child version</strong> in child language (same format you chose: {{ content.get_engagement_type_display|lower }}), a <strong>child quiz</strong>, and the <strong>practice message</strong> that leads children to it. Parents never choose formats; they only send.</p>
+    <form method="post" data-page-loader class="inline">{% csrf_token %}<input type="hidden" name="action" value="generate">
+        <button class="bg-primary text-white px-5 py-2 text-sm font-semibold hover:bg-primary-container">{% if pack %}Regenerate family versions{% else %}Prepare family versions{% endif %}</button>
+    </form>
+    <span class="text-xs text-on-surface-variant ml-2">Runs on Guardian AI (about a minute).</span>
+</div>
+
+{% if pack %}
+{% if pack.safety_warnings %}
+<div class="border-l-4 border-amber-600 bg-amber-500/5 border p-4 mb-6">
+    <div class="text-xs font-bold uppercase tracking-wider text-amber-800 mb-2">Safety notes to check before publishing</div>
+    <ul class="text-sm list-disc list-inside space-y-1">{% for w in pack.safety_warnings %}<li>{{ w }}</li>{% endfor %}</ul>
+</div>
+{% endif %}
+
+{% if pack.is_published %}
+<div class="grid grid-cols-2 md:grid-cols-5 gap-3 mb-6">
+    {% for label, n in stats.items %}<div class="bg-white border border-outline p-3 text-center"><div class="text-2xl font-bold text-teal">{{ n }}</div><div class="text-xs font-bold uppercase tracking-wider text-on-surface-variant">{{ label }}</div></div>{% endfor %}
+</div>
+{% endif %}
+
+<form method="post" class="space-y-6">{% csrf_token %}<input type="hidden" name="action" value="save">
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+    <section class="bg-white border border-outline p-5 space-y-3">
+        <div class="text-xs font-bold uppercase tracking-wider text-on-surface-variant">Parent version</div>
+        <label class="block text-xs font-bold uppercase tracking-wider">Summary</label>
+        <textarea name="parent_summary" rows="4" class="w-full px-3 py-2 border border-on-surface text-sm bg-white">{{ pack.parent_summary }}</textarea>
+        <label class="block text-xs font-bold uppercase tracking-wider">Why it matters</label>
+        <textarea name="parent_why" rows="2" class="w-full px-3 py-2 border border-on-surface text-sm bg-white">{{ pack.parent_why }}</textarea>
+        <label class="block text-xs font-bold uppercase tracking-wider">Talking tips (one per line)</label>
+        <textarea name="parent_tips" rows="3" class="w-full px-3 py-2 border border-on-surface text-sm bg-white">{{ pack.parent_tips|join:"
+" }}</textarea>
+    </section>
+    <section class="bg-white border border-outline p-5 space-y-3">
+        <div class="text-xs font-bold uppercase tracking-wider text-on-surface-variant">Child version</div>
+        <label class="block text-xs font-bold uppercase tracking-wider">Lesson title</label>
+        <input name="child_title" value="{{ pack.child_title }}" class="w-full px-3 py-2 border border-on-surface text-sm bg-white">
+        <label class="block text-xs font-bold uppercase tracking-wider">Story</label>
+        <textarea name="child_story" rows="5" class="w-full px-3 py-2 border border-on-surface text-sm bg-white">{{ pack.child_story }}</textarea>
+        <label class="block text-xs font-bold uppercase tracking-wider">Signs to spot (one per line)</label>
+        <textarea name="child_points" rows="3" class="w-full px-3 py-2 border border-on-surface text-sm bg-white">{{ pack.child_points|join:"
+" }}</textarea>
+        <label class="block text-xs font-bold uppercase tracking-wider">What to do instead</label>
+        <textarea name="child_action" rows="2" class="w-full px-3 py-2 border border-on-surface text-sm bg-white">{{ pack.child_action }}</textarea>
+    </section>
+    <section class="bg-white border border-outline p-5 space-y-3">
+        <div class="text-xs font-bold uppercase tracking-wider text-on-surface-variant">Practice message (email; SMS text for later)</div>
+        <label class="block text-xs font-bold uppercase tracking-wider">Sender name (made up)</label>
+        <input name="practice_sender" value="{{ pack.practice_sender }}" class="w-full px-3 py-2 border border-on-surface text-sm bg-white">
+        <label class="block text-xs font-bold uppercase tracking-wider">Subject</label>
+        <input name="practice_subject" value="{{ pack.practice_subject }}" class="w-full px-3 py-2 border border-on-surface text-sm bg-white">
+        <label class="block text-xs font-bold uppercase tracking-wider">Message (keep {link} once; {name} becomes each child's name)</label>
+        <textarea name="practice_body" rows="5" class="w-full px-3 py-2 border border-on-surface text-sm bg-white">{{ pack.practice_body }}</textarea>
+        <label class="block text-xs font-bold uppercase tracking-wider">SMS / WhatsApp text (keep {link} once)</label>
+        <textarea name="practice_sms" rows="2" class="w-full px-3 py-2 border border-on-surface text-sm bg-white">{{ pack.practice_sms }}</textarea>
+        {% if pack.red_flags %}<div class="text-xs text-on-surface-variant"><strong>Red flags shown on the lesson:</strong> {% for f in pack.red_flags %}{{ f.label }}{% if not forloop.last %} · {% endif %}{% endfor %}</div>{% endif %}
+    </section>
+    <section class="bg-white border border-outline p-5">
+        <div class="text-xs font-bold uppercase tracking-wider text-on-surface-variant mb-3">Child quiz</div>
+        {% if pack.child_quiz %}
+        <ol class="space-y-3 text-sm list-decimal list-inside">
+        {% for q in pack.child_quiz.questions.all %}<li><strong>{{ q.question_text }}</strong>
+            <ul class="ml-5 mt-1 space-y-0.5">{% for c in q.choices.all %}<li class="{% if c.is_correct %}text-teal font-semibold{% endif %}">{% if c.is_correct %}✓ {% else %}· {% endif %}{{ c.choice_text }}</li>{% endfor %}</ul></li>{% endfor %}
+        </ol>
+        <p class="text-xs text-on-surface-variant mt-3">Correct answers are marked ✓. Edit them in <a class="text-teal hover:underline" href="{% url 'admin:awarenessapp_quiz_change' pack.child_quiz.pk %}">system admin</a> or regenerate.</p>
+        {% endif %}
+    </section>
+</div>
+<div class="flex flex-wrap gap-3"><button class="bg-white text-on-surface px-5 py-2 text-sm font-semibold border border-on-surface hover:bg-surface">Save changes and re-check</button></div>
+</form>
+
+<div class="mt-8 pt-6 border-t border-outline flex flex-wrap items-center gap-4">
+    {% if pack.is_published %}
+    <form method="post">{% csrf_token %}<input type="hidden" name="action" value="unpublish"><button class="bg-white text-on-surface px-5 py-2 text-sm font-semibold border border-on-surface hover:bg-surface">Move back to draft</button></form>
+    <span class="text-sm text-on-surface-variant">Published {{ pack.published_at|date:"j M Y, H:i" }}. Parents see it under News for families.</span>
+    {% else %}
+    <form method="post" data-page-loader class="flex flex-wrap items-center gap-3">{% csrf_token %}<input type="hidden" name="action" value="publish">
+        {% if pack.safety_warnings %}<label class="text-sm flex items-center gap-2"><input type="checkbox" name="override" value="1"> I checked the safety notes: publish anyway</label>{% endif %}
+        <button class="bg-primary text-white px-5 py-2 text-sm font-semibold hover:bg-primary-container">Publish to families</button>
+    </form>
+    <span class="text-xs text-on-surface-variant">Parents who chose automatic drills get it sent to their children straight away.</span>
+    {% endif %}
+</div>
+<p class="text-xs text-on-surface-variant mt-4">Generated by {{ pack.generated_by|default:"-" }} · {{ pack.updated_at|date:"j M Y, H:i" }}</p>
+{% endif %}
+{% endblock %}

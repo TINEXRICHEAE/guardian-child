@@ -1,0 +1,120 @@
+{% extends "panel/base_panel.html" %}
+{% load guardian_filters %}
+{% block title %}Analytics{% endblock %}
+
+{% block panel_content %}
+<div class="flex items-center justify-between mb-8">
+    <h1 class="text-3xl font-bold">Analytics</h1>
+    <a href="{% url 'analytics_report' %}"
+       class="bg-teal text-white px-5 py-2 font-semibold border-2 border-teal hover:bg-primary transition-colors text-sm">
+        Full Report &amp; Print &rarr;
+    </a>
+</div>
+
+<!-- Top stats - each card is a clickable drill-down -->
+<div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-10">
+    <a href="{% url 'analytics_staff' %}" class="bg-white border border-outline p-4 hover:border-teal transition-colors group block">
+        <div class="text-xs font-bold uppercase tracking-wider text-on-surface-variant mb-1 group-hover:text-teal">Total Children</div>
+        <div class="text-2xl sm:text-4xl font-bold text-teal">{{ total_staff }}</div>
+        <div class="text-xs text-on-surface-variant mt-2">View details &rarr;</div>
+    </a>
+    <a href="{% url 'analytics_content' %}" class="bg-white border border-outline p-4 hover:border-teal transition-colors group block">
+        <div class="text-xs font-bold uppercase tracking-wider text-on-surface-variant mb-1 group-hover:text-teal">Published Content</div>
+        <div class="text-2xl sm:text-4xl font-bold text-teal">{{ total_content }}</div>
+        <div class="text-xs text-on-surface-variant mt-2">View details &rarr;</div>
+    </a>
+    <a href="{% url 'analytics_campaigns' %}" class="bg-white border border-outline p-4 hover:border-teal transition-colors group block">
+        <div class="text-xs font-bold uppercase tracking-wider text-on-surface-variant mb-1 group-hover:text-teal">Campaigns Sent</div>
+        <div class="text-2xl sm:text-4xl font-bold text-teal">{{ campaign_stats.sent }}</div>
+        <div class="text-xs text-on-surface-variant mt-2">View details &rarr;</div>
+    </a>
+    <a href="{% url 'analytics_emails' %}" class="bg-white border border-outline p-4 hover:border-teal transition-colors group block">
+        <div class="text-xs font-bold uppercase tracking-wider text-on-surface-variant mb-1 group-hover:text-teal">Emails Delivered</div>
+        <div class="text-2xl sm:text-4xl font-bold text-teal">{{ delivery_stats.sent|default:0 }}</div>
+        <div class="text-xs text-on-surface-variant mt-2">View details &rarr;</div>
+    </a>
+</div>
+
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+
+    <!-- Threat type breakdown -->
+    <div class="bg-white border border-outline p-6">
+        <h2 class="font-semibold mb-4 border-b border-outline pb-2">Content by Threat Type</h2>
+        <div class="space-y-3">
+            {% for val, label in threat_choices %}
+            <a href="{% url 'analytics_threat' val %}" class="block group">
+                <div class="flex justify-between text-sm mb-1">
+                    <span class="group-hover:text-teal font-medium">{{ label }}</span>
+                    <span class="font-semibold text-teal">{{ threat_map|get_item:val }}</span>
+                </div>
+                <div class="bg-surface-container h-2">
+                    {% if total_content > 0 %}
+                    <div class="bg-teal h-2 transition-all group-hover:bg-primary" style="width: {% widthratio threat_map|get_item:val total_content 100 %}%"></div>
+                    {% endif %}
+                </div>
+            </a>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Email delivery breakdown -->
+    <a href="{% url 'analytics_emails' %}" class="bg-white border border-outline p-6 hover:border-teal transition-colors block group">
+        <h2 class="font-semibold mb-4 border-b border-outline pb-2 group-hover:text-teal">Email Delivery Overview</h2>
+        <div class="space-y-4">
+            <div class="flex justify-between items-center">
+                <span class="text-sm">Total Campaigns</span>
+                <span class="font-bold">{{ campaign_stats.total }}</span>
+            </div>
+            <div class="flex justify-between items-center">
+                <span class="text-sm">Campaigns Sent</span>
+                <span class="font-bold text-teal">{{ campaign_stats.sent }}</span>
+            </div>
+            <div class="flex justify-between items-center border-t border-outline pt-4">
+                <span class="text-sm">Total Deliveries</span>
+                <span class="font-bold">{{ delivery_stats.total|default:0 }}</span>
+            </div>
+            <div class="flex justify-between items-center">
+                <span class="text-sm">Sent</span>
+                <span class="font-bold text-teal">{{ delivery_stats.sent|default:0 }}</span>
+            </div>
+            <div class="flex justify-between items-center">
+                <span class="text-sm">Opened</span>
+                <span class="font-bold">{{ delivery_stats.opened|default:0 }}</span>
+            </div>
+            <div class="flex justify-between items-center">
+                <span class="text-sm text-error">Failed</span>
+                <span class="font-bold text-error">{{ delivery_stats.failed|default:0 }}</span>
+            </div>
+        </div>
+        <div class="text-xs text-on-surface-variant mt-4">View full breakdown &rarr;</div>
+    </a>
+
+    <!-- Quiz stats -->
+    <a href="{% url 'analytics_quizzes' %}" class="bg-white border border-outline p-6 hover:border-teal transition-colors block group">
+        <h2 class="font-semibold mb-4 border-b border-outline pb-2 group-hover:text-teal">Quiz Performance</h2>
+        <div class="space-y-4">
+            <div class="flex justify-between items-center">
+                <span class="text-sm">Total Attempts</span>
+                <span class="font-bold">{{ quiz_stats.total|default:0 }}</span>
+            </div>
+            <div class="flex justify-between items-center">
+                <span class="text-sm">Average Score</span>
+                <span class="font-bold text-teal">{{ quiz_stats.avg_score|floatformat:1|default:"0.0" }}</span>
+            </div>
+        </div>
+        {% if top_quizzes %}
+        <div class="mt-4 pt-4 border-t border-outline">
+            <div class="text-xs font-bold uppercase tracking-wider text-on-surface-variant mb-3">Most Attempted</div>
+            {% for quiz in top_quizzes %}
+            <div class="flex justify-between items-center text-sm py-1.5 border-b border-outline last:border-0">
+                <span class="truncate max-w-xs">{{ quiz.title }}</span>
+                <span class="font-semibold text-teal ml-4">{{ quiz.attempt_count }}</span>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+        <div class="text-xs text-on-surface-variant mt-4">View full breakdown &rarr;</div>
+    </a>
+
+</div>
+{% endblock %}

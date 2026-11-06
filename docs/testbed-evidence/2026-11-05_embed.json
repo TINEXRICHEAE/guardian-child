@@ -1,0 +1,37 @@
+{
+  "status": "ok",
+  "vectors": [
+    [
+      -0.113638,
+      -0.031504,
+      0.043417,
+      0.008639,
+      -0.020207,
+      "\u2026"
+    ],
+    [
+      -0.15293,
+      -0.002491,
+      0.020818,
+      0.027178,
+      -0.023364,
+      "\u2026"
+    ]
+  ],
+  "dimensions": 384,
+  "meta": {
+    "host": "DESKTOP-3CGBSSB",
+    "gpu": "NVIDIA GeForce GTX 1060, 5861 MiB, 6144 MiB",
+    "backend": "minilm",
+    "model": "sentence-transformers/all-MiniLM-L6-v2",
+    "cloud": false,
+    "mode": "live",
+    "latencyMs": 214,
+    "attempts": [
+      {
+        "backend": "minilm",
+        "ok": true
+      }
+    ]
+  }
+}

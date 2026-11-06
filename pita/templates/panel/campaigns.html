@@ -1,0 +1,73 @@
+{% extends "panel/base_panel.html" %}
+{% block title %}Email Campaigns{% endblock %}
+
+{% block panel_content %}
+<div class="flex items-center justify-between mb-6">
+    <div>
+        <h1 class="text-3xl font-bold">Email Campaigns</h1>
+        <p class="text-on-surface-variant text-sm mt-1">Review, edit, and send awareness emails to parents.</p>
+    </div>
+    <a href="{% url 'panel_content_list' %}?status=approved" class="bg-teal text-white px-4 py-2 font-semibold border-2 border-teal hover:bg-primary transition-colors text-sm">
+        + From Approved Content
+    </a>
+</div>
+
+{% if page_obj.object_list %}
+<div class="bg-white border border-outline overflow-x-auto mob-cards">
+    <table class="w-full text-sm">
+        <thead class="border-b border-outline">
+            <tr>
+                <th class="text-left px-4 py-3 text-xs font-bold uppercase tracking-wider text-on-surface-variant">Subject</th>
+                <th class="text-left px-4 py-3 text-xs font-bold uppercase tracking-wider text-on-surface-variant">Content</th>
+                <th class="text-left px-4 py-3 text-xs font-bold uppercase tracking-wider text-on-surface-variant">Created</th>
+                <th class="text-left px-4 py-3 text-xs font-bold uppercase tracking-wider text-on-surface-variant">Status</th>
+                <th class="text-left px-4 py-3 text-xs font-bold uppercase tracking-wider text-on-surface-variant">Sent</th>
+                <th class="px-4 py-3"></th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for cam in page_obj %}
+            <tr class="border-b border-outline hover:bg-surface transition-colors">
+                <td class="px-4 py-3 font-medium max-w-xs" data-label="Subject">
+                    <a href="{% url 'panel_campaign_detail' cam.pk %}" class="hover:text-teal">{{ cam.subject }}</a>
+                </td>
+                <td class="px-4 py-3 text-on-surface-variant max-w-xs truncate" data-label="Content">{{ cam.content.title }}</td>
+                <td class="px-4 py-3 text-on-surface-variant text-xs" data-label="Created">{{ cam.created_at|date:"M d, Y" }}</td>
+                <td class="px-4 py-3" data-label="Status">
+                    <span class="text-xs font-bold uppercase px-2 py-0.5 border
+                        {% if cam.status == 'sent' %}border-teal text-teal
+                        {% elif cam.status == 'sending' %}border-primary text-primary
+                        {% else %}border-on-surface-variant text-on-surface-variant{% endif %}">
+                        {{ cam.get_status_display }}
+                    </span>
+                </td>
+                <td class="px-4 py-3 text-xs text-on-surface-variant" data-label="Sent At">
+                    {% if cam.sent_at %}{{ cam.sent_at|date:"M d, Y H:i" }}{% else %}-{% endif %}
+                </td>
+                <td class="px-4 py-3 text-right">
+                    <a href="{% url 'panel_campaign_detail' cam.pk %}" class="text-xs text-teal hover:underline font-semibold">
+                        {% if cam.status == 'draft' %}Edit{% else %}View{% endif %}
+                    </a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+{% if page_obj.has_other_pages %}
+<div class="flex gap-2 justify-center mt-6">
+    {% if page_obj.has_previous %}<a href="?page={{ page_obj.previous_page_number }}" class="px-4 py-2 border border-on-surface hover:bg-surface text-sm font-medium">&laquo; Prev</a>{% endif %}
+    <span class="px-4 py-2 bg-teal text-white text-sm font-medium">{{ page_obj.number }} / {{ page_obj.paginator.num_pages }}</span>
+    {% if page_obj.has_next %}<a href="?page={{ page_obj.next_page_number }}" class="px-4 py-2 border border-on-surface hover:bg-surface text-sm font-medium">Next &raquo;</a>{% endif %}
+</div>
+{% endif %}
+
+{% else %}
+<div class="bg-white border border-outline p-12 text-center">
+    <div class="flex justify-center mb-4 text-on-surface-variant"><svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 0 1-2.25 2.25h-15a2.25 2.25 0 0 1-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25m19.5 0v.243a2.25 2.25 0 0 1-1.07 1.916l-7.5 4.615a2.25 2.25 0 0 1-2.36 0L3.32 8.91a2.25 2.25 0 0 1-1.07-1.916V6.75"/></svg></div>
+    <p class="text-on-surface-variant mb-4">No campaigns yet. Approve content first, then create a campaign.</p>
+    <a href="{% url 'panel_content_list' %}?status=pending" class="inline-block bg-teal text-white px-6 py-2 font-semibold border-2 border-teal hover:bg-primary transition-colors text-sm">Review Pending Content</a>
+</div>
+{% endif %}
+{% endblock %}

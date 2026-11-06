@@ -1,0 +1,106 @@
+{% extends "panel/base_panel.html" %}
+{% block title %}Email Delivery Analytics{% endblock %}
+
+{% block extra_head %}
+<style>
+@media print {
+    nav, .no-print { display: none !important; }
+    body { background: white; font-size: 11px; }
+    .print-header { display: block !important; }
+    .page-break { page-break-before: always; }
+    a { text-decoration: none; color: inherit; }
+}
+.print-header { display: none; }
+</style>
+{% endblock %}
+
+{% block panel_content %}
+<div class="print-header mb-6 pb-4 border-b-2 border-on-surface">
+    <div class="text-xl font-bold">Guardian - Cybersecurity Awareness Platform</div>
+    <div class="text-sm text-on-surface-variant">Email Delivery Overview Report</div>
+</div>
+
+<div class="flex items-center justify-between mb-6 no-print">
+    <div>
+        <a href="{% url 'panel_analytics' %}" class="text-sm text-teal font-semibold hover:underline">&larr; Analytics</a>
+        <h1 class="text-2xl font-bold mt-1">Email Delivery Overview</h1>
+    </div>
+    <button onclick="window.print()" class="bg-teal text-white px-5 py-2 font-semibold border-2 border-teal hover:bg-primary transition-colors text-sm">
+        Print / Export
+    </button>
+</div>
+
+<!-- Summary -->
+<div class="grid grid-cols-2 md:grid-cols-5 gap-4 mb-8">
+    <div class="bg-white border border-outline p-4 text-center">
+        <div class="text-3xl font-bold text-on-surface">{{ stats.total|default:0 }}</div>
+        <div class="text-xs font-bold uppercase tracking-wider text-on-surface-variant mt-1">Total</div>
+    </div>
+    <div class="bg-white border border-outline p-4 text-center">
+        <div class="text-3xl font-bold text-teal">{{ stats.delivered|default:0 }}</div>
+        <div class="text-xs font-bold uppercase tracking-wider text-on-surface-variant mt-1">Delivered</div>
+    </div>
+    <div class="bg-white border border-outline p-4 text-center">
+        <div class="text-3xl font-bold text-teal">{{ stats.opened|default:0 }}</div>
+        <div class="text-xs font-bold uppercase tracking-wider text-on-surface-variant mt-1">Opened</div>
+    </div>
+    <div class="bg-white border border-outline p-4 text-center">
+        <div class="text-3xl font-bold text-on-surface-variant">{{ stats.open_rate|default:0 }}%</div>
+        <div class="text-xs font-bold uppercase tracking-wider text-on-surface-variant mt-1">Open Rate</div>
+    </div>
+    <div class="bg-white border border-outline p-4 text-center">
+        <div class="text-3xl font-bold text-error">{{ stats.failed|default:0 }}</div>
+        <div class="text-xs font-bold uppercase tracking-wider text-on-surface-variant mt-1">Failed</div>
+    </div>
+</div>
+
+<!-- Full delivery log -->
+<div class="bg-white border border-outline overflow-x-auto mob-cards">
+    <table class="w-full text-sm">
+        <thead class="border-b border-outline bg-surface sticky top-0">
+            <tr>
+                <th class="px-4 py-3 text-left text-xs font-bold uppercase tracking-wider text-on-surface-variant">Recipient</th>
+                <th class="px-4 py-3 text-left text-xs font-bold uppercase tracking-wider text-on-surface-variant">Campaign</th>
+                <th class="px-4 py-3 text-left text-xs font-bold uppercase tracking-wider text-on-surface-variant">Content</th>
+                <th class="px-4 py-3 text-left text-xs font-bold uppercase tracking-wider text-on-surface-variant">Status</th>
+                <th class="px-4 py-3 text-left text-xs font-bold uppercase tracking-wider text-on-surface-variant">Sent At</th>
+                <th class="px-4 py-3 text-left text-xs font-bold uppercase tracking-wider text-on-surface-variant">Opened At</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for d in deliveries %}
+            <tr class="border-b border-outline hover:bg-surface">
+                <td class="px-4 py-2" data-label="Recipient">
+                    <div>{% if d.email %}{{ d.email }}{% elif d.recipient %}{{ d.recipient.email }}{% else %}-{% endif %}</div>
+                    {% if d.recipient %}
+                    <div class="text-xs text-on-surface-variant">{{ d.recipient.profile.full_name|default:"" }}{% if d.recipient.profile.department %} &mdash; {{ d.recipient.profile.department }}{% endif %}</div>
+                    {% else %}
+                    <div class="text-xs text-on-surface-variant">External</div>
+                    {% endif %}
+                </td>
+                <td class="px-4 py-2 text-xs text-on-surface-variant" data-label="Campaign">
+                    <a href="{% url 'analytics_campaign_detail' d.campaign.pk %}" class="hover:text-teal hover:underline no-print">
+                        {{ d.campaign.subject|truncatechars:35 }}
+                    </a>
+                    <span class="print-only">{{ d.campaign.subject|truncatechars:35 }}</span>
+                </td>
+                <td class="px-4 py-2 text-xs text-on-surface-variant" data-label="Content">{{ d.campaign.content.title|truncatechars:30 }}</td>
+                <td class="px-4 py-2" data-label="Status">
+                    <span class="text-xs font-bold px-2 py-0.5 border
+                        {% if d.status == 'opened' or d.status == 'clicked' %}border-teal text-teal
+                        {% elif d.status == 'sent' %}border-on-surface-variant text-on-surface-variant
+                        {% elif d.status == 'failed' %}border-error text-error
+                        {% else %}border-outline text-on-surface-variant{% endif %}">
+                        {{ d.get_status_display }}
+                    </span>
+                </td>
+                <td class="px-4 py-2 text-xs text-on-surface-variant" data-label="Sent At">{{ d.sent_at|date:"M d, Y H:i"|default:"-" }}</td>
+                <td class="px-4 py-2 text-xs text-on-surface-variant" data-label="Opened At">{{ d.opened_at|date:"M d, Y H:i"|default:"-" }}</td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="6" class="px-4 py-8 text-center text-on-surface-variant">No deliveries yet.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

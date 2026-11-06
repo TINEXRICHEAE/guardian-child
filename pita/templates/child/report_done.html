@@ -1,0 +1,15 @@
+{% extends "app/child_base.html" %}
+{% block title %}Thank you{% endblock %}
+{% block child_content %}
+<div class="bg-white border border-outline p-6 max-w-2xl">
+    <h1 class="text-2xl font-bold mb-3">Thank you for telling us.</h1>
+    <p class="text-sm mb-2">Your report was saved. It was <strong>not</strong> sent to UCC, the Police or 116.</p>
+    {% if report.confidential %}<p class="text-sm mb-2">You chose to keep it private, so your guardian was <strong>not</strong> told.</p>
+    {% elif report.notify_parent %}<p class="text-sm mb-2">Your parent was told that you reported something, but not what you wrote.</p>{% endif %}
+    {% if sensitive %}<p class="text-sm mb-2"><strong>It sounds like this might be really hard.</strong> You don't have to handle it alone. Please talk to a safe adult or call Sauti 116 now. A trained person may review this report.</p>{% endif %}
+    <div class="flex flex-wrap gap-3 mt-4">
+        <a href="tel:116" class="bg-primary text-white px-5 py-2 text-sm font-semibold hover:bg-primary-container">Call 116</a>
+        <a href="{% url 'child_home' %}" class="bg-white text-on-surface px-5 py-2 text-sm font-semibold border border-on-surface hover:bg-surface">Back to my space</a>
+    </div>
+</div>
+{% endblock %}

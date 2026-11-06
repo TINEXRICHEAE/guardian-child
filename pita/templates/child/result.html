@@ -1,0 +1,28 @@
+{% extends "app/child_base.html" %}
+{% block title %}Your result{% endblock %}
+{% block child_content %}
+<h1 class="text-2xl md:text-3xl font-bold mb-6">Your result</h1>
+<div class="max-w-2xl">
+{% if sub.practice_delivery %}
+<div class="border-l-4 border-teal bg-teal/5 border p-5 mb-5">
+    <div class="text-lg font-bold mb-1">Great catch! This was a practice message from Guardian.</div>
+    <p class="text-sm mb-3">You checked it before doing anything. That's exactly the right move.</p>
+    <a href="{% url 'lesson' sub.practice_delivery.pack_id %}" class="inline-block bg-primary text-white px-5 py-2 text-sm font-semibold hover:bg-primary-container">See the lesson</a>
+</div>
+{% endif %}
+{% include "app/_result.html" %}
+{% if sub.already_acted or sub.risk_level == 'high' %}
+<section class="bg-white border border-outline p-5 mb-5">
+    <h3 class="text-lg font-semibold mb-1">Already clicked, paid or shared something?</h3>
+    <p class="text-sm text-on-surface-variant mb-3">That happens to many people. Telling someone quickly helps.</p>
+    <a href="{% url 'child_report' %}?from={{ sub.pk }}" class="inline-block bg-primary text-white px-5 py-2 text-sm font-semibold hover:bg-primary-container">Tell us what happened</a>
+</section>
+{% endif %}
+<div class="flex flex-wrap gap-3">
+    <a href="{% url 'child_check' %}" class="bg-primary text-white px-5 py-2 text-sm font-semibold hover:bg-primary-container">Check another</a>
+    <a href="{% url 'child_home' %}" class="bg-white text-on-surface px-5 py-2 text-sm font-semibold border border-on-surface hover:bg-surface">Back to my space</a>
+    <a href="tel:116" class="bg-white text-on-surface px-5 py-2 text-sm font-semibold border border-on-surface hover:bg-surface">Call 116</a>
+</div>
+<p class="text-xs text-on-surface-variant mt-4">Your parent does not see this message.{% if sub.risk_level == 'high' %} If they turned on safety alerts, they only see the type of scam and what to do.{% endif %}</p>
+</div>
+{% endblock %}

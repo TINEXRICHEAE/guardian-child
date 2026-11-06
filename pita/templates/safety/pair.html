@@ -1,0 +1,26 @@
+{% extends "app/child_base.html" %}
+{% block title %}I have a family code{% endblock %}
+{% block child_content %}
+<div class="max-w-md mx-auto">
+    <h1 class="text-2xl md:text-3xl font-bold mb-2">I have a family code</h1>
+    <p class="text-on-surface-variant mb-3">A family code connects <strong>your own</strong> Guardian space to your parent's account, so you can check messages, see your lessons and get help.</p>
+    <p class="text-sm text-on-surface-variant mb-6">Ask your parent to open <strong>My family</strong> in their Guardian account and press <strong>Connect a device</strong> next to your name. They'll see a code like <span class="font-mono">SAFE-123456</span>. Type it below (the 6 digits are enough). It works once and expires after 10 minutes.</p>
+    <form method="post" class="bg-white border border-outline p-6 space-y-4" novalidate>
+        {% csrf_token %}
+        {% for e in form.non_field_errors %}<p class="text-sm text-error">{{ e }}</p>{% endfor %}
+        {% for field in form %}
+        <div>
+            <label for="{{ field.id_for_label }}" class="block text-xs font-bold uppercase tracking-wider mb-1">{{ field.label }}</label>
+            {{ field }}
+            {% for e in field.errors %}<p class="text-xs text-error mt-1">{{ e }}</p>{% endfor %}
+        </div>
+        {% endfor %}
+        <button class="w-full bg-primary text-white px-5 py-3 font-semibold hover:bg-primary-container">Connect</button>
+    </form>
+    <div class="mt-6 bg-white border border-outline p-5 text-sm">
+        <div class="font-semibold mb-1">Need help right now?</div>
+        <p class="text-on-surface-variant mb-3">You don't need a code to get help. Talk to a trusted adult, or call Sauti, Uganda's free child helpline.</p>
+        <a href="tel:116" class="inline-block border-2 border-primary text-primary px-4 py-2 font-semibold">Call 116</a>
+    </div>
+</div>
+{% endblock %}

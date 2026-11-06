@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% block title %}{{ quiz.title }}{% endblock %}
+
+{% block extra_head %}
+<style>
+/* has-[:checked] Tailwind variants are separate generated classes, override them explicitly */
+html.dark .has-\[\:checked\]\:bg-teal\/5:has(:checked) {
+    background-color: rgba(77,184,170,0.15) !important;
+}
+html.dark .has-\[\:checked\]\:border-teal:has(:checked) {
+    border-color: #4db8aa !important;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto px-4 py-10">
+    <a href="{% url 'quizzes' %}" class="text-sm text-teal font-semibold hover:underline mb-6 inline-block">&larr; Back to Quizzes</a>
+
+    <h1 class="text-3xl font-bold mb-2">{{ quiz.title }}</h1>
+    {% if quiz.description %}
+    <p class="text-on-surface-variant mb-4">{{ quiz.description }}</p>
+    {% endif %}
+    <p class="text-xs text-on-surface-variant mb-8">
+        Attempt {{ attempt_number }} of {{ max_attempts }} &nbsp;&bull;&nbsp;
+        {% if attempt_number >= max_attempts %}This is your final attempt.{% else %}1 attempt remaining after this.{% endif %}
+    </p>
+
+    <form method="post" id="quizForm">
+        {% csrf_token %}
+        {% for question in questions %}
+        <div class="bg-white border border-outline p-5 mb-4">
+            <p class="font-semibold mb-4 leading-snug">{{ forloop.counter }}. {{ question.question_text }}</p>
+            <div class="space-y-2">
+                {% for choice in question.choices.all %}
+                <label class="flex items-center gap-3 cursor-pointer px-3 py-2.5 border border-transparent hover:bg-surface transition-colors has-[:checked]:bg-teal/5 has-[:checked]:border-teal">
+                    <input type="radio" name="q_{{ question.pk }}" value="{{ choice.pk }}" required class="peer sr-only">
+                    <span class="shrink-0 w-7 h-7 flex items-center justify-center text-sm font-bold border-2 border-outline text-on-surface-variant transition-colors peer-checked:bg-teal peer-checked:text-white peer-checked:border-teal">{% if forloop.counter == 1 %}A{% elif forloop.counter == 2 %}B{% elif forloop.counter == 3 %}C{% else %}D{% endif %}</span>
+                    <span class="text-sm">{{ choice.choice_text }}</span>
+                </label>
+                {% endfor %}
+            </div>
+        </div>
+        {% endfor %}
+
+        <button type="submit"
+            class="w-full bg-teal text-white py-3 font-semibold border-2 border-teal hover:bg-primary transition-colors mt-4">
+            Submit Answers
+        </button>
+    </form>
+</div>
+{% endblock %}

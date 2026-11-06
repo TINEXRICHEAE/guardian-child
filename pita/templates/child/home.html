@@ -1,0 +1,28 @@
+{% extends "app/child_base.html" %}{% load app_ui %}
+{% block title %}My space{% endblock %}
+{% block child_content %}
+<h1 class="text-2xl md:text-3xl font-bold mb-1">Not sure about something online?</h1>
+<p class="text-on-surface-variant mb-8">You can check it before you reply. You will not get in trouble for asking.</p>
+
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+    <a href="{% url 'child_check' %}" class="bg-primary-container text-white p-6 border-2 border-primary-container hover:border-teal transition-colors flex items-center justify-between gap-4">
+        <span><span class="block text-xl font-bold mb-1">Is this safe?</span><span class="block text-sm opacity-90">Check a message, link or screenshot</span></span>{% icon 'chevron-right' 28 %}
+    </a>
+    <a href="{% url 'child_report' %}" class="bg-white text-on-surface p-6 border-2 border-on-surface hover:border-teal transition-colors flex items-center justify-between gap-4">
+        <span><span class="block text-xl font-bold mb-1">Something happened</span><span class="block text-sm text-on-surface-variant">Tell us what happened and choose who is told</span></span>{% icon 'chevron-right' 28 %}
+    </a>
+</div>
+
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+    <div class="bg-white border border-outline p-5">
+        <div class="text-xs font-bold uppercase tracking-wider text-on-surface-variant mb-2">Need to talk to someone?</div>
+        <p class="text-sm mb-3">Uganda Child Helpline Sauti 116 is free. Your phone opens the dialler and you choose whether to call.</p>
+        <div class="flex flex-wrap gap-4 text-sm font-semibold"><a href="tel:116" class="text-teal hover:underline">Call 116</a><a href="{% url 'help' %}" class="text-teal hover:underline">Safety steps &rarr;</a></div>
+    </div>
+    <div class="bg-white border border-outline p-5">
+        <div class="text-xs font-bold uppercase tracking-wider text-on-surface-variant mb-2">Remember</div>
+        <p class="text-sm mb-3">Never share your PIN, password or one-time code. Real helpers will not ask for them.</p>
+        <a href="{% url 'privacy' %}" class="text-sm font-semibold text-teal hover:underline">What Guardian keeps and who can see it &rarr;</a>
+    </div>
+</div>
+{% endblock %}

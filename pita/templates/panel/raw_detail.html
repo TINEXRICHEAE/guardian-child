@@ -1,0 +1,107 @@
+{% extends "panel/base_panel.html" %}
+{% block title %}Raw Content #{{ raw.pk }}{% endblock %}
+
+{% block panel_content %}
+<div class="max-w-3xl">
+    <a href="{% url 'panel_raw_contents' %}" class="text-sm text-teal font-semibold hover:underline mb-6 inline-block">&larr; Back to Raw Content</a>
+
+    <div class="flex items-start justify-between gap-4 mb-6">
+        <div>
+            <h1 class="text-2xl font-bold leading-tight">{{ raw.source.name }}</h1>
+            <p class="text-on-surface-variant text-sm mt-1">Raw Content #{{ raw.pk }} - {{ raw.fetched_at|date:"M d, Y H:i" }}</p>
+        </div>
+        <span class="text-xs font-bold uppercase px-3 py-1 border whitespace-nowrap
+            {% if raw.processed %}border-teal text-teal{% else %}border-on-surface-variant text-on-surface-variant{% endif %}">
+            {% if raw.processed %}Processed{% else %}Unprocessed{% endif %}
+        </span>
+    </div>
+
+    <!-- Meta -->
+    <div class="grid grid-cols-2 md:grid-cols-3 gap-4 mb-8 text-sm border border-outline p-4 bg-white">
+        <div>
+            <div class="text-xs font-bold uppercase tracking-wider text-on-surface-variant mb-1">Source Type</div>
+            <div>{{ raw.source.get_source_type_display }}</div>
+        </div>
+        <div>
+            <div class="text-xs font-bold uppercase tracking-wider text-on-surface-variant mb-1">Threat Type</div>
+            <div>{{ raw.source.get_threat_type_display }}</div>
+        </div>
+        <div>
+            <div class="text-xs font-bold uppercase tracking-wider text-on-surface-variant mb-1">Fetched</div>
+            <div>{{ raw.fetched_at|date:"M d, Y H:i" }}</div>
+        </div>
+    </div>
+
+    <!-- Editable summary + engagement type -->
+    <form method="post">
+        {% csrf_token %}
+
+        <div class="mb-5">
+            <label class="block text-xs font-bold uppercase tracking-wider mb-1">
+                Engagement Type
+                <span class="font-normal normal-case text-on-surface-variant ml-1">- choose how parents and children will interact with this content</span>
+            </label>
+            <select name="engagement_type"
+                class="w-full px-3 py-2 border border-on-surface focus:outline-none focus:border-teal text-sm bg-white">
+                {% for val, label in engagement_choices %}
+                <option value="{{ val }}" {% if raw.engagement_type == val %}selected{% endif %}>{{ label }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="mb-4">
+            <label class="block text-xs font-bold uppercase tracking-wider mb-2">
+                Summary:
+                <span class="font-normal normal-case text-on-surface-variant ml-1"> Review and edit before AI transformation</span>
+            </label>
+            <textarea name="summary" rows="18"
+                class="w-full px-3 py-2 border border-on-surface focus:outline-none focus:border-2 focus:border-teal text-sm font-mono resize-y leading-relaxed">{{ raw.summary }}</textarea>
+            <p class="text-xs text-on-surface-variant mt-1">
+                This is the sumy-extracted summary that will be sent to Gemini for AI transformation.
+                Edit it to add context, remove irrelevant content, or fix extraction errors before transforming.
+            </p>
+        </div>
+
+        <div class="flex gap-3 flex-wrap">
+            <button type="submit"
+                class="bg-teal text-white px-6 py-2 font-semibold border-2 border-teal hover:bg-primary transition-colors text-sm">
+                Save
+            </button>
+            <a href="{% url 'panel_raw_contents' %}"
+               class="bg-white text-on-surface px-6 py-2 font-semibold border border-on-surface hover:bg-surface transition-colors text-sm">
+                Cancel
+            </a>
+        </div>
+    </form>
+
+    <!-- AI Transform action (separate form so it can't accidentally overwrite on a mis-click) -->
+    <div class="mt-8 border-t border-outline pt-6">
+        <h2 class="text-sm font-bold uppercase tracking-wider mb-2">AI Transformation</h2>
+
+        {% if raw.processed %}
+        <div class="bg-surface border border-outline px-4 py-3 text-xs text-on-surface-variant mb-4">
+            This raw content has already been transformed.
+            {% if raw.awareness_contents.exists %}
+            Previously generated:
+            {% for c in raw.awareness_contents.all %}
+            <a href="{% url 'panel_content_detail' c.pk %}" class="text-teal font-semibold hover:underline">#{{ c.pk }} {{ c.title|truncatechars:40 }}</a>{% if not forloop.last %}, {% endif %}
+            {% endfor %}
+            &mdash; Re-transforming will create a new entry using the current engagement type and summary.
+            {% endif %}
+        </div>
+        {% else %}
+        <p class="text-xs text-on-surface-variant mb-4">
+            Save your edits above first, then click <strong>Transform</strong> to send the summary to Gemini and generate structured awareness content.
+        </p>
+        {% endif %}
+
+        <form data-page-loader method="post" action="{% url 'panel_transform_raw' raw.pk %}">
+            {% csrf_token %}
+            <button type="submit"
+                class="bg-primary text-white px-6 py-2 font-semibold border-2 border-primary hover:opacity-90 transition-opacity text-sm">
+                {% if raw.processed %}Re-transform with AI &rarr;{% else %}Transform with AI &rarr;{% endif %}
+            </button>
+        </form>
+    </div>
+</div>
+{% endblock %}

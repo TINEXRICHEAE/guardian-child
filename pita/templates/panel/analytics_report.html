@@ -1,0 +1,457 @@
+{% extends "panel/base_panel.html" %}
+{% load guardian_filters %}
+{% block title %}Security Awareness Report - {{ report_date|date:"F Y" }}{% endblock %}
+
+{% block extra_head %}
+<style>
+@media print {
+    nav, .no-print { display: none !important; }
+    body { background: white; font-size: 10px; }
+    .print-header { display: block !important; }
+    .page-break { page-break-before: always; }
+    .avoid-break { page-break-inside: avoid; }
+    a { text-decoration: none; color: inherit; }
+    table { border-collapse: collapse; }
+    th, td { border: 1px solid #ccc; padding: 3px 6px; }
+    .report-cover { page-break-after: always; }
+}
+.print-header { display: none; }
+</style>
+{% endblock %}
+
+{% block panel_content %}
+<!-- Screen header -->
+<div class="flex items-center justify-between mb-6 no-print">
+    <div>
+        <a href="{% url 'panel_analytics' %}" class="text-sm text-teal font-semibold hover:underline">&larr; Analytics</a>
+        <h1 class="text-2xl font-bold mt-1">Consolidated Security Awareness Report</h1>
+        <p class="text-sm text-on-surface-variant">{{ report_date|date:"F j, Y - H:i" }}</p>
+    </div>
+    <button onclick="window.print()" class="bg-teal text-white px-5 py-2 font-semibold border-2 border-teal hover:bg-primary transition-colors text-sm">
+        Print / Export PDF
+    </button>
+</div>
+
+<!-- Cover (print only) -->
+<div class="print-header report-cover pt-16 pb-8 text-center">
+    <div class="text-3xl font-bold tracking-wide mb-2">GUARDIAN</div>
+    <div class="text-base font-semibold tracking-widest uppercase text-on-surface-variant mb-8">Cybersecurity Awareness Platform</div>
+    <div class="border-t-2 border-b-2 border-on-surface py-6 my-6 mx-auto" style="max-width:480px;">
+        <div class="text-2xl font-bold mb-1">Security Awareness Report</div>
+        <div class="text-sm text-on-surface-variant">Generated {{ report_date|date:"F j, Y" }} at {{ report_date|date:"H:i" }}</div>
+    </div>
+    <div class="text-sm text-on-surface-variant mt-8">Prepared by: Administration</div>
+    <div class="text-xs text-on-surface-variant mt-2">CONFIDENTIAL - FOR INTERNAL USE ONLY</div>
+</div>
+
+<!-- 1. EXECUTIVE SUMMARY -->
+<div class="mb-10">
+    <h2 class="text-lg font-bold border-b-2 border-on-surface pb-2 mb-4 uppercase tracking-wider">1. Executive Summary</h2>
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+        <div class="bg-white border border-outline p-4 text-center avoid-break">
+            <div class="text-2xl sm:text-3xl font-bold text-teal">{{ active_staff }}</div>
+            <div class="text-xs font-bold uppercase tracking-wider text-on-surface-variant mt-1">Active Children</div>
+        </div>
+        <div class="bg-white border border-outline p-4 text-center avoid-break">
+            <div class="text-2xl sm:text-3xl font-bold text-teal">{{ contents.count }}</div>
+            <div class="text-xs font-bold uppercase tracking-wider text-on-surface-variant mt-1">Published Content</div>
+        </div>
+        <div class="bg-white border border-outline p-4 text-center avoid-break">
+            <div class="text-2xl sm:text-3xl font-bold text-teal">{{ campaigns.count }}</div>
+            <div class="text-xs font-bold uppercase tracking-wider text-on-surface-variant mt-1">Campaigns Sent</div>
+        </div>
+        <div class="bg-white border border-outline p-4 text-center avoid-break">
+            <div class="text-2xl sm:text-3xl font-bold {% if delivery_stats.open_rate >= 60 %}text-teal{% else %}text-error{% endif %}">
+                {{ delivery_stats.open_rate|default:0 }}%
+            </div>
+            <div class="text-xs font-bold uppercase tracking-wider text-on-surface-variant mt-1">Overall Open Rate</div>
+        </div>
+    </div>
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+        <div class="bg-white border border-outline p-4 text-center avoid-break">
+            <div class="text-2xl sm:text-3xl font-bold text-on-surface">{{ delivery_stats.total|default:0 }}</div>
+            <div class="text-xs font-bold uppercase tracking-wider text-on-surface-variant mt-1">Total Email Deliveries</div>
+        </div>
+        <div class="bg-white border border-outline p-4 text-center avoid-break">
+            <div class="text-2xl sm:text-3xl font-bold text-teal">{{ delivery_stats.opened|default:0 }}</div>
+            <div class="text-xs font-bold uppercase tracking-wider text-on-surface-variant mt-1">Emails Opened</div>
+        </div>
+        <div class="bg-white border border-outline p-4 text-center avoid-break">
+            <div class="text-2xl sm:text-3xl font-bold text-on-surface">{{ quiz_stats.total|default:0 }}</div>
+            <div class="text-xs font-bold uppercase tracking-wider text-on-surface-variant mt-1">Quiz Attempts</div>
+        </div>
+        <div class="bg-white border border-outline p-4 text-center avoid-break">
+            <div class="text-2xl sm:text-3xl font-bold text-teal">
+                {% if quiz_stats.avg_score %}{{ quiz_stats.avg_score|floatformat:1 }}{% else %}-{% endif %}
+            </div>
+            <div class="text-xs font-bold uppercase tracking-wider text-on-surface-variant mt-1">Avg Quiz Score</div>
+        </div>
+    </div>
+
+    <!-- Threat type distribution summary -->
+    <div class="bg-white border border-outline p-4 avoid-break">
+        <div class="text-xs font-bold uppercase tracking-wider text-on-surface-variant mb-3">Content Distribution by Threat Category</div>
+        <div class="grid grid-cols-2 md:grid-cols-3 gap-2">
+            {% for code, label in threat_choices %}
+            <div class="flex justify-between text-sm border-b border-outline pb-1">
+                <span class="text-on-surface-variant">{{ label }}</span>
+                <span class="font-semibold {% if threat_map|get_item:code %}text-teal{% else %}text-on-surface-variant{% endif %}">
+                    {{ threat_map|get_item:code|default:0 }}
+                </span>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+<!-- 2. CHILDREN OVERVIEW -->
+<div class="mb-10 page-break">
+    <h2 class="text-lg font-bold border-b-2 border-on-surface pb-2 mb-4 uppercase tracking-wider">2. Children Overview</h2>
+    <div class="bg-white border border-outline overflow-x-auto mob-cards">
+        <table class="w-full text-sm">
+            <thead class="bg-surface border-b border-outline">
+                <tr>
+                    <th class="px-4 py-2 text-left text-xs font-bold uppercase tracking-wider text-on-surface-variant">#</th>
+                    <th class="px-4 py-2 text-left text-xs font-bold uppercase tracking-wider text-on-surface-variant">Name</th>
+                    <th class="px-4 py-2 text-left text-xs font-bold uppercase tracking-wider text-on-surface-variant">Email</th>
+                    <th class="px-4 py-2 text-left text-xs font-bold uppercase tracking-wider text-on-surface-variant">Department</th>
+                    <th class="px-4 py-2 text-left text-xs font-bold uppercase tracking-wider text-on-surface-variant">Position</th>
+                    <th class="px-4 py-2 text-center text-xs font-bold uppercase tracking-wider text-on-surface-variant">Emails Rcvd</th>
+                    <th class="px-4 py-2 text-center text-xs font-bold uppercase tracking-wider text-on-surface-variant">Opened</th>
+                    <th class="px-4 py-2 text-center text-xs font-bold uppercase tracking-wider text-on-surface-variant">Open Rate</th>
+                    <th class="px-4 py-2 text-center text-xs font-bold uppercase tracking-wider text-on-surface-variant">Quizzes</th>
+                    <th class="px-4 py-2 text-center text-xs font-bold uppercase tracking-wider text-on-surface-variant">Avg Score</th>
+                    <th class="px-4 py-2 text-center text-xs font-bold uppercase tracking-wider text-on-surface-variant">Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for s in staff %}
+                <tr class="border-b border-outline hover:bg-surface">
+                    <td class="px-4 py-2 text-on-surface-variant text-xs" data-label="#">{{ forloop.counter }}</td>
+                    <td class="px-4 py-2 font-medium" data-label="Name">{{ s.profile.full_name|default:"-" }}</td>
+                    <td class="px-4 py-2 text-xs text-on-surface-variant" data-label="Email">{{ s.email }}</td>
+                    <td class="px-4 py-2 text-xs text-on-surface-variant" data-label="Dept">{{ s.profile.department|default:"-" }}</td>
+                    <td class="px-4 py-2 text-xs text-on-surface-variant" data-label="Position">{{ s.profile.position|default:"-" }}</td>
+                    <td class="px-4 py-2 text-center" data-label="Emails Rcvd">{{ s.emails_received }}</td>
+                    <td class="px-4 py-2 text-center {% if s.emails_opened > 0 %}text-teal font-semibold{% else %}text-on-surface-variant{% endif %}" data-label="Opened">{{ s.emails_opened }}</td>
+                    <td class="px-4 py-2 text-center text-xs" data-label="Open Rate">
+                        {% if s.emails_received > 0 %}{% widthratio s.emails_opened s.emails_received 100 %}%{% else %}-{% endif %}
+                    </td>
+                    <td class="px-4 py-2 text-center font-semibold" data-label="Quizzes">{{ s.quiz_count }}</td>
+                    <td class="px-4 py-2 text-center text-teal font-semibold" data-label="Avg Score">
+                        {% if s.avg_quiz_score %}{{ s.avg_quiz_score|floatformat:1 }}{% else %}-{% endif %}
+                    </td>
+                    <td class="px-4 py-2 text-center" data-label="Status">
+                        {% if s.is_active %}
+                        <span class="text-xs font-bold border border-teal text-teal px-1.5 py-0.5">Active</span>
+                        {% else %}
+                        <span class="text-xs font-bold border border-error text-error px-1.5 py-0.5">Inactive</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="11" class="px-4 py-8 text-center text-on-surface-variant">No children records found.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- 3. PUBLISHED CONTENT -->
+<div class="mb-10 page-break">
+    <h2 class="text-lg font-bold border-b-2 border-on-surface pb-2 mb-4 uppercase tracking-wider">3. Published Awareness Content</h2>
+    <div class="bg-white border border-outline overflow-x-auto mob-cards">
+        <table class="w-full text-sm">
+            <thead class="bg-surface border-b border-outline">
+                <tr>
+                    <th class="px-4 py-2 text-left text-xs font-bold uppercase tracking-wider text-on-surface-variant">#</th>
+                    <th class="px-4 py-2 text-left text-xs font-bold uppercase tracking-wider text-on-surface-variant">Title</th>
+                    <th class="px-4 py-2 text-left text-xs font-bold uppercase tracking-wider text-on-surface-variant">Threat Type</th>
+                    <th class="px-4 py-2 text-left text-xs font-bold uppercase tracking-wider text-on-surface-variant">Engagement</th>
+                    <th class="px-4 py-2 text-left text-xs font-bold uppercase tracking-wider text-on-surface-variant">Source</th>
+                    <th class="px-4 py-2 text-center text-xs font-bold uppercase tracking-wider text-on-surface-variant">Deliveries</th>
+                    <th class="px-4 py-2 text-center text-xs font-bold uppercase tracking-wider text-on-surface-variant">Opened</th>
+                    <th class="px-4 py-2 text-center text-xs font-bold uppercase tracking-wider text-on-surface-variant">Quizzes</th>
+                    <th class="px-4 py-2 text-left text-xs font-bold uppercase tracking-wider text-on-surface-variant">Published</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for c in contents %}
+                <tr class="border-b border-outline hover:bg-surface">
+                    <td class="px-4 py-2 text-on-surface-variant text-xs" data-label="#">{{ forloop.counter }}</td>
+                    <td class="px-4 py-2 font-medium" data-label="Title">{{ c.title|truncatechars:55 }}</td>
+                    <td class="px-4 py-2 text-xs text-on-surface-variant" data-label="Threat">{{ c.get_threat_type_display }}</td>
+                    <td class="px-4 py-2 text-xs text-on-surface-variant" data-label="Type">{{ c.get_engagement_type_display }}</td>
+                    <td class="px-4 py-2 text-xs text-on-surface-variant" data-label="Source">{{ c.source.name|default:"-"|truncatechars:25 }}</td>
+                    <td class="px-4 py-2 text-center font-semibold" data-label="Deliveries">{{ c.delivery_count }}</td>
+                    <td class="px-4 py-2 text-center {% if c.opened_count > 0 %}text-teal font-semibold{% else %}text-on-surface-variant{% endif %}" data-label="Opened">{{ c.opened_count }}</td>
+                    <td class="px-4 py-2 text-center font-semibold" data-label="Quizzes">{{ c.attempt_count }}</td>
+                    <td class="px-4 py-2 text-xs text-on-surface-variant" data-label="Published">{{ c.created_at|date:"M d, Y" }}</td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="9" class="px-4 py-8 text-center text-on-surface-variant">No published content found.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- 4. CAMPAIGN PERFORMANCE -->
+<div class="mb-10 page-break">
+    <h2 class="text-lg font-bold border-b-2 border-on-surface pb-2 mb-4 uppercase tracking-wider">4. Campaign Performance</h2>
+    <div class="bg-white border border-outline overflow-x-auto mob-cards">
+        <table class="w-full text-sm">
+            <thead class="bg-surface border-b border-outline">
+                <tr>
+                    <th class="px-4 py-2 text-left text-xs font-bold uppercase tracking-wider text-on-surface-variant">#</th>
+                    <th class="px-4 py-2 text-left text-xs font-bold uppercase tracking-wider text-on-surface-variant">Subject</th>
+                    <th class="px-4 py-2 text-left text-xs font-bold uppercase tracking-wider text-on-surface-variant">Content</th>
+                    <th class="px-4 py-2 text-left text-xs font-bold uppercase tracking-wider text-on-surface-variant">Threat Type</th>
+                    <th class="px-4 py-2 text-center text-xs font-bold uppercase tracking-wider text-on-surface-variant">Total Sent</th>
+                    <th class="px-4 py-2 text-center text-xs font-bold uppercase tracking-wider text-on-surface-variant">Opened</th>
+                    <th class="px-4 py-2 text-center text-xs font-bold uppercase tracking-wider text-on-surface-variant">Open Rate</th>
+                    <th class="px-4 py-2 text-center text-xs font-bold uppercase tracking-wider text-on-surface-variant">Failed</th>
+                    <th class="px-4 py-2 text-left text-xs font-bold uppercase tracking-wider text-on-surface-variant">Sent At</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for c in campaigns %}
+                <tr class="border-b border-outline hover:bg-surface">
+                    <td class="px-4 py-2 text-on-surface-variant text-xs" data-label="#">{{ forloop.counter }}</td>
+                    <td class="px-4 py-2 font-medium" data-label="Subject">{{ c.subject|truncatechars:45 }}</td>
+                    <td class="px-4 py-2 text-xs text-on-surface-variant" data-label="Content">{{ c.content.title|truncatechars:35 }}</td>
+                    <td class="px-4 py-2 text-xs text-on-surface-variant" data-label="Threat">{{ c.content.get_threat_type_display }}</td>
+                    <td class="px-4 py-2 text-center font-semibold" data-label="Sent">{{ c.total_deliveries }}</td>
+                    <td class="px-4 py-2 text-center {% if c.opened_count > 0 %}text-teal font-semibold{% else %}text-on-surface-variant{% endif %}" data-label="Opened">{{ c.opened_count }}</td>
+                    <td class="px-4 py-2 text-center text-xs" data-label="Open Rate">
+                        {% if c.total_deliveries > 0 %}{% widthratio c.opened_count c.total_deliveries 100 %}%{% else %}-{% endif %}
+                    </td>
+                    <td class="px-4 py-2 text-center {% if c.failed_count > 0 %}text-error font-semibold{% else %}text-on-surface-variant{% endif %}" data-label="Failed">{{ c.failed_count }}</td>
+                    <td class="px-4 py-2 text-xs text-on-surface-variant" data-label="Sent At">
+                        {% if c.sent_at %}{{ c.sent_at|date:"M d, Y H:i" }}{% else %}-{% endif %}
+                    </td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="9" class="px-4 py-8 text-center text-on-surface-variant">No campaigns sent yet.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- 5. EMAIL DELIVERY ANALYTICS -->
+<div class="mb-10 page-break">
+    <h2 class="text-lg font-bold border-b-2 border-on-surface pb-2 mb-4 uppercase tracking-wider">5. Email Delivery Analytics</h2>
+    <div class="grid grid-cols-2 md:grid-cols-5 gap-4 mb-6">
+        <div class="bg-white border border-outline p-4 text-center avoid-break">
+            <div class="text-2xl sm:text-3xl font-bold text-on-surface">{{ delivery_stats.total|default:0 }}</div>
+            <div class="text-xs font-bold uppercase tracking-wider text-on-surface-variant mt-1">Total</div>
+        </div>
+        <div class="bg-white border border-outline p-4 text-center avoid-break">
+            <div class="text-2xl sm:text-3xl font-bold text-teal">{{ delivery_stats.delivered|default:0 }}</div>
+            <div class="text-xs font-bold uppercase tracking-wider text-on-surface-variant mt-1">Delivered</div>
+        </div>
+        <div class="bg-white border border-outline p-4 text-center avoid-break">
+            <div class="text-2xl sm:text-3xl font-bold text-teal">{{ delivery_stats.opened|default:0 }}</div>
+            <div class="text-xs font-bold uppercase tracking-wider text-on-surface-variant mt-1">Opened</div>
+        </div>
+        <div class="bg-white border border-outline p-4 text-center avoid-break">
+            <div class="text-2xl sm:text-3xl font-bold {% if delivery_stats.open_rate >= 60 %}text-teal{% elif delivery_stats.open_rate >= 30 %}text-on-surface{% else %}text-error{% endif %}">
+                {{ delivery_stats.open_rate|default:0 }}%
+            </div>
+            <div class="text-xs font-bold uppercase tracking-wider text-on-surface-variant mt-1">Open Rate</div>
+        </div>
+        <div class="bg-white border border-outline p-4 text-center avoid-break">
+            <div class="text-2xl sm:text-3xl font-bold text-error">{{ delivery_stats.failed|default:0 }}</div>
+            <div class="text-xs font-bold uppercase tracking-wider text-on-surface-variant mt-1">Failed</div>
+        </div>
+    </div>
+
+    <h3 class="font-semibold mb-3 text-sm uppercase tracking-wider text-on-surface-variant border-b border-outline pb-2">Delivery Breakdown by Campaign</h3>
+    <div class="bg-white border border-outline overflow-x-auto mob-cards">
+        <table class="w-full text-sm">
+            <thead class="bg-surface border-b border-outline">
+                <tr>
+                    <th class="px-4 py-2 text-left text-xs font-bold uppercase tracking-wider text-on-surface-variant">Campaign</th>
+                    <th class="px-4 py-2 text-left text-xs font-bold uppercase tracking-wider text-on-surface-variant">Content</th>
+                    <th class="px-4 py-2 text-center text-xs font-bold uppercase tracking-wider text-on-surface-variant">Total</th>
+                    <th class="px-4 py-2 text-center text-xs font-bold uppercase tracking-wider text-on-surface-variant">Opened</th>
+                    <th class="px-4 py-2 text-center text-xs font-bold uppercase tracking-wider text-on-surface-variant">Failed</th>
+                    <th class="px-4 py-2 text-center text-xs font-bold uppercase tracking-wider text-on-surface-variant">Open Rate</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for c in campaigns %}
+                <tr class="border-b border-outline hover:bg-surface">
+                    <td class="px-4 py-2 font-medium" data-label="Campaign">{{ c.subject|truncatechars:40 }}</td>
+                    <td class="px-4 py-2 text-xs text-on-surface-variant" data-label="Content">{{ c.content.title|truncatechars:30 }}</td>
+                    <td class="px-4 py-2 text-center font-semibold" data-label="Total">{{ c.total_deliveries }}</td>
+                    <td class="px-4 py-2 text-center {% if c.opened_count > 0 %}text-teal font-semibold{% else %}text-on-surface-variant{% endif %}" data-label="Opened">{{ c.opened_count }}</td>
+                    <td class="px-4 py-2 text-center {% if c.failed_count > 0 %}text-error{% else %}text-on-surface-variant{% endif %}" data-label="Failed">{{ c.failed_count }}</td>
+                    <td class="px-4 py-2 text-center text-xs" data-label="Open Rate">
+                        {% if c.total_deliveries > 0 %}{% widthratio c.opened_count c.total_deliveries 100 %}%{% else %}-{% endif %}
+                    </td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="6" class="px-4 py-8 text-center text-on-surface-variant">No campaign deliveries.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- 6. THREAT CATEGORY BREAKDOWN -->
+<div class="mb-10 page-break">
+    <h2 class="text-lg font-bold border-b-2 border-on-surface pb-2 mb-4 uppercase tracking-wider">6. Threat Category Breakdown</h2>
+    <div class="bg-white border border-outline overflow-x-auto mob-cards">
+        <table class="w-full text-sm">
+            <thead class="bg-surface border-b border-outline">
+                <tr>
+                    <th class="px-4 py-2 text-left text-xs font-bold uppercase tracking-wider text-on-surface-variant">Threat Category</th>
+                    <th class="px-4 py-2 text-center text-xs font-bold uppercase tracking-wider text-on-surface-variant">Content Items</th>
+                    <th class="px-4 py-2 text-center text-xs font-bold uppercase tracking-wider text-on-surface-variant">Share of Content</th>
+                    <th class="px-4 py-2 text-left text-xs font-bold uppercase tracking-wider text-on-surface-variant">Coverage</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for code, label in threat_choices %}
+                {% with count=threat_map|get_item:code %}
+                <tr class="border-b border-outline hover:bg-surface">
+                    <td class="px-4 py-2 font-medium" data-label="Category">{{ label }}</td>
+                    <td class="px-4 py-2 text-center font-bold {% if count %}text-teal{% else %}text-on-surface-variant{% endif %}" data-label="Items">
+                        {{ count|default:0 }}
+                    </td>
+                    <td class="px-4 py-2 text-center text-xs text-on-surface-variant" data-label="Share">
+                        {% if contents.count > 0 and count %}{% widthratio count contents.count 100 %}%{% else %}0%{% endif %}
+                    </td>
+                    <td class="px-4 py-2" data-label="Coverage">
+                        <div class="w-full bg-surface border border-outline h-2">
+                            {% if contents.count > 0 and count %}
+                            <div class="h-2 bg-teal" style="width:{% widthratio count contents.count 100 %}%"></div>
+                            {% endif %}
+                        </div>
+                    </td>
+                </tr>
+                {% endwith %}
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- 7. QUIZ PERFORMANCE -->
+<div class="mb-10 page-break">
+    <h2 class="text-lg font-bold border-b-2 border-on-surface pb-2 mb-4 uppercase tracking-wider">7. Quiz Performance</h2>
+
+    <div class="grid grid-cols-2 md:grid-cols-3 gap-4 mb-6">
+        <div class="bg-white border border-outline p-4 text-center avoid-break">
+            <div class="text-2xl sm:text-3xl font-bold text-teal">{{ quizzes.count }}</div>
+            <div class="text-xs font-bold uppercase tracking-wider text-on-surface-variant mt-1">Active Quizzes</div>
+        </div>
+        <div class="bg-white border border-outline p-4 text-center avoid-break">
+            <div class="text-2xl sm:text-3xl font-bold text-teal">{{ quiz_stats.total|default:0 }}</div>
+            <div class="text-xs font-bold uppercase tracking-wider text-on-surface-variant mt-1">Total Attempts</div>
+        </div>
+        <div class="bg-white border border-outline p-4 text-center avoid-break">
+            <div class="text-2xl sm:text-3xl font-bold text-teal">
+                {% if quiz_stats.avg_score %}{{ quiz_stats.avg_score|floatformat:1 }}{% else %}-{% endif %}
+            </div>
+            <div class="text-xs font-bold uppercase tracking-wider text-on-surface-variant mt-1">Overall Avg Score</div>
+        </div>
+    </div>
+
+    <h3 class="font-semibold mb-3 text-sm uppercase tracking-wider text-on-surface-variant border-b border-outline pb-2">Quiz Breakdown</h3>
+    <div class="bg-white border border-outline overflow-x-auto mob-cards mb-6">
+        <table class="w-full text-sm">
+            <thead class="bg-surface border-b border-outline">
+                <tr>
+                    <th class="px-4 py-2 text-left text-xs font-bold uppercase tracking-wider text-on-surface-variant">Quiz Title</th>
+                    <th class="px-4 py-2 text-left text-xs font-bold uppercase tracking-wider text-on-surface-variant">Content</th>
+                    <th class="px-4 py-2 text-center text-xs font-bold uppercase tracking-wider text-on-surface-variant">Attempts</th>
+                    <th class="px-4 py-2 text-center text-xs font-bold uppercase tracking-wider text-on-surface-variant">Avg Score</th>
+                    <th class="px-4 py-2 text-left text-xs font-bold uppercase tracking-wider text-on-surface-variant">Impact Rating</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for q in quizzes %}
+                <tr class="border-b border-outline hover:bg-surface">
+                    <td class="px-4 py-2 font-medium" data-label="Quiz">{{ q.title|truncatechars:45 }}</td>
+                    <td class="px-4 py-2 text-xs text-on-surface-variant" data-label="Content">
+                        {% if q.content %}{{ q.content.title|truncatechars:35 }}{% else %}-{% endif %}
+                    </td>
+                    <td class="px-4 py-2 text-center font-semibold" data-label="Attempts">{{ q.attempt_count }}</td>
+                    <td class="px-4 py-2 text-center text-teal font-semibold" data-label="Avg Score">
+                        {% if q.avg_score %}{{ q.avg_score|floatformat:1 }}{% else %}-{% endif %}
+                    </td>
+                    <td class="px-4 py-2" data-label="Impact">
+                        {% if q.avg_score %}
+                        <span class="text-xs font-bold
+                            {% if q.avg_score >= 8 %}text-teal border border-teal
+                            {% elif q.avg_score >= 5 %}text-on-surface border border-outline
+                            {% else %}text-error border border-error{% endif %} px-2 py-0.5">
+                            {% if q.avg_score >= 8 %}High{% elif q.avg_score >= 5 %}Moderate{% else %}Needs Attention{% endif %}
+                        </span>
+                        {% else %}<span class="text-xs text-on-surface-variant">No data</span>{% endif %}
+                    </td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="5" class="px-4 py-8 text-center text-on-surface-variant">No quizzes found.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <h3 class="font-semibold mb-3 text-sm uppercase tracking-wider text-on-surface-variant border-b border-outline pb-2">All Quiz Attempts</h3>
+    <div class="bg-white border border-outline overflow-x-auto mob-cards">
+        <table class="w-full text-sm">
+            <thead class="bg-surface border-b border-outline">
+                <tr>
+                    <th class="px-4 py-2 text-left text-xs font-bold uppercase tracking-wider text-on-surface-variant">Child</th>
+                    <th class="px-4 py-2 text-left text-xs font-bold uppercase tracking-wider text-on-surface-variant">Quiz</th>
+                    <th class="px-4 py-2 text-left text-xs font-bold uppercase tracking-wider text-on-surface-variant">Content</th>
+                    <th class="px-4 py-2 text-center text-xs font-bold uppercase tracking-wider text-on-surface-variant">Score</th>
+                    <th class="px-4 py-2 text-center text-xs font-bold uppercase tracking-wider text-on-surface-variant">Out of</th>
+                    <th class="px-4 py-2 text-center text-xs font-bold uppercase tracking-wider text-on-surface-variant">%</th>
+                    <th class="px-4 py-2 text-center text-xs font-bold uppercase tracking-wider text-on-surface-variant">Rating</th>
+                    <th class="px-4 py-2 text-left text-xs font-bold uppercase tracking-wider text-on-surface-variant">Completed</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for a in quiz_attempts %}
+                <tr class="border-b border-outline hover:bg-surface">
+                    <td class="px-4 py-2" data-label="Staff">
+                        <div class="font-medium">{{ a.user.profile.full_name|default:a.user.email }}</div>
+                        <div class="text-xs text-on-surface-variant">{{ a.user.email }}</div>
+                    </td>
+                    <td class="px-4 py-2 text-xs text-on-surface-variant" data-label="Quiz">{{ a.quiz.title|truncatechars:35 }}</td>
+                    <td class="px-4 py-2 text-xs text-on-surface-variant" data-label="Content">
+                        {% if a.quiz.content %}{{ a.quiz.content.title|truncatechars:30 }}{% else %}-{% endif %}
+                    </td>
+                    <td class="px-4 py-2 text-center font-bold text-teal" data-label="Score">{{ a.score }}</td>
+                    <td class="px-4 py-2 text-center text-on-surface-variant" data-label="Out of">{{ a.total }}</td>
+                    <td class="px-4 py-2 text-center font-semibold {% if a.percentage >= 70 %}text-teal{% else %}text-error{% endif %}" data-label="%">
+                        {{ a.percentage }}%
+                    </td>
+                    <td class="px-4 py-2 text-center" data-label="Rating">
+                        {% if a.percentage >= 80 %}<span class="text-xs border border-teal text-teal px-1.5 py-0.5">Excellent</span>
+                        {% elif a.percentage >= 60 %}<span class="text-xs border border-outline text-on-surface-variant px-1.5 py-0.5">Good</span>
+                        {% else %}<span class="text-xs border border-error text-error px-1.5 py-0.5">Poor</span>
+                        {% endif %}
+                    </td>
+                    <td class="px-4 py-2 text-xs text-on-surface-variant" data-label="Completed">{{ a.completed_at|date:"M d, Y H:i" }}</td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="8" class="px-4 py-8 text-center text-on-surface-variant">No quiz attempts recorded.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- FOOTER -->
+<div class="mt-12 pt-4 border-t border-outline text-xs text-on-surface-variant flex justify-between avoid-break">
+    <span>Guardian - Cybersecurity Awareness Platform</span>
+    <span>Report generated: {{ report_date|date:"F j, Y H:i" }}</span>
+    <span>CONFIDENTIAL</span>
+</div>
+{% endblock %}

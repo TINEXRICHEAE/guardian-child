@@ -1,0 +1,194 @@
+{% extends "panel/base_panel.html" %}
+{% block title %}{{ threat_label }} - Threat Analytics{% endblock %}
+
+{% block extra_head %}
+<style>
+@media print {
+    nav, .no-print { display: none !important; }
+    body { background: white; font-size: 11px; }
+    .print-header { display: block !important; }
+    .page-break { page-break-before: always; }
+    a { text-decoration: none; color: inherit; }
+}
+.print-header { display: none; }
+</style>
+{% endblock %}
+
+{% block panel_content %}
+<div class="print-header mb-6 pb-4 border-b-2 border-on-surface">
+    <div class="text-xl font-bold">Guardian - Cybersecurity Awareness Platform</div>
+    <div class="text-sm text-on-surface-variant">Threat Type Breakdown - {{ threat_label }}</div>
+</div>
+
+<div class="flex items-center justify-between mb-6 no-print">
+    <div>
+        <a href="{% url 'panel_analytics' %}" class="text-sm text-teal font-semibold hover:underline">&larr; Analytics</a>
+        <h1 class="text-2xl font-bold mt-1">{{ threat_label }}</h1>
+        <p class="text-sm text-on-surface-variant">Threat type: <code>{{ threat_type }}</code></p>
+    </div>
+    <button onclick="window.print()" class="bg-teal text-white px-5 py-2 font-semibold border-2 border-teal hover:bg-primary transition-colors text-sm">
+        Print / Export
+    </button>
+</div>
+
+<!-- Overview cards -->
+<div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+    <div class="bg-white border border-outline p-4 text-center">
+        <div class="text-2xl sm:text-3xl font-bold text-teal">{{ sources.count }}</div>
+        <div class="text-xs font-bold uppercase tracking-wider text-on-surface-variant mt-1">Content Sources</div>
+    </div>
+    <div class="bg-white border border-outline p-4 text-center">
+        <div class="text-2xl sm:text-3xl font-bold text-teal">{{ content_qs.count }}</div>
+        <div class="text-xs font-bold uppercase tracking-wider text-on-surface-variant mt-1">Published Content</div>
+    </div>
+    <div class="bg-white border border-outline p-4 text-center">
+        <div class="text-2xl sm:text-3xl font-bold text-teal">{{ campaigns.count }}</div>
+        <div class="text-xs font-bold uppercase tracking-wider text-on-surface-variant mt-1">Campaigns</div>
+    </div>
+    <div class="bg-white border border-outline p-4 text-center">
+        <div class="text-2xl sm:text-3xl font-bold text-teal">{{ reached_emails|length }}</div>
+        <div class="text-xs font-bold uppercase tracking-wider text-on-surface-variant mt-1">Parents Reached</div>
+    </div>
+</div>
+
+<div class="grid grid-cols-2 md:grid-cols-3 gap-4 mb-8">
+    <div class="bg-white border border-outline p-4 text-center">
+        <div class="text-2xl sm:text-3xl font-bold text-on-surface">{{ delivery_stats.total|default:0 }}</div>
+        <div class="text-xs font-bold uppercase tracking-wider text-on-surface-variant mt-1">Total Deliveries</div>
+    </div>
+    <div class="bg-white border border-outline p-4 text-center">
+        <div class="text-2xl sm:text-3xl font-bold text-teal">{{ delivery_stats.opened|default:0 }}</div>
+        <div class="text-xs font-bold uppercase tracking-wider text-on-surface-variant mt-1">Opened</div>
+    </div>
+    <div class="bg-white border border-outline p-4 text-center">
+        <div class="text-2xl sm:text-3xl font-bold text-error">{{ delivery_stats.failed|default:0 }}</div>
+        <div class="text-xs font-bold uppercase tracking-wider text-on-surface-variant mt-1">Failed</div>
+    </div>
+</div>
+
+<!-- Content sources -->
+{% if sources %}
+<div class="mb-8">
+    <h2 class="font-semibold mb-3 text-sm uppercase tracking-wider text-on-surface-variant border-b border-outline pb-2">Content Sources ({{ sources.count }})</h2>
+    <div class="bg-white border border-outline overflow-x-auto mob-cards">
+        <table class="w-full text-sm">
+            <thead class="bg-surface border-b border-outline">
+                <tr>
+                    <th class="px-4 py-2 text-left text-xs font-bold uppercase tracking-wider text-on-surface-variant">Name</th>
+                    <th class="px-4 py-2 text-left text-xs font-bold uppercase tracking-wider text-on-surface-variant">Type</th>
+                    <th class="px-4 py-2 text-left text-xs font-bold uppercase tracking-wider text-on-surface-variant">Created</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for s in sources %}
+                <tr class="border-b border-outline hover:bg-surface">
+                    <td class="px-4 py-2 font-medium" data-label="Name">{{ s.name }}</td>
+                    <td class="px-4 py-2 text-xs text-on-surface-variant" data-label="Type">{{ s.get_source_type_display }}</td>
+                    <td class="px-4 py-2 text-xs text-on-surface-variant" data-label="Created">{{ s.created_at|date:"M d, Y" }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endif %}
+
+<!-- Published content -->
+{% if content_qs %}
+<div class="mb-8">
+    <h2 class="font-semibold mb-3 text-sm uppercase tracking-wider text-on-surface-variant border-b border-outline pb-2">Published Content ({{ content_qs.count }})</h2>
+    <div class="bg-white border border-outline overflow-x-auto mob-cards">
+        <table class="w-full text-sm">
+            <thead class="bg-surface border-b border-outline">
+                <tr>
+                    <th class="px-4 py-2 text-left text-xs font-bold uppercase tracking-wider text-on-surface-variant">Title</th>
+                    <th class="px-4 py-2 text-left text-xs font-bold uppercase tracking-wider text-on-surface-variant">Type</th>
+                    <th class="px-4 py-2 text-center text-xs font-bold uppercase tracking-wider text-on-surface-variant">Deliveries</th>
+                    <th class="px-4 py-2 text-center text-xs font-bold uppercase tracking-wider text-on-surface-variant">Opened</th>
+                    <th class="px-4 py-2 text-left text-xs font-bold uppercase tracking-wider text-on-surface-variant">Published</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for c in content_qs %}
+                <tr class="border-b border-outline hover:bg-surface">
+                    <td class="px-4 py-2" data-label="Title">
+                        <a href="{% url 'analytics_content_detail' c.pk %}" class="font-medium hover:text-teal hover:underline no-print">{{ c.title|truncatechars:50 }}</a>
+                        <span class="print-only">{{ c.title|truncatechars:50 }}</span>
+                    </td>
+                    <td class="px-4 py-2 text-xs text-on-surface-variant" data-label="Type">{{ c.get_engagement_type_display }}</td>
+                    <td class="px-4 py-2 text-center font-semibold" data-label="Deliveries">{{ c.delivery_count }}</td>
+                    <td class="px-4 py-2 text-center {% if c.opened_count > 0 %}text-teal font-semibold{% else %}text-on-surface-variant{% endif %}" data-label="Opened">{{ c.opened_count }}</td>
+                    <td class="px-4 py-2 text-xs text-on-surface-variant" data-label="Published">{{ c.created_at|date:"M d, Y" }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endif %}
+
+<!-- Campaigns -->
+{% if campaigns %}
+<div class="mb-8 page-break">
+    <h2 class="font-semibold mb-3 text-sm uppercase tracking-wider text-on-surface-variant border-b border-outline pb-2">Campaigns ({{ campaigns.count }})</h2>
+    <div class="bg-white border border-outline overflow-x-auto mob-cards">
+        <table class="w-full text-sm">
+            <thead class="bg-surface border-b border-outline">
+                <tr>
+                    <th class="px-4 py-2 text-left text-xs font-bold uppercase tracking-wider text-on-surface-variant">Subject</th>
+                    <th class="px-4 py-2 text-center text-xs font-bold uppercase tracking-wider text-on-surface-variant">Deliveries</th>
+                    <th class="px-4 py-2 text-center text-xs font-bold uppercase tracking-wider text-on-surface-variant">Opened</th>
+                    <th class="px-4 py-2 text-left text-xs font-bold uppercase tracking-wider text-on-surface-variant">Sent At</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for c in campaigns %}
+                <tr class="border-b border-outline hover:bg-surface">
+                    <td class="px-4 py-2" data-label="Subject">
+                        <a href="{% url 'analytics_campaign_detail' c.pk %}" class="font-medium hover:text-teal hover:underline no-print">{{ c.subject|truncatechars:50 }}</a>
+                        <span class="print-only">{{ c.subject|truncatechars:50 }}</span>
+                    </td>
+                    <td class="px-4 py-2 text-center font-semibold" data-label="Deliveries">{{ c.delivery_count }}</td>
+                    <td class="px-4 py-2 text-center {% if c.opened_count > 0 %}text-teal font-semibold{% else %}text-on-surface-variant{% endif %}" data-label="Opened">{{ c.opened_count }}</td>
+                    <td class="px-4 py-2 text-xs text-on-surface-variant" data-label="Sent At">{% if c.sent_at %}{{ c.sent_at|date:"M d, Y H:i" }}{% else %}-{% endif %}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endif %}
+
+<!-- Parents who interacted -->
+{% if interacted_emails %}
+<div class="mb-8">
+    <h2 class="font-semibold mb-3 text-sm uppercase tracking-wider text-on-surface-variant border-b border-outline pb-2">
+        Parents Who Engaged ({{ interacted_emails|length }})
+    </h2>
+    <div class="flex flex-wrap gap-2">
+        {% for email in interacted_emails %}
+        <span class="text-xs border border-teal text-teal px-2 py-1">{{ email }}</span>
+        {% endfor %}
+    </div>
+</div>
+{% endif %}
+
+<!-- Parents reached but didn't engage -->
+{% with reached_emails|length as n_reached %}{% with interacted_emails|length as n_interacted %}
+{% if n_reached > n_interacted %}
+<div class="mb-8">
+    <h2 class="font-semibold mb-3 text-sm uppercase tracking-wider text-on-surface-variant border-b border-outline pb-2">
+        Reached but Did Not Open ({{ n_reached|add:"-1"|add:"1"|add:n_interacted|add:"-1" }} approx.)
+    </h2>
+    <div class="flex flex-wrap gap-2">
+        {% for email in reached_emails %}
+        {% if email not in interacted_emails %}
+        <span class="text-xs border border-outline text-on-surface-variant px-2 py-1">{{ email }}</span>
+        {% endif %}
+        {% endfor %}
+    </div>
+</div>
+{% endif %}
+{% endwith %}{% endwith %}
+
+{% endblock %}

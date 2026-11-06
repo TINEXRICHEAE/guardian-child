@@ -1,0 +1,120 @@
+{% extends "app/parent_base.html" %}
+{% block title %}My family{% endblock %}
+
+{% block parent_content %}
+<div class="flex flex-wrap items-end justify-between gap-4 mb-8">
+    <div>
+        <h1 class="text-2xl md:text-3xl font-bold mb-1">My family</h1>
+        <p class="text-on-surface-variant">Add your children, choose what Guardian does for them, and connect their devices if you want.</p>
+    </div>
+    <a href="{% url 'child_add' %}" class="bg-primary text-white px-4 py-2 text-sm font-semibold hover:bg-primary-container">+ Add a child</a>
+</div>
+
+<div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
+    <div class="bg-white border border-outline p-4 text-center">
+        <div class="text-2xl sm:text-4xl font-bold text-teal mb-1">{{ summary.children }}</div>
+        <div class="text-xs font-bold uppercase tracking-wider text-on-surface-variant">Children</div>
+    </div>
+    <div class="bg-white border border-outline p-4 text-center">
+        <div class="text-2xl sm:text-4xl font-bold text-teal mb-1">{{ summary.paired }}</div>
+        <div class="text-xs font-bold uppercase tracking-wider text-on-surface-variant">Devices connected</div>
+    </div>
+    <a href="{% url 'parent_alerts' %}" class="bg-white border border-outline p-4 text-center hover:border-teal">
+        <div class="text-2xl sm:text-4xl font-bold text-teal mb-1">{{ summary.alerts_week }}</div>
+        <div class="text-xs font-bold uppercase tracking-wider text-on-surface-variant">Alerts this week{% if summary.unread %} · {{ summary.unread }} unread{% endif %}</div>
+    </a>
+</div>
+
+{% if children %}
+<div class="space-y-5">
+    {% for row in children %}{% with c=row.child %}
+    <div class="bg-white border border-outline">
+        <div class="px-5 py-4 flex flex-wrap items-center justify-between gap-3 border-b border-outline bg-surface">
+            <div>
+                <div class="text-lg font-semibold">{{ c.nickname }}</div>
+                <div class="text-xs text-on-surface-variant">Age {{ c.get_age_band_display }}{% if c.district %} · {{ c.district }}{% endif %} · {{ row.flagged }} safety alert{{ row.flagged|pluralize }}</div>
+            </div>
+            <div class="flex items-center gap-3 text-sm">
+                {% if c.is_paired %}
+                <span class="px-2 py-0.5 border border-teal text-teal text-xs font-semibold">Device connected</span>
+                {% else %}
+                <form method="post" action="{% url 'pairing_code' c.pk %}">{% csrf_token %}
+                    <button class="text-teal font-semibold hover:underline">Connect a device</button>
+                </form>
+                {% endif %}
+                <a href="{% url 'child_edit' c.pk %}" class="text-on-surface-variant hover:underline">Edit</a>
+                <form method="post" action="{% url 'child_remove' c.pk %}" onsubmit="return confirm('Remove {{ c.nickname|escapejs }} from your family? Practice emails and alerts stop.');">{% csrf_token %}
+                    <button class="text-error hover:underline">Remove</button>
+                </form>
+            </div>
+        </div>
+
+        <div class="grid md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-outline">
+            <!-- Practice emails -->
+            <div class="p-5">
+                <div class="text-xs font-bold uppercase tracking-wider text-on-surface-variant mb-2">Practice emails</div>
+                {% if not c.email %}
+                <p class="text-sm mb-2">Add {{ c.nickname }}'s email to send safe practice messages that lead to short lessons.</p>
+                <a href="{% url 'child_edit' c.pk %}" class="text-sm text-teal font-semibold hover:underline">Add email</a>
+                {% elif c.email_blocked %}
+                <p class="text-sm text-error">{{ c.email }} asked Guardian to stop. Practice emails are off for this address.</p>
+                {% elif row.practice %}
+                <p class="text-sm mb-3"><span class="font-semibold text-teal">On</span> · sent to {{ c.email }}</p>
+                <form method="post" action="{% url 'child_consent' c.pk %}">{% csrf_token %}
+                    <input type="hidden" name="kind" value="phishing_simulation"><input type="hidden" name="enable" value="0">
+                    <button class="text-sm border border-outline px-3 py-1 hover:bg-surface">Turn off</button>
+                </form>
+                {% else %}
+                <p class="text-sm mb-3"><span class="font-semibold">Off</span> · {{ c.email }}</p>
+                <form method="post" action="{% url 'child_consent' c.pk %}" class="space-y-2">{% csrf_token %}
+                    <input type="hidden" name="kind" value="phishing_simulation"><input type="hidden" name="enable" value="1">
+                    <label class="flex items-start gap-2 text-sm">
+                        <input type="checkbox" name="told_child" value="1" class="mt-1" required>
+                        <span>I have told {{ c.nickname }} that Guardian may send practice messages, and that clicking one only opens a lesson.</span>
+                    </label>
+                    <button class="text-sm bg-primary text-white px-3 py-1 hover:bg-primary-container">Turn on</button>
+                </form>
+                {% endif %}
+            </div>
+
+            <!-- Safety alerts -->
+            <div class="p-5">
+                <div class="text-xs font-bold uppercase tracking-wider text-on-surface-variant mb-2">Safety alerts</div>
+                <p class="text-sm mb-3">
+                    {% if row.alerts %}<span class="font-semibold text-teal">On</span>{% else %}<span class="font-semibold">Off</span>{% endif %}
+                    · If {{ c.nickname }} checks something high-risk, you get the type of scam and what to do. Never the message itself.
+                </p>
+                <form method="post" action="{% url 'child_consent' c.pk %}">{% csrf_token %}
+                    <input type="hidden" name="kind" value="parent_alerts">
+                    <input type="hidden" name="enable" value="{% if row.alerts %}0{% else %}1{% endif %}">
+                    <button class="text-sm border border-outline px-3 py-1 hover:bg-surface">{% if row.alerts %}Turn off{% else %}Turn on{% endif %}</button>
+                </form>
+            </div>
+        </div>
+    </div>
+    {% endwith %}{% endfor %}
+</div>
+{% else %}
+<div class="bg-white border border-outline p-8 text-center">
+    <p class="text-lg font-semibold mb-2">No children added yet</p>
+    <p class="text-on-surface-variant mb-5">Start with a nickname and age band. An email is enough for practice messages and lessons; your child doesn't need to install anything.</p>
+    <a href="{% url 'child_add' %}" class="bg-primary text-white px-4 py-2 text-sm font-semibold hover:bg-primary-container">+ Add a child</a>
+</div>
+{% endif %}
+
+{% if recent_alerts %}
+<div class="bg-white border border-outline mt-8">
+    <div class="px-5 py-3 border-b border-outline bg-surface flex items-center justify-between">
+        <span class="text-xs font-bold uppercase tracking-wider text-on-surface-variant">Latest safety alerts</span>
+        <a href="{% url 'parent_alerts' %}" class="text-sm text-teal font-semibold hover:underline">View all</a>
+    </div>
+    {% for a in recent_alerts %}
+    <div class="px-5 py-3 border-b border-outline last:border-b-0 text-sm"><strong>{{ a.title }}</strong> <span class="text-xs text-on-surface-variant">· {{ a.child.nickname }} · {{ a.created_at|timesince }} ago</span></div>
+    {% endfor %}
+</div>
+{% endif %}
+
+<div class="mt-8 p-4 bg-surface border border-outline text-sm text-on-surface-variant">
+    <strong class="text-on-surface">Privacy boundary.</strong> You receive necessary safety alerts, not your child's private messages. Reports your child marks as private never notify you, because telling a guardian can sometimes make a child less safe.
+</div>
+{% endblock %}

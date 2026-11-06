@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 py-8">
+    <!-- Panel sub-nav -->
+    <div class="flex gap-1 mb-8 border-b border-outline pb-4 overflow-x-auto flex-nowrap">
+        <a href="{% url 'panel_dashboard' %}"
+            class="text-sm px-4 py-2 font-semibold border border-outline hover:border-teal hover:text-teal transition-colors
+            {% if request.resolver_match.url_name == 'panel_dashboard' %}bg-teal text-white border-teal{% endif %}">
+            Dashboard
+        </a>
+        <a href="{% url 'panel_sources' %}"
+            class="text-sm px-4 py-2 font-semibold border border-outline hover:border-teal hover:text-teal transition-colors
+            {% if 'panel_sources' in request.resolver_match.url_name or 'panel_add_source' in request.resolver_match.url_name or 'panel_raw' in request.resolver_match.url_name %}bg-teal text-white border-teal{% endif %}">
+            Sources
+        </a>
+        <a href="{% url 'panel_content_list' %}"
+            class="text-sm px-4 py-2 font-semibold border border-outline hover:border-teal hover:text-teal transition-colors
+            {% if 'panel_content' in request.resolver_match.url_name %}bg-teal text-white border-teal{% endif %}">
+            Content
+        </a>
+        <a href="{% url 'panel_campaigns' %}"
+            class="text-sm px-4 py-2 font-semibold border border-outline hover:border-teal hover:text-teal transition-colors
+            {% if 'panel_campaign' in request.resolver_match.url_name %}bg-teal text-white border-teal{% endif %}">
+            Campaigns
+        </a>
+        <a href="{% url 'panel_analytics' %}"
+            class="text-sm px-4 py-2 font-semibold border border-outline hover:border-teal hover:text-teal transition-colors
+            {% if request.resolver_match.url_name == 'panel_analytics' %}bg-teal text-white border-teal{% endif %}">
+            Analytics
+        </a>
+    </div>
+
+    {% block panel_content %}{% endblock %}
+</div>
+{% endblock %}

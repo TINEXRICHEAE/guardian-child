@@ -1,0 +1,142 @@
+{% extends "base.html" %}
+{% block title %}{{ content.title }}{% endblock %}
+
+{% block content %}
+<div class="max-w-3xl mx-auto px-4 py-10">
+
+    <!-- Back -->
+    <a href="{% url 'library' %}" class="text-sm text-teal font-semibold hover:underline mb-6 inline-block">&larr; Back to Library</a>
+
+    <!-- Threat badge -->
+    <div class="mb-4">
+        <span class="text-xs font-bold uppercase tracking-wider px-3 py-1 border
+            {% if content.threat_type == 'compromised' %}border-teal text-teal
+            {% elif content.threat_type == 'malicious' %}border-error text-error
+            {% elif content.threat_type == 'negligent' %}border-on-surface-variant text-on-surface-variant
+            {% else %}border-primary text-primary{% endif %}">
+            {{ content.get_threat_type_display }} Threat
+        </span>
+    </div>
+
+    <h1 class="text-3xl font-bold mb-6 leading-tight">{{ content.title }}</h1>
+
+    <!-- Risk section -->
+    <section class="bg-white border-l-4 border-error p-5 mb-5">
+        <h2 class="text-xs font-bold uppercase tracking-wider text-on-surface-variant mb-2">Why This Matters</h2>
+        <p class="text-on-surface leading-relaxed">{{ content.risk }}</p>
+    </section>
+
+    <!-- Action section -->
+    <section class="bg-white border-l-4 border-teal p-5 mb-8">
+        <h2 class="text-xs font-bold uppercase tracking-wider text-on-surface-variant mb-2">What You Should Do</h2>
+        <p class="text-on-surface leading-relaxed whitespace-pre-line">{{ content.action }}</p>
+    </section>
+
+    <!-- Engagement section -->
+    {% if content.engagement_type == 'link' and content.engagement_data.url %}
+    <div class="bg-white border border-outline p-5 mb-8">
+        <h2 class="text-xs font-bold uppercase tracking-wider text-on-surface-variant mb-3">Learn More</h2>
+        <a href="{{ content.engagement_data.url }}" target="_blank" rel="noopener noreferrer"
+            class="inline-block bg-teal text-white px-6 py-2 font-semibold border-2 border-teal hover:bg-primary transition-colors text-sm">
+            {{ content.engagement_data.label|default:"Read Article" }} <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" style="display:inline;vertical-align:middle;margin-left:2px" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 6H5.25A2.25 2.25 0 0 0 3 8.25v10.5A2.25 2.25 0 0 0 5.25 21h10.5A2.25 2.25 0 0 0 18 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25"/></svg>
+        </a>
+    </div>
+
+    {% elif content.engagement_type == 'article' and content.engagement_data.summary %}
+    <div class="bg-white border border-outline p-5 mb-8">
+        <h2 class="text-xs font-bold uppercase tracking-wider text-on-surface-variant mb-4">Full Article</h2>
+        <div class="prose prose-sm max-w-none text-on-surface leading-relaxed whitespace-pre-line">{{ content.engagement_data.summary }}</div>
+        {% if content.engagement_data.source or content.engagement_data.reference_url %}
+        <div class="mt-4 pt-4 border-t border-outline text-xs text-on-surface-variant">
+            <span class="font-bold uppercase tracking-wider">Source:</span>
+            {% if content.engagement_data.reference_url %}
+            <a href="{{ content.engagement_data.reference_url }}" target="_blank" rel="noopener noreferrer"
+               class="text-teal hover:underline ml-1">
+                {{ content.engagement_data.source|default:content.engagement_data.reference_url }} <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" style="display:inline;vertical-align:middle;margin-left:2px" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 6H5.25A2.25 2.25 0 0 0 3 8.25v10.5A2.25 2.25 0 0 0 5.25 21h10.5A2.25 2.25 0 0 0 18 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25"/></svg>
+            </a>
+            {% else %}
+            <span class="ml-1">{{ content.engagement_data.source }}</span>
+            {% endif %}
+        </div>
+        {% endif %}
+    </div>
+
+    {% elif content.engagement_type == 'scenario' and content.engagement_data.scenario %}
+    <div class="bg-white border border-outline p-5 mb-8">
+        <h2 class="text-xs font-bold uppercase tracking-wider text-on-surface-variant mb-3">Real-World Scenario</h2>
+        <p class="text-on-surface mb-4 leading-relaxed">{{ content.engagement_data.scenario }}</p>
+        {% if content.engagement_data.correct_action %}
+        <div class="border-l-4 border-teal pl-4 mt-3">
+            <span class="text-xs font-bold uppercase tracking-wider text-teal">Correct Action</span>
+            <p class="text-on-surface mt-1 leading-relaxed whitespace-pre-line">{{ content.engagement_data.correct_action }}</p>
+        </div>
+        {% endif %}
+    </div>
+
+    {% elif content.engagement_type == 'policy' and content.engagement_data.policy_name %}
+    <div class="bg-white border border-outline p-5 mb-8 space-y-4">
+        <h2 class="text-xs font-bold uppercase tracking-wider text-on-surface-variant">Policy &amp; Compliance Reference</h2>
+
+        <div>
+            <p class="font-bold text-base">{{ content.engagement_data.policy_name }}</p>
+            {% if content.engagement_data.framework %}
+            <p class="text-xs text-on-surface-variant mt-0.5">Framework: {{ content.engagement_data.framework }}</p>
+            {% endif %}
+        </div>
+
+        {% if content.engagement_data.applicability %}
+        <div>
+            <h3 class="text-xs font-bold uppercase tracking-wider text-on-surface-variant mb-1">How It Applies</h3>
+            <p class="text-sm text-on-surface leading-relaxed">{{ content.engagement_data.applicability }}</p>
+        </div>
+        {% endif %}
+
+        {% if content.engagement_data.consequences %}
+        <div class="border-l-4 border-error pl-4">
+            <h3 class="text-xs font-bold uppercase tracking-wider text-error mb-1">Consequences if Ignored</h3>
+            <p class="text-sm text-on-surface leading-relaxed">{{ content.engagement_data.consequences }}</p>
+        </div>
+        {% endif %}
+
+        {% if content.engagement_data.remediations %}
+        <div class="border-l-4 border-teal pl-4">
+            <h3 class="text-xs font-bold uppercase tracking-wider text-teal mb-1">Remediation Steps</h3>
+            <p class="text-sm text-on-surface leading-relaxed whitespace-pre-line">{{ content.engagement_data.remediations }}</p>
+        </div>
+        {% endif %}
+
+        {% if content.engagement_data.reference %}
+        <div class="pt-2 border-t border-outline text-xs text-on-surface-variant">
+            <span class="font-bold uppercase tracking-wider">Official Reference:</span>
+            <a href="{{ content.engagement_data.reference }}" target="_blank" rel="noopener noreferrer"
+               class="text-teal hover:underline ml-1">{{ content.engagement_data.reference }} <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" style="display:inline;vertical-align:middle;margin-left:2px" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 6H5.25A2.25 2.25 0 0 0 3 8.25v10.5A2.25 2.25 0 0 0 5.25 21h10.5A2.25 2.25 0 0 0 18 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25"/></svg></a>
+        </div>
+        {% endif %}
+    </div>
+    {% endif %}
+
+    <!-- Quiz link -->
+    {% if quiz %}
+    <div class="bg-surface-container border border-outline p-5 mb-8">
+        <h2 class="text-xs font-bold uppercase tracking-wider text-on-surface-variant mb-2">Test Your Knowledge</h2>
+        <p class="text-sm text-on-surface-variant mb-3">{{ quiz.question_count }} question{{ quiz.question_count|pluralize }} · takes ~2 min</p>
+        {% if user_attempt %}
+        <div class="flex items-center gap-4">
+            <span class="text-sm">Last score: <strong>{{ user_attempt.score }}/{{ user_attempt.total }} ({{ user_attempt.percentage }}%)</strong></span>
+            {% if can_retake %}
+            <a href="{% url 'take_quiz' quiz.pk %}" class="bg-white text-teal px-4 py-2 border-2 border-teal font-semibold text-sm hover:bg-teal hover:text-white transition-colors">Retake</a>
+            {% else %}
+            <a href="{% url 'quiz_review' user_attempt.pk %}" class="bg-white text-on-surface-variant px-4 py-2 border border-outline font-semibold text-sm hover:bg-surface transition-colors">Review Answers</a>
+            {% endif %}
+        </div>
+        {% else %}
+        <a href="{% url 'take_quiz' quiz.pk %}" class="inline-block bg-teal text-white px-6 py-2 font-semibold border-2 border-teal hover:bg-primary transition-colors text-sm">Take Quiz</a>
+        {% endif %}
+    </div>
+    {% endif %}
+
+    <div class="text-xs text-on-surface-variant border-t border-outline pt-4">
+        Published {{ content.created_at|date:"F j, Y" }}
+    </div>
+</div>
+{% endblock %}

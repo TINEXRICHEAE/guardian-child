@@ -1,0 +1,8 @@
+# guardian-ai, Testbed mode extras (GPU machine, inside ~/venv which links /opt/hackathon/venv).
+# fastapi, uvicorn, pydantic, pillow, httpx, tokenizers, numpy, openai already come from /opt/hackathon/venv.
+-r requirements.txt
+onnxruntime
+onnx            # lets the URL classifier switch its locale at load time
+tokenizers
+numpy
+openai

@@ -1,0 +1,1 @@
+{% load i18n %}{% blocktrans with email=user.email %}Welcome back! Signed in as {{ email }}.{% endblocktrans %}

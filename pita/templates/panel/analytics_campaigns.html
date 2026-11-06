@@ -1,0 +1,89 @@
+{% extends "panel/base_panel.html" %}
+{% block title %}Campaign Analytics{% endblock %}
+
+{% block extra_head %}
+<style>
+@media print {
+    nav, .no-print { display: none !important; }
+    body { background: white; font-size: 12px; }
+    .print-header { display: block !important; }
+    a { text-decoration: none; color: inherit; }
+}
+.print-header { display: none; }
+</style>
+{% endblock %}
+
+{% block panel_content %}
+<div class="print-header mb-6 pb-4 border-b-2 border-on-surface">
+    <div class="text-xl font-bold">Guardian - Cybersecurity Awareness Platform</div>
+    <div class="text-sm text-on-surface-variant">Campaign Performance Report</div>
+</div>
+
+<div class="flex items-center justify-between mb-6 no-print">
+    <div>
+        <a href="{% url 'panel_analytics' %}" class="text-sm text-teal font-semibold hover:underline">&larr; Analytics</a>
+        <h1 class="text-2xl font-bold mt-1">All Campaigns</h1>
+    </div>
+    <button onclick="window.print()" class="bg-teal text-white px-5 py-2 font-semibold border-2 border-teal hover:bg-primary transition-colors text-sm">
+        Print / Export
+    </button>
+</div>
+
+<div class="bg-white border border-outline overflow-x-auto mob-cards">
+    <table class="w-full text-sm">
+        <thead class="border-b border-outline bg-surface">
+            <tr>
+                <th class="px-4 py-3 text-left text-xs font-bold uppercase tracking-wider text-on-surface-variant">Subject</th>
+                <th class="px-4 py-3 text-left text-xs font-bold uppercase tracking-wider text-on-surface-variant">Content</th>
+                <th class="px-4 py-3 text-left text-xs font-bold uppercase tracking-wider text-on-surface-variant">Status</th>
+                <th class="px-4 py-3 text-center text-xs font-bold uppercase tracking-wider text-on-surface-variant">Deliveries</th>
+                <th class="px-4 py-3 text-center text-xs font-bold uppercase tracking-wider text-on-surface-variant">Sent</th>
+                <th class="px-4 py-3 text-center text-xs font-bold uppercase tracking-wider text-on-surface-variant">Opened</th>
+                <th class="px-4 py-3 text-center text-xs font-bold uppercase tracking-wider text-on-surface-variant">Open Rate</th>
+                <th class="px-4 py-3 text-center text-xs font-bold uppercase tracking-wider text-on-surface-variant">Failed</th>
+                <th class="px-4 py-3 text-left text-xs font-bold uppercase tracking-wider text-on-surface-variant">Sent At</th>
+                <th class="px-4 py-3 no-print"></th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for c in campaigns %}
+            <tr class="border-b border-outline hover:bg-surface">
+                <td class="px-4 py-3" data-label="Subject">
+                    <a href="{% url 'analytics_campaign_detail' c.pk %}" class="font-medium hover:text-teal hover:underline">
+                        {{ c.subject|truncatechars:45 }}
+                    </a>
+                </td>
+                <td class="px-4 py-3 text-xs text-on-surface-variant" data-label="Content">{{ c.content.title|truncatechars:35 }}</td>
+                <td class="px-4 py-3" data-label="Status">
+                    <span class="text-xs font-bold px-2 py-0.5 border
+                        {% if c.status == 'sent' %}border-teal text-teal
+                        {% elif c.status == 'sending' %}border-primary text-primary
+                        {% else %}border-on-surface-variant text-on-surface-variant{% endif %}">
+                        {{ c.get_status_display }}
+                    </span>
+                </td>
+                <td class="px-4 py-3 text-center font-semibold" data-label="Deliveries">{{ c.total_deliveries }}</td>
+                <td class="px-4 py-3 text-center text-teal font-semibold" data-label="Sent">{{ c.sent_count }}</td>
+                <td class="px-4 py-3 text-center {% if c.opened_count > 0 %}text-teal font-semibold{% else %}text-on-surface-variant{% endif %}" data-label="Opened">
+                    {{ c.opened_count }}
+                </td>
+                <td class="px-4 py-3 text-center text-xs text-on-surface-variant" data-label="Open Rate">
+                    {% if c.sent_count > 0 %}{% widthratio c.opened_count c.sent_count 100 %}%{% else %}-{% endif %}
+                </td>
+                <td class="px-4 py-3 text-center {% if c.failed_count > 0 %}text-error font-semibold{% else %}text-on-surface-variant{% endif %}" data-label="Failed">
+                    {{ c.failed_count }}
+                </td>
+                <td class="px-4 py-3 text-xs text-on-surface-variant" data-label="Sent At">
+                    {% if c.sent_at %}{{ c.sent_at|date:"M d, Y H:i" }}{% else %}-{% endif %}
+                </td>
+                <td class="px-4 py-3 no-print">
+                    <a href="{% url 'analytics_campaign_detail' c.pk %}" class="text-xs text-teal font-semibold hover:underline">Details &rarr;</a>
+                </td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="10" class="px-4 py-8 text-center text-on-surface-variant">No campaigns found.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}
