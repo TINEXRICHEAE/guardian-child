@@ -1,6 +1,6 @@
 {% extends "panel/base_panel.html" %}
 {% load guardian_filters %}
-{% block title %}Security Awareness Report - {{ report_date|date:"F Y" }}{% endblock %}
+{% block title %}Child Online Safety Report - {{ report_date|date:"F Y" }}{% endblock %}
 
 {% block extra_head %}
 <style>
@@ -24,7 +24,7 @@
 <div class="flex items-center justify-between mb-6 no-print">
     <div>
         <a href="{% url 'panel_analytics' %}" class="text-sm text-teal font-semibold hover:underline">&larr; Analytics</a>
-        <h1 class="text-2xl font-bold mt-1">Consolidated Security Awareness Report</h1>
+        <h1 class="text-2xl font-bold mt-1">Consolidated Child Online Safety Report</h1>
         <p class="text-sm text-on-surface-variant">{{ report_date|date:"F j, Y - H:i T" }}</p>
     </div>
     <button onclick="window.print()" class="bg-teal text-white px-5 py-2 font-semibold border-2 border-teal hover:bg-primary transition-colors text-sm">
@@ -35,9 +35,9 @@
 <!-- Cover (print only) -->
 <div class="print-header report-cover pt-16 pb-8 text-center">
     <div class="text-3xl font-bold tracking-wide mb-2">GUARDIAN</div>
-    <div class="text-base font-semibold tracking-widest uppercase text-on-surface-variant mb-8">Cybersecurity Awareness Platform</div>
+    <div class="text-base font-semibold tracking-widest uppercase text-on-surface-variant mb-8">Child online safety for Uganda</div>
     <div class="border-t-2 border-b-2 border-on-surface py-6 my-6 mx-auto" style="max-width:480px;">
-        <div class="text-2xl font-bold mb-1">Security Awareness Report</div>
+        <div class="text-2xl font-bold mb-1">Child Online Safety Report</div>
         <div class="text-sm text-on-surface-variant">Generated {{ report_date|date:"F j, Y" }} at {{ report_date|date:"H:i T" }}</div>
     </div>
     <div class="text-sm text-on-surface-variant mt-8">Prepared by: Administration</div>
@@ -49,8 +49,8 @@
     <h2 class="text-lg font-bold border-b-2 border-on-surface pb-2 mb-4 uppercase tracking-wider">1. Executive Summary</h2>
     <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
         <div class="bg-white border border-outline p-4 text-center avoid-break">
-            <div class="text-2xl sm:text-3xl font-bold text-teal">{{ active_staff }}</div>
-            <div class="text-xs font-bold uppercase tracking-wider text-on-surface-variant mt-1">Active Children</div>
+            <div class="text-2xl sm:text-3xl font-bold text-teal">{{ fam_summary.families }} / {{ fam_summary.children }}</div>
+            <div class="text-xs font-bold uppercase tracking-wider text-on-surface-variant mt-1">Families / Children</div>
         </div>
         <div class="bg-white border border-outline p-4 text-center avoid-break">
             <div class="text-2xl sm:text-3xl font-bold text-teal">{{ contents.count }}</div>
@@ -104,57 +104,10 @@
     </div>
 </div>
 
-<!-- 2. CHILDREN OVERVIEW -->
+<!-- 2. FAMILIES AND CHILDREN -->
 <div class="mb-10 page-break">
-    <h2 class="text-lg font-bold border-b-2 border-on-surface pb-2 mb-4 uppercase tracking-wider">2. Children Overview</h2>
-    <div class="bg-white border border-outline overflow-x-auto mob-cards">
-        <table class="w-full text-sm">
-            <thead class="bg-surface border-b border-outline">
-                <tr>
-                    <th class="px-4 py-2 text-left text-xs font-bold uppercase tracking-wider text-on-surface-variant">#</th>
-                    <th class="px-4 py-2 text-left text-xs font-bold uppercase tracking-wider text-on-surface-variant">Name</th>
-                    <th class="px-4 py-2 text-left text-xs font-bold uppercase tracking-wider text-on-surface-variant">Email</th>
-                    <th class="px-4 py-2 text-left text-xs font-bold uppercase tracking-wider text-on-surface-variant">Department</th>
-                    <th class="px-4 py-2 text-left text-xs font-bold uppercase tracking-wider text-on-surface-variant">Position</th>
-                    <th class="px-4 py-2 text-center text-xs font-bold uppercase tracking-wider text-on-surface-variant">Emails Rcvd</th>
-                    <th class="px-4 py-2 text-center text-xs font-bold uppercase tracking-wider text-on-surface-variant">Opened</th>
-                    <th class="px-4 py-2 text-center text-xs font-bold uppercase tracking-wider text-on-surface-variant">Open Rate</th>
-                    <th class="px-4 py-2 text-center text-xs font-bold uppercase tracking-wider text-on-surface-variant">Quizzes</th>
-                    <th class="px-4 py-2 text-center text-xs font-bold uppercase tracking-wider text-on-surface-variant">Avg Score</th>
-                    <th class="px-4 py-2 text-center text-xs font-bold uppercase tracking-wider text-on-surface-variant">Status</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for s in staff %}
-                <tr class="border-b border-outline hover:bg-surface">
-                    <td class="px-4 py-2 text-on-surface-variant text-xs" data-label="#">{{ forloop.counter }}</td>
-                    <td class="px-4 py-2 font-medium" data-label="Name">{{ s.profile.full_name|default:"-" }}</td>
-                    <td class="px-4 py-2 text-xs text-on-surface-variant" data-label="Email">{{ s.email }}</td>
-                    <td class="px-4 py-2 text-xs text-on-surface-variant" data-label="Dept">{{ s.profile.department|default:"-" }}</td>
-                    <td class="px-4 py-2 text-xs text-on-surface-variant" data-label="Position">{{ s.profile.position|default:"-" }}</td>
-                    <td class="px-4 py-2 text-center" data-label="Emails Rcvd">{{ s.emails_received }}</td>
-                    <td class="px-4 py-2 text-center {% if s.emails_opened > 0 %}text-teal font-semibold{% else %}text-on-surface-variant{% endif %}" data-label="Opened">{{ s.emails_opened }}</td>
-                    <td class="px-4 py-2 text-center text-xs" data-label="Open Rate">
-                        {% if s.emails_received > 0 %}{% widthratio s.emails_opened s.emails_received 100 %}%{% else %}-{% endif %}
-                    </td>
-                    <td class="px-4 py-2 text-center font-semibold" data-label="Quizzes">{{ s.quiz_count }}</td>
-                    <td class="px-4 py-2 text-center text-teal font-semibold" data-label="Avg Score">
-                        {% if s.avg_quiz_score %}{{ s.avg_quiz_score|floatformat:1 }}{% else %}-{% endif %}
-                    </td>
-                    <td class="px-4 py-2 text-center" data-label="Status">
-                        {% if s.is_active %}
-                        <span class="text-xs font-bold border border-teal text-teal px-1.5 py-0.5">Active</span>
-                        {% else %}
-                        <span class="text-xs font-bold border border-error text-error px-1.5 py-0.5">Inactive</span>
-                        {% endif %}
-                    </td>
-                </tr>
-                {% empty %}
-                <tr><td colspan="11" class="px-4 py-8 text-center text-on-surface-variant">No children records found.</td></tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    </div>
+    <h2 class="text-lg font-bold border-b-2 border-on-surface pb-2 mb-4 uppercase tracking-wider">2. Families and Children</h2>
+    {% include "panel/_families_children.html" %}
 </div>
 
 <!-- 3. PUBLISHED CONTENT -->
@@ -406,7 +359,7 @@
         <table class="w-full text-sm">
             <thead class="bg-surface border-b border-outline">
                 <tr>
-                    <th class="px-4 py-2 text-left text-xs font-bold uppercase tracking-wider text-on-surface-variant">Child</th>
+                    <th class="px-4 py-2 text-left text-xs font-bold uppercase tracking-wider text-on-surface-variant">Taken by</th>
                     <th class="px-4 py-2 text-left text-xs font-bold uppercase tracking-wider text-on-surface-variant">Quiz</th>
                     <th class="px-4 py-2 text-left text-xs font-bold uppercase tracking-wider text-on-surface-variant">Content</th>
                     <th class="px-4 py-2 text-center text-xs font-bold uppercase tracking-wider text-on-surface-variant">Score</th>
@@ -419,10 +372,7 @@
             <tbody>
                 {% for a in quiz_attempts %}
                 <tr class="border-b border-outline hover:bg-surface">
-                    <td class="px-4 py-2" data-label="Staff">
-                        <div class="font-medium">{{ a.user.profile.full_name|default:a.user.email }}</div>
-                        <div class="text-xs text-on-surface-variant">{{ a.user.email }}</div>
-                    </td>
+                    <td class="px-4 py-2" data-label="Taken by"><div class="font-medium">{{ a.who }}</div></td>
                     <td class="px-4 py-2 text-xs text-on-surface-variant" data-label="Quiz">{{ a.quiz.title|truncatechars:35 }}</td>
                     <td class="px-4 py-2 text-xs text-on-surface-variant" data-label="Content">
                         {% if a.quiz.content %}{{ a.quiz.content.title|truncatechars:30 }}{% else %}-{% endif %}
@@ -450,7 +400,7 @@
 
 <!-- FOOTER -->
 <div class="mt-12 pt-4 border-t border-outline text-xs text-on-surface-variant flex justify-between avoid-break">
-    <span>Guardian - Cybersecurity Awareness Platform</span>
+    <span>Guardian · Child online safety for Uganda</span>
     <span>Report generated: {{ report_date|date:"F j, Y H:i T" }}</span>
     <span>CONFIDENTIAL</span>
 </div>

@@ -74,6 +74,7 @@ also work without that step.
 | `safety` | [pita/safety/](pita/safety/) | Children, parent links, family codes, consent, checks, redaction, rules, fusion, reports, alerts |
 | `phishsim` | [pita/phishsim/](pita/phishsim/) | Topic packs (parent/child/quiz/practice), practice deliveries, link sign-in, stop links |
 | Inference service | [guardian-ai/](guardian-ai/) | FastAPI with backend chains per capability and a content-free inference log ([README](guardian-ai/README.md)) |
+| Mobile app | [mobile/](mobile/) | Expo (React Native) app for Android and iPhone that mirrors the site, with native tabs per role; site address from `.env` ([README](mobile/README.md)) |
 | Evidence | [docs/testbed-evidence/](docs/testbed-evidence/) | Health and timing captures from the GPU machine |
 
 ---
@@ -182,7 +183,6 @@ Next:
 - PDF and `.eml` uploads
 - scam-wave detection
 - SMS and WhatsApp practice channels
-- a mobile app wrapper
 
 See [plan.md §15](plan.md).
 

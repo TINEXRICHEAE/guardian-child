@@ -130,26 +130,11 @@
                     <input type="text" id="staffSearch" placeholder="Search name or email..."
                         oninput="filterStaff()"
                         class="px-3 py-1.5 border border-on-surface text-sm focus:outline-none focus:border-teal flex-1 min-w-40">
-                    <select id="filterDept" onchange="filterStaff()"
+                    <select id="filterKids" onchange="filterStaff()"
                         class="px-3 py-1.5 border border-on-surface text-sm focus:outline-none focus:border-teal bg-white">
-                        <option value="">All Departments</option>
-                        {% for dept in departments %}
-                        <option value="{{ dept|lower }}">{{ dept }}</option>
-                        {% endfor %}
-                    </select>
-                    <select id="filterCategory" onchange="filterStaff()"
-                        class="px-3 py-1.5 border border-on-surface text-sm focus:outline-none focus:border-teal bg-white">
-                        <option value="">All Categories</option>
-                        <option value="core">Core</option>
-                        <option value="third_party">Third Party</option>
-                        <option value="support">Support</option>
-                    </select>
-                    <select id="filterTerms" onchange="filterStaff()"
-                        class="px-3 py-1.5 border border-on-surface text-sm focus:outline-none focus:border-teal bg-white">
-                        <option value="">All Employment</option>
-                        <option value="permanent">Permanent</option>
-                        <option value="temporary">Temporary</option>
-                        <option value="contractor">Contractor</option>
+                        <option value="">All parents</option>
+                        <option value="with">Parents with children added</option>
+                        <option value="without">Parents with no children yet</option>
                     </select>
                     <button type="button" onclick="selectAllVisible()"
                         class="px-3 py-1.5 text-xs font-bold border border-teal text-teal hover:bg-teal hover:text-white transition-colors whitespace-nowrap">
@@ -173,9 +158,7 @@
                                 </th>
                                 <th class="px-3 py-2 text-left text-xs font-bold uppercase tracking-wider text-on-surface-variant">Name</th>
                                 <th class="px-3 py-2 text-left text-xs font-bold uppercase tracking-wider text-on-surface-variant">Email</th>
-                                <th class="px-3 py-2 text-left text-xs font-bold uppercase tracking-wider text-on-surface-variant">Department</th>
-                                <th class="px-3 py-2 text-left text-xs font-bold uppercase tracking-wider text-on-surface-variant">Category</th>
-                                <th class="px-3 py-2 text-left text-xs font-bold uppercase tracking-wider text-on-surface-variant">Terms</th>
+                                <th class="px-3 py-2 text-left text-xs font-bold uppercase tracking-wider text-on-surface-variant">Children</th>
                             </tr>
                         </thead>
                         <tbody id="staffTableBody">
@@ -183,9 +166,7 @@
                             <tr class="border-b border-outline hover:bg-surface staff-row"
                                 data-email="{{ staff.email|lower }}"
                                 data-name="{{ staff.profile.full_name|lower|default:'' }}"
-                                data-dept="{{ staff.profile.department|lower|default:'' }}"
-                                data-category="{{ staff.profile.staff_category|default:'' }}"
-                                data-terms="{{ staff.profile.employment_terms|default:'' }}">
+                                data-kids="{{ staff.children_count }}">
                                 <td class="px-3 py-2">
                                     <input type="checkbox" name="recipient_ids" value="{{ staff.pk }}"
                                         class="recipient-check"
@@ -194,19 +175,11 @@
                                 </td>
                                 <td class="px-3 py-2 font-medium">{{ staff.profile.full_name|default:staff.email|truncatechars:28 }}</td>
                                 <td class="px-3 py-2 text-xs text-on-surface-variant">{{ staff.email }}</td>
-                                <td class="px-3 py-2 text-xs text-on-surface-variant">{{ staff.profile.department|default:"-" }}</td>
-                                <td class="px-3 py-2">
-                                    {% if staff.profile.staff_category %}
-                                    <span class="text-xs px-1.5 py-0.5 border border-outline">{{ staff.profile.get_staff_category_display }}</span>
-                                    {% else %}<span class="text-xs text-on-surface-variant">-</span>{% endif %}
-                                </td>
-                                <td class="px-3 py-2 text-xs text-on-surface-variant">
-                                    {% if staff.profile.employment_terms %}{{ staff.profile.get_employment_terms_display }}{% else %}-{% endif %}
-                                </td>
+                                <td class="px-3 py-2 text-xs text-on-surface-variant">{{ staff.children_count }}</td>
                             </tr>
                             {% empty %}
                             <tr>
-                                <td colspan="6" class="px-3 py-8 text-center text-on-surface-variant text-sm">
+                                <td colspan="4" class="px-3 py-8 text-center text-on-surface-variant text-sm">
                                     No active parent accounts found.
                                 </td>
                             </tr>
@@ -311,17 +284,14 @@ function onModeChange(mode) {
 
 function filterStaff() {
     const search = document.getElementById('staffSearch').value.toLowerCase();
-    const dept   = document.getElementById('filterDept').value.toLowerCase();
-    const cat    = document.getElementById('filterCategory').value;
-    const terms  = document.getElementById('filterTerms').value;
+    const kids   = document.getElementById('filterKids').value;
 
     document.querySelectorAll('.staff-row').forEach(row => {
         const matchSearch = !search || row.dataset.email.includes(search) || row.dataset.name.includes(search);
-        const matchDept   = !dept   || row.dataset.dept === dept;
-        const matchCat    = !cat    || row.dataset.category === cat;
-        const matchTerms  = !terms  || row.dataset.terms === terms;
+        const n = parseInt(row.dataset.kids || '0', 10);
+        const matchKids = !kids || (kids === 'with' ? n > 0 : n === 0);
 
-        row.classList.toggle('hidden', !(matchSearch && matchDept && matchCat && matchTerms));
+        row.classList.toggle('hidden', !(matchSearch && matchKids));
     });
 
     syncSelectAllCheckbox();

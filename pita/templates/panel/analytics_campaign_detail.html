@@ -16,7 +16,7 @@
 
 {% block panel_content %}
 <div class="print-header mb-6 pb-4 border-b-2 border-on-surface">
-    <div class="text-xl font-bold">Guardian - Cybersecurity Awareness Platform</div>
+    <div class="text-xl font-bold">Guardian · Child online safety</div>
     <div class="text-sm text-on-surface-variant">Campaign Delivery Detail - {{ campaign.subject }}</div>
 </div>
 
@@ -85,7 +85,7 @@
                 <tr>
                     <th class="px-4 py-2 text-left text-xs font-bold uppercase tracking-wider text-on-surface-variant">Email</th>
                     <th class="px-4 py-2 text-left text-xs font-bold uppercase tracking-wider text-on-surface-variant">Name</th>
-                    <th class="px-4 py-2 text-left text-xs font-bold uppercase tracking-wider text-on-surface-variant">Department</th>
+                    <th class="px-4 py-2 text-left text-xs font-bold uppercase tracking-wider text-on-surface-variant">Recipient</th>
                     <th class="px-4 py-2 text-left text-xs font-bold uppercase tracking-wider text-on-surface-variant">Status</th>
                     <th class="px-4 py-2 text-left text-xs font-bold uppercase tracking-wider text-on-surface-variant">Sent At</th>
                     <th class="px-4 py-2 text-left text-xs font-bold uppercase tracking-wider text-on-surface-variant">Opened At</th>
@@ -99,8 +99,8 @@
                     <td class="px-4 py-2 text-xs text-on-surface-variant" data-label="Name">
                         {% if d.recipient %}{{ d.recipient.profile.full_name|default:"-" }}{% else %}External{% endif %}
                     </td>
-                    <td class="px-4 py-2 text-xs text-on-surface-variant" data-label="Dept">
-                        {% if d.recipient %}{{ d.recipient.profile.department|default:"-" }}{% else %}-{% endif %}
+                    <td class="px-4 py-2 text-xs text-on-surface-variant" data-label="Recipient">
+                        {% if d.recipient %}{{ d.recipient.role|capfirst }}{% else %}Extra address{% endif %}
                     </td>
                     <td class="px-4 py-2" data-label="Status"><span class="text-xs font-bold border border-teal text-teal px-2 py-0.5">{{ d.get_status_display }}</span></td>
                     <td class="px-4 py-2 text-xs text-on-surface-variant" data-label="Sent At">{{ d.sent_at|date:"M d, Y H:i T"|default:"-" }}</td>
@@ -130,7 +130,7 @@
                 <tr>
                     <th class="px-4 py-2 text-left text-xs font-bold uppercase tracking-wider text-on-surface-variant">Email</th>
                     <th class="px-4 py-2 text-left text-xs font-bold uppercase tracking-wider text-on-surface-variant">Name</th>
-                    <th class="px-4 py-2 text-left text-xs font-bold uppercase tracking-wider text-on-surface-variant">Department</th>
+                    <th class="px-4 py-2 text-left text-xs font-bold uppercase tracking-wider text-on-surface-variant">Recipient</th>
                     <th class="px-4 py-2 text-left text-xs font-bold uppercase tracking-wider text-on-surface-variant">Sent At</th>
                 </tr>
             </thead>
@@ -141,8 +141,8 @@
                     <td class="px-4 py-2 text-xs text-on-surface-variant" data-label="Name">
                         {% if d.recipient %}{{ d.recipient.profile.full_name|default:"-" }}{% else %}External{% endif %}
                     </td>
-                    <td class="px-4 py-2 text-xs text-on-surface-variant" data-label="Dept">
-                        {% if d.recipient %}{{ d.recipient.profile.department|default:"-" }}{% else %}-{% endif %}
+                    <td class="px-4 py-2 text-xs text-on-surface-variant" data-label="Recipient">
+                        {% if d.recipient %}{{ d.recipient.role|capfirst }}{% else %}Extra address{% endif %}
                     </td>
                     <td class="px-4 py-2 text-xs text-on-surface-variant" data-label="Sent At">{{ d.sent_at|date:"M d, Y H:i T"|default:"-" }}</td>
                 </tr>
