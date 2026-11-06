@@ -866,11 +866,10 @@ def panel_campaign_detail(request, pk):
         Users.objects
         .filter(role=ROLE_PARENT, is_active=True)
         .select_related('profile')
+        .annotate(children_count=Count('child_links', filter=Q(child_links__active=True), distinct=True))
         .order_by('email')
     )
     selected_recipient_ids = set(campaign.target_recipients.values_list('pk', flat=True))
-
-    departments = []   # employee departments no longer exist; targeting is rebuilt in Phase 5
 
     # Compute effective target count for display
     extra_count = len([e for e in campaign.extra_emails.splitlines() if e.strip()])
@@ -891,7 +890,6 @@ def panel_campaign_detail(request, pk):
         'deliveries': deliveries,
         'all_staff': all_staff,
         'selected_recipient_ids': selected_recipient_ids,
-        'departments': departments,
         'extra_emails': campaign.extra_emails,
         'target_count': target_count,
     }
@@ -1048,37 +1046,14 @@ def _delivery_email(d):
 
 @_require_perm('view_analytics')
 def analytics_staff(request):
-    from .models import INSIDER_THREAT_CHOICES
-    staff = (
-        Users.objects.filter(role=ROLE_CHILD)
-        .select_related('profile')
-        .annotate(
-            emails_received=Count(
-                'email_deliveries',
-                filter=Q(email_deliveries__status__in=['sent', 'opened', 'clicked']),
-                distinct=True,
-            ),
-            emails_opened=Count(
-                'email_deliveries',
-                filter=Q(email_deliveries__status__in=['opened', 'clicked']),
-                distinct=True,
-            ),
-            quiz_count=Count('quiz_attempts', distinct=True),
-            avg_quiz_score=Avg('quiz_attempts__score'),
-            content_viewed=Count(
-                'interactions',
-                filter=Q(interactions__viewed=True),
-                distinct=True,
-            ),
-        )
-        .order_by('email')
-    )
-    ctx = {
-        'staff': staff,
-        'active_count': staff.filter(is_active=True).count(),
-        'inactive_count': staff.filter(is_active=False).count(),
-    }
-    return render(request, 'panel/analytics_staff.html', ctx)
+    """Families and children (pseudonymous). Kept at the old URL name so existing links still work."""
+    return render(request, 'panel/analytics_staff.html', _family_context())
+
+
+def _family_context():
+    from .services import family_analytics as fa
+    fam, kids = fa.families(), fa.children()
+    return {'families': fam, 'children': kids, 'age_bands': fa.by_age_band(kids), 'fam_summary': fa.summary(fam, kids)}
 
 
 @_require_perm('view_analytics')
@@ -1471,7 +1446,12 @@ def analytics_report(request):
         .order_by('-completed_at')
     )
 
+    from .services.family_analytics import person_label
+    quiz_attempts = list(quiz_attempts)
+    for a in quiz_attempts:
+        a.who = person_label(a.user)
     ctx = {
+        **_family_context(),
         'report_date': timezone.now(),
         'staff': staff,
         'active_staff': staff.filter(is_active=True).count(),

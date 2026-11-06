@@ -78,7 +78,8 @@ if _vercel_url:
 CORS_ALLOW_CREDENTIALS = True
 CORS_ALLOW_ALL_ORIGINS = DEBUG  # Only allow all origins in development
 
-_extra_allowed = [h for h in [_vercel_url, os.getenv('ALLOWED_HOST', '')] if h]
+# ALLOWED_HOST may list several hosts, comma-separated (e.g. the laptop's LAN IP for the mobile app)
+_extra_allowed = [h.strip() for h in [_vercel_url, *os.getenv('ALLOWED_HOST', '').split(',')] if h.strip()]
 ALLOWED_HOSTS = [
     "127.0.0.1",
     "localhost",

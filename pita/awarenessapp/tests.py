@@ -122,3 +122,24 @@ class ApproveStartsFamilyVersionsTests(TestCase):
         start.assert_called_once()
         content.refresh_from_db()
         self.assertEqual(content.status, AwarenessContent.STATUS_APPROVED)
+
+
+class FamiliesAnalyticsTests(TestCase):
+    def test_families_page_and_report_show_children_by_pseudonym_only(self):
+        from safety.models import ChildProfile, GuardianChildLink
+        analyst = Users.objects.create_user(email='a@x.ug', password=PASSWORD, role=ROLE_ANALYST)
+        parent = Users.objects.create_user(email='mum@x.ug', password=PASSWORD, role=ROLE_PARENT)
+        kid_user = Users.objects.create_user(email='tutu.kid@x.ug', password=PASSWORD, role='child')
+        child = ChildProfile.objects.create(nickname='Tutu', age_band='11-13', created_by=parent,
+                                            email='tutu.kid@x.ug', user=kid_user, district='Wakiso')
+        GuardianChildLink.objects.create(guardian=parent, child=child)
+        self.client.force_login(analyst)
+        for name in ('analytics_staff', 'analytics_report'):
+            r = self.client.get(reverse(name))
+            self.assertEqual(r.status_code, 200, name)
+            self.assertContains(r, child.pseudonym)
+            self.assertContains(r, 'mum@x.ug')                       # parents receive the regulators' emails
+            self.assertNotContains(r, 'tutu.kid@x.ug')               # never a child's email
+            self.assertNotContains(r, '>Tutu<')                      # never a child's nickname
+            self.assertNotContains(r, 'Department')
+            self.assertContains(r, 'fewer than 5')                   # small groups suppressed

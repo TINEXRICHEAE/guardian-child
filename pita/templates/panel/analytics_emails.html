@@ -16,7 +16,7 @@
 
 {% block panel_content %}
 <div class="print-header mb-6 pb-4 border-b-2 border-on-surface">
-    <div class="text-xl font-bold">Guardian - Cybersecurity Awareness Platform</div>
+    <div class="text-xl font-bold">Guardian · Child online safety</div>
     <div class="text-sm text-on-surface-variant">Email Delivery Overview Report</div>
 </div>
 
@@ -73,7 +73,7 @@
                 <td class="px-4 py-2" data-label="Recipient">
                     <div>{% if d.email %}{{ d.email }}{% elif d.recipient %}{{ d.recipient.email }}{% else %}-{% endif %}</div>
                     {% if d.recipient %}
-                    <div class="text-xs text-on-surface-variant">{{ d.recipient.profile.full_name|default:"" }}{% if d.recipient.profile.department %} · {{ d.recipient.profile.department }}{% endif %}</div>
+                    <div class="text-xs text-on-surface-variant">{{ d.recipient.profile.full_name|default:"" }}</div>
                     {% else %}
                     <div class="text-xs text-on-surface-variant">External</div>
                     {% endif %}

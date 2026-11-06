@@ -1,0 +1,91 @@
+{% comment %}Families and children tables. Needs: fam_summary, families, children, age_bands. Children by pseudonym only.{% endcomment %}
+<div class="grid grid-cols-2 md:grid-cols-5 gap-3 mb-6">
+    <div class="bg-white border border-outline p-4 text-center avoid-break"><div class="text-2xl font-bold text-teal">{{ fam_summary.families }}</div><div class="text-xs font-bold uppercase tracking-wider text-on-surface-variant mt-1">Families</div></div>
+    <div class="bg-white border border-outline p-4 text-center avoid-break"><div class="text-2xl font-bold text-teal">{{ fam_summary.children }}</div><div class="text-xs font-bold uppercase tracking-wider text-on-surface-variant mt-1">Children ({{ fam_summary.children_with_device }} with own sign-in)</div></div>
+    <div class="bg-white border border-outline p-4 text-center avoid-break"><div class="text-2xl font-bold text-teal">{{ fam_summary.practice_sent }}</div><div class="text-xs font-bold uppercase tracking-wider text-on-surface-variant mt-1">Practice messages sent</div></div>
+    <div class="bg-white border border-outline p-4 text-center avoid-break"><div class="text-2xl font-bold {% if fam_summary.practice_open_rate is not None and fam_summary.practice_open_rate > 50 %}text-error{% else %}text-teal{% endif %}">{% if fam_summary.practice_open_rate is not None %}{{ fam_summary.practice_open_rate }}%{% else %}-{% endif %}</div><div class="text-xs font-bold uppercase tracking-wider text-on-surface-variant mt-1">Practice links opened (lower is better)</div></div>
+    <div class="bg-white border border-outline p-4 text-center avoid-break"><div class="text-2xl font-bold text-teal">{{ fam_summary.checks }}</div><div class="text-xs font-bold uppercase tracking-wider text-on-surface-variant mt-1">Checks by children ({{ fam_summary.high_risk }} high risk)</div></div>
+</div>
+
+<h3 class="font-semibold mb-3 text-sm uppercase tracking-wider text-on-surface-variant border-b border-outline pb-2">Families</h3>
+<div class="bg-white border border-outline overflow-x-auto mob-cards mb-8">
+    <table class="w-full text-sm">
+        <thead class="bg-surface border-b border-outline"><tr>
+            <th class="px-4 py-2 text-left text-xs font-bold uppercase tracking-wider text-on-surface-variant">Parent</th>
+            <th class="px-4 py-2 text-center text-xs font-bold uppercase tracking-wider text-on-surface-variant">Children</th>
+            <th class="px-4 py-2 text-center text-xs font-bold uppercase tracking-wider text-on-surface-variant">Emails received</th>
+            <th class="px-4 py-2 text-center text-xs font-bold uppercase tracking-wider text-on-surface-variant">Opened</th>
+            <th class="px-4 py-2 text-center text-xs font-bold uppercase tracking-wider text-on-surface-variant">Topics read</th>
+            <th class="px-4 py-2 text-center text-xs font-bold uppercase tracking-wider text-on-surface-variant">Quizzes</th>
+            <th class="px-4 py-2 text-center text-xs font-bold uppercase tracking-wider text-on-surface-variant">Practice sent</th>
+            <th class="px-4 py-2 text-center text-xs font-bold uppercase tracking-wider text-on-surface-variant">Alerts</th>
+            <th class="px-4 py-2 text-center text-xs font-bold uppercase tracking-wider text-on-surface-variant">Status</th>
+        </tr></thead>
+        <tbody>
+        {% for f in families %}
+        <tr class="border-b border-outline">
+            <td class="px-4 py-2" data-label="Parent"><div class="font-medium">{{ f.name }}</div><div class="text-xs text-on-surface-variant">{{ f.email }}</div></td>
+            <td class="px-4 py-2 text-center font-semibold" data-label="Children">{{ f.children }}</td>
+            <td class="px-4 py-2 text-center" data-label="Emails received">{{ f.emails_received }}</td>
+            <td class="px-4 py-2 text-center" data-label="Opened">{{ f.emails_opened }}</td>
+            <td class="px-4 py-2 text-center" data-label="Topics read">{{ f.topics_read }}</td>
+            <td class="px-4 py-2 text-center" data-label="Quizzes">{{ f.quiz_count }}</td>
+            <td class="px-4 py-2 text-center" data-label="Practice sent">{{ f.practice_sent }}</td>
+            <td class="px-4 py-2 text-center" data-label="Alerts">{{ f.alerts }}</td>
+            <td class="px-4 py-2 text-center" data-label="Status">{% if f.active %}<span class="text-xs font-bold border border-teal text-teal px-1.5 py-0.5">Active</span>{% else %}<span class="text-xs font-bold border border-error text-error px-1.5 py-0.5">Inactive</span>{% endif %}</td>
+        </tr>
+        {% empty %}<tr><td colspan="9" class="px-4 py-8 text-center text-on-surface-variant">No families yet.</td></tr>{% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<h3 class="font-semibold mb-1 text-sm uppercase tracking-wider text-on-surface-variant border-b border-outline pb-2">Children (pseudonymous)</h3>
+<p class="text-xs text-on-surface-variant mb-3">Children are shown by pseudonym only. Nicknames, email addresses and anything a child checked or reported are never shown here.</p>
+<div class="bg-white border border-outline overflow-x-auto mob-cards mb-8">
+    <table class="w-full text-sm">
+        <thead class="bg-surface border-b border-outline"><tr>
+            <th class="px-4 py-2 text-left text-xs font-bold uppercase tracking-wider text-on-surface-variant">Child</th>
+            <th class="px-4 py-2 text-left text-xs font-bold uppercase tracking-wider text-on-surface-variant">Age band</th>
+            <th class="px-4 py-2 text-left text-xs font-bold uppercase tracking-wider text-on-surface-variant">District</th>
+            <th class="px-4 py-2 text-center text-xs font-bold uppercase tracking-wider text-on-surface-variant">Practice sent</th>
+            <th class="px-4 py-2 text-center text-xs font-bold uppercase tracking-wider text-on-surface-variant">Opened link</th>
+            <th class="px-4 py-2 text-center text-xs font-bold uppercase tracking-wider text-on-surface-variant">Spotted it</th>
+            <th class="px-4 py-2 text-center text-xs font-bold uppercase tracking-wider text-on-surface-variant">Lessons read</th>
+            <th class="px-4 py-2 text-center text-xs font-bold uppercase tracking-wider text-on-surface-variant">Quizzes</th>
+            <th class="px-4 py-2 text-center text-xs font-bold uppercase tracking-wider text-on-surface-variant">Avg quiz</th>
+            <th class="px-4 py-2 text-center text-xs font-bold uppercase tracking-wider text-on-surface-variant">Checks</th>
+            <th class="px-4 py-2 text-center text-xs font-bold uppercase tracking-wider text-on-surface-variant">High risk</th>
+        </tr></thead>
+        <tbody>
+        {% for c in children %}
+        <tr class="border-b border-outline">
+            <td class="px-4 py-2 font-mono text-xs" data-label="Child">{{ c.pseudonym }}{% if c.device %} <span class="font-sans text-on-surface-variant">· own sign-in</span>{% endif %}</td>
+            <td class="px-4 py-2 text-xs" data-label="Age band">{{ c.age_band }}</td>
+            <td class="px-4 py-2 text-xs text-on-surface-variant" data-label="District">{{ c.district }}</td>
+            <td class="px-4 py-2 text-center" data-label="Practice sent">{{ c.practice_sent }}</td>
+            <td class="px-4 py-2 text-center {% if c.practice_opened %}text-error font-semibold{% endif %}" data-label="Opened link">{{ c.practice_opened }}</td>
+            <td class="px-4 py-2 text-center {% if c.practice_spotted %}text-teal font-semibold{% endif %}" data-label="Spotted it">{{ c.practice_spotted }}</td>
+            <td class="px-4 py-2 text-center" data-label="Lessons read">{{ c.lessons_read }}</td>
+            <td class="px-4 py-2 text-center" data-label="Quizzes">{{ c.quiz_count }}</td>
+            <td class="px-4 py-2 text-center text-teal font-semibold" data-label="Avg quiz">{% if c.quiz_pct is not None %}{{ c.quiz_pct }}%{% else %}-{% endif %}</td>
+            <td class="px-4 py-2 text-center" data-label="Checks">{{ c.checks }}</td>
+            <td class="px-4 py-2 text-center {% if c.high_risk %}text-error font-semibold{% endif %}" data-label="High risk">{{ c.high_risk }}</td>
+        </tr>
+        {% empty %}<tr><td colspan="11" class="px-4 py-8 text-center text-on-surface-variant">No children yet.</td></tr>{% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<h3 class="font-semibold mb-1 text-sm uppercase tracking-wider text-on-surface-variant border-b border-outline pb-2">By age band</h3>
+<p class="text-xs text-on-surface-variant mb-3">Groups smaller than 5 are not counted exactly, so no child can be picked out.</p>
+<div class="bg-white border border-outline overflow-x-auto mob-cards">
+    <table class="w-full text-sm">
+        <thead class="bg-surface border-b border-outline"><tr>
+            <th class="px-4 py-2 text-left text-xs font-bold uppercase tracking-wider text-on-surface-variant">Age band</th>
+            <th class="px-4 py-2 text-center text-xs font-bold uppercase tracking-wider text-on-surface-variant">Children</th>
+            <th class="px-4 py-2 text-center text-xs font-bold uppercase tracking-wider text-on-surface-variant">Practice links opened</th>
+            <th class="px-4 py-2 text-center text-xs font-bold uppercase tracking-wider text-on-surface-variant">Checks</th>
+        </tr></thead>
+        <tbody>{% for g in age_bands %}<tr class="border-b border-outline"><td class="px-4 py-2" data-label="Age band">{{ g.age_band }}</td><td class="px-4 py-2 text-center" data-label="Children">{{ g.children }}</td><td class="px-4 py-2 text-center" data-label="Practice opened">{{ g.practice_opened }}</td><td class="px-4 py-2 text-center" data-label="Checks">{{ g.checks }}</td></tr>{% endfor %}</tbody>
+    </table>
+</div>

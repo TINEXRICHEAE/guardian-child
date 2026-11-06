@@ -1,5 +1,5 @@
 {% extends "panel/base_panel.html" %}
-{% block title %}Children Analytics{% endblock %}
+{% block title %}Families and children{% endblock %}
 
 {% block extra_head %}
 <style>
@@ -14,210 +14,19 @@
 {% endblock %}
 
 {% block panel_content %}
-<!-- Print header (hidden on screen) -->
 <div class="print-header mb-6 pb-4 border-b-2 border-on-surface">
-    <div class="text-xl font-bold">Guardian - Cybersecurity Awareness Platform</div>
-    <div class="text-sm text-on-surface-variant">Children Analytics Report - {{ "now"|date:"N j, Y" }}</div>
+    <div class="text-xl font-bold">Guardian · Child online safety</div>
+    <div class="text-sm text-on-surface-variant">Families and children · {% now "j F Y, H:i T" %}</div>
 </div>
 
-<div class="flex items-center justify-between mb-6 no-print">
+<div class="flex flex-wrap items-center justify-between gap-3 mb-6 no-print">
     <div>
         <a href="{% url 'panel_analytics' %}" class="text-sm text-teal font-semibold hover:underline">&larr; Analytics</a>
-        <h1 class="text-2xl font-bold mt-1">Children Overview</h1>
+        <h1 class="text-2xl font-bold mt-1">Families and children</h1>
+        <p class="text-sm text-on-surface-variant">How families use Guardian: regulator emails, topics, quizzes and practice messages. Children are pseudonymous.</p>
     </div>
-    <button onclick="window.print()" class="bg-teal text-white px-5 py-2 font-semibold border-2 border-teal hover:bg-primary transition-colors text-sm">
-        Print / Export
-    </button>
+    <button onclick="window.print()" class="bg-teal text-white px-5 py-2 font-semibold border-2 border-teal hover:bg-primary transition-colors text-sm">Print / Export</button>
 </div>
 
-<!-- Summary cards -->
-<div class="grid grid-cols-3 gap-4 mb-8">
-    <div class="bg-white border border-outline p-4 text-center">
-        <div class="text-3xl font-bold text-teal">{{ staff.count }}</div>
-        <div class="text-xs font-bold uppercase tracking-wider text-on-surface-variant mt-1">Total Children</div>
-    </div>
-    <div class="bg-white border border-outline p-4 text-center">
-        <div class="text-3xl font-bold text-teal">{{ active_count }}</div>
-        <div class="text-xs font-bold uppercase tracking-wider text-on-surface-variant mt-1">Active</div>
-    </div>
-    <div class="bg-white border border-outline p-4 text-center">
-        <div class="text-3xl font-bold text-on-surface-variant">{{ inactive_count }}</div>
-        <div class="text-xs font-bold uppercase tracking-wider text-on-surface-variant mt-1">Inactive / Left</div>
-    </div>
-</div>
-
-<!-- Staff table -->
-<div class="bg-white border border-outline overflow-x-auto mob-cards">
-    <table class="w-full text-sm" id="staffTable">
-        <thead class="border-b border-outline bg-surface">
-            <tr>
-                <th class="px-4 py-3 text-left text-xs font-bold uppercase tracking-wider text-on-surface-variant">#</th>
-                <th class="px-4 py-3 text-left text-xs font-bold uppercase tracking-wider text-on-surface-variant">Name / Email</th>
-                <th class="px-4 py-3 text-left text-xs font-bold uppercase tracking-wider text-on-surface-variant">Department</th>
-                <th class="px-4 py-3 text-left text-xs font-bold uppercase tracking-wider text-on-surface-variant">Category</th>
-                <th class="px-4 py-3 text-center text-xs font-bold uppercase tracking-wider text-on-surface-variant">Emails Rcvd</th>
-                <th class="px-4 py-3 text-center text-xs font-bold uppercase tracking-wider text-on-surface-variant">Opened</th>
-                <th class="px-4 py-3 text-center text-xs font-bold uppercase tracking-wider text-on-surface-variant">Quizzes</th>
-                <th class="px-4 py-3 text-center text-xs font-bold uppercase tracking-wider text-on-surface-variant">Avg Score</th>
-                <th class="px-4 py-3 text-center text-xs font-bold uppercase tracking-wider text-on-surface-variant">Content Viewed</th>
-                <th class="px-4 py-3 text-center text-xs font-bold uppercase tracking-wider text-on-surface-variant no-print">Status</th>
-                <th class="px-4 py-3 text-center text-xs font-bold uppercase tracking-wider text-on-surface-variant no-print">Details</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for s in staff %}
-            <tr class="border-b border-outline hover:bg-surface cursor-pointer" onclick="openStaffModal('{{ s.pk }}')">
-                <td class="px-4 py-3 text-on-surface-variant text-xs" data-label="#">{{ forloop.counter }}</td>
-                <td class="px-4 py-3" data-label="Name">
-                    <div class="font-medium">{{ s.profile.full_name|default:"-" }}</div>
-                    <div class="text-xs text-on-surface-variant">{{ s.email }}</div>
-                </td>
-                <td class="px-4 py-3 text-xs text-on-surface-variant" data-label="Dept">
-                    {{ s.profile.department|default:"-" }}
-                    {% if s.profile.unit %}<div class="text-xs">{{ s.profile.unit }}</div>{% endif %}
-                </td>
-                <td class="px-4 py-3 text-xs" data-label="Category">
-                    {% if s.profile.staff_category %}
-                    <span class="px-2 py-0.5 border border-outline">{{ s.profile.get_staff_category_display }}</span>
-                    {% else %}-{% endif %}
-                    {% if s.profile.employment_terms %}
-                    <div class="text-xs text-on-surface-variant mt-0.5">{{ s.profile.get_employment_terms_display }}</div>
-                    {% endif %}
-                </td>
-                <td class="px-4 py-3 text-center font-semibold" data-label="Emails Rcvd">{{ s.emails_received }}</td>
-                <td class="px-4 py-3 text-center" data-label="Opened">
-                    <span class="{% if s.emails_opened > 0 %}text-teal font-semibold{% else %}text-on-surface-variant{% endif %}">
-                        {{ s.emails_opened }}
-                    </span>
-                    {% if s.emails_received > 0 %}
-                    <div class="text-xs text-on-surface-variant">
-                        {% widthratio s.emails_opened s.emails_received 100 %}%
-                    </div>
-                    {% endif %}
-                </td>
-                <td class="px-4 py-3 text-center font-semibold" data-label="Quizzes">{{ s.quiz_count }}</td>
-                <td class="px-4 py-3 text-center" data-label="Avg Score">
-                    {% if s.avg_quiz_score %}{{ s.avg_quiz_score|floatformat:1 }}{% else %}-{% endif %}
-                </td>
-                <td class="px-4 py-3 text-center font-semibold" data-label="Viewed">{{ s.content_viewed }}</td>
-                <td class="px-4 py-3 text-center no-print" data-label="Status">
-                    {% if s.is_active %}
-                    <span class="text-xs font-bold text-teal border border-teal px-2 py-0.5">Active</span>
-                    {% else %}
-                    <span class="text-xs font-bold text-on-surface-variant border border-outline px-2 py-0.5">Inactive</span>
-                    {% endif %}
-                </td>
-                <td class="px-4 py-3 text-center no-print">
-                    <button onclick="event.stopPropagation(); openStaffModal('{{ s.pk }}')"
-                        class="text-xs text-teal font-semibold hover:underline">View</button>
-                </td>
-            </tr>
-            {% empty %}
-            <tr><td colspan="11" class="px-4 py-8 text-center text-on-surface-variant">No children found.</td></tr>
-            {% endfor %}
-        </tbody>
-    </table>
-</div>
-
-<!-- Staff detail modal -->
-<div id="staffModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden items-center justify-center p-4 no-print">
-    <div class="bg-white border-2 border-on-surface max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-        <div class="flex justify-between items-center p-6 border-b border-outline">
-            <h2 class="text-xl font-bold" id="modalName">Child Detail</h2>
-            <button onclick="closeStaffModal()" class="text-2xl leading-none hover:text-teal">&times;</button>
-        </div>
-        <div id="modalBody" class="p-6"></div>
-    </div>
-</div>
-{% endblock %}
-
-{% block extra_js %}
-<script>
-// Serialize staff data for modal
-const staffData = {
-    {% for s in staff %}
-    '{{ s.pk }}': {
-        name: '{{ s.profile.full_name|default:""|escapejs }}',
-        email: '{{ s.email|escapejs }}',
-        staff_id: '{{ s.profile.staff_id|default:""|escapejs }}',
-        department: '{{ s.profile.department|default:""|escapejs }}',
-        position: '{{ s.profile.position|default:""|escapejs }}',
-        unit: '{{ s.profile.unit|default:""|escapejs }}',
-        category: '{{ s.profile.get_staff_category_display|default:""|escapejs }}',
-        terms: '{{ s.profile.get_employment_terms_display|default:""|escapejs }}',
-        date_joined: '{{ s.profile.date_joined|default:""|escapejs }}',
-        is_active: {{ s.is_active|lower }},
-        emails_received: {{ s.emails_received }},
-        emails_opened: {{ s.emails_opened }},
-        quiz_count: {{ s.quiz_count }},
-        avg_score: '{% if s.avg_quiz_score %}{{ s.avg_quiz_score|floatformat:1 }}{% else %}-{% endif %}',
-        content_viewed: {{ s.content_viewed }},
-    },
-    {% endfor %}
-};
-
-function openStaffModal(pk) {
-    const d = staffData[pk];
-    if (!d) return;
-    document.getElementById('modalName').textContent = d.name || d.email;
-
-    const openRate = d.emails_received > 0
-        ? Math.round(d.emails_opened * 100 / d.emails_received) + '%'
-        : '-';
-
-    document.getElementById('modalBody').innerHTML = `
-        <div class="grid grid-cols-2 gap-4 mb-6 text-sm">
-            <div><div class="text-xs font-bold uppercase tracking-wider text-on-surface-variant mb-1">Email</div><div>${d.email}</div></div>
-            <div><div class="text-xs font-bold uppercase tracking-wider text-on-surface-variant mb-1">ID</div><div>${d.staff_id || '-'}</div></div>
-            <div><div class="text-xs font-bold uppercase tracking-wider text-on-surface-variant mb-1">Department</div><div>${d.department || '-'}</div></div>
-            <div><div class="text-xs font-bold uppercase tracking-wider text-on-surface-variant mb-1">Position</div><div>${d.position || '-'}</div></div>
-            <div><div class="text-xs font-bold uppercase tracking-wider text-on-surface-variant mb-1">Unit</div><div>${d.unit || '-'}</div></div>
-            <div><div class="text-xs font-bold uppercase tracking-wider text-on-surface-variant mb-1">Category</div><div>${d.category || '-'}</div></div>
-            <div><div class="text-xs font-bold uppercase tracking-wider text-on-surface-variant mb-1">Employment</div><div>${d.terms || '-'}</div></div>
-            <div><div class="text-xs font-bold uppercase tracking-wider text-on-surface-variant mb-1">Date Joined</div><div>${d.date_joined || '-'}</div></div>
-            <div><div class="text-xs font-bold uppercase tracking-wider text-on-surface-variant mb-1">Status</div>
-                <div class="font-semibold ${d.is_active ? 'text-teal' : 'text-on-surface-variant'}">${d.is_active ? 'Active' : 'Inactive'}</div>
-            </div>
-        </div>
-        <div class="border-t border-outline pt-4 grid grid-cols-2 gap-4 text-sm">
-            <div class="bg-surface border border-outline p-4 text-center">
-                <div class="text-2xl font-bold text-teal">${d.emails_received}</div>
-                <div class="text-xs text-on-surface-variant mt-1 uppercase tracking-wider font-bold">Emails Received</div>
-            </div>
-            <div class="bg-surface border border-outline p-4 text-center">
-                <div class="text-2xl font-bold ${d.emails_opened > 0 ? 'text-teal' : 'text-on-surface-variant'}">${d.emails_opened}</div>
-                <div class="text-xs text-on-surface-variant mt-1 uppercase tracking-wider font-bold">Opened (${openRate})</div>
-            </div>
-            <div class="bg-surface border border-outline p-4 text-center">
-                <div class="text-2xl font-bold text-teal">${d.quiz_count}</div>
-                <div class="text-xs text-on-surface-variant mt-1 uppercase tracking-wider font-bold">Quiz Attempts</div>
-            </div>
-            <div class="bg-surface border border-outline p-4 text-center">
-                <div class="text-2xl font-bold text-teal">${d.avg_score}</div>
-                <div class="text-xs text-on-surface-variant mt-1 uppercase tracking-wider font-bold">Avg Quiz Score</div>
-            </div>
-            <div class="bg-surface border border-outline p-4 text-center col-span-2">
-                <div class="text-2xl font-bold text-teal">${d.content_viewed}</div>
-                <div class="text-xs text-on-surface-variant mt-1 uppercase tracking-wider font-bold">Content Items Viewed</div>
-            </div>
-        </div>
-    `;
-
-    const modal = document.getElementById('staffModal');
-    modal.classList.remove('hidden');
-    modal.classList.add('flex');
-    document.body.style.overflow = 'hidden';
-}
-
-function closeStaffModal() {
-    const modal = document.getElementById('staffModal');
-    modal.classList.add('hidden');
-    modal.classList.remove('flex');
-    document.body.style.overflow = '';
-}
-
-document.getElementById('staffModal').addEventListener('click', function(e) {
-    if (e.target.id === 'staffModal') closeStaffModal();
-});
-</script>
+{% include "panel/_families_children.html" %}
 {% endblock %}
