@@ -60,6 +60,7 @@
 17. [Submission checklist and declarations](#17-submission-checklist-and-declarations)
 18. [Risks and open questions](#18-risks-and-open-questions)
 19. [Appendix: env vars, repo layout, commands](#19-appendix)
+20. [Hosting on the GPU machine (public server) and the fixed mobile address](#20-hosting-on-the-gpu-machine)
 
 ---
 
@@ -1735,3 +1736,88 @@ tmux attach -t ai     # guardian-ai uvicorn :8000
 bash ~/guardian-ai/scripts/start_testbed.sh   # restart guardian-ai alone
 /mnt/c/Windows/System32/nvidia-smi.exe
 ```
+
+---
+
+## 20. Hosting on the GPU machine
+
+**Decision (6 Nov):** the Testbed GPU machine (`137.63.190.11`) is Guardian's public server for the hackathon and
+the pilot. The mobile apps get its address built in, so nobody types a server URL and the "Connect to Guardian"
+input disappears from the app.
+
+### 20.1 What we verified on the machine
+
+| Check | Result | Consequence |
+|---|---|---|
+| Admin rights | No (standard user) | No Windows services, no `netsh portproxy`, no firewall rules |
+| Windows firewall (public profile) | **Off** | A Windows program listening on `0.0.0.0` is reachable from the internet: verified with a test listener on :8090 and with the Llama app on :8081 |
+| WSL networking | WSL2 NAT (default) | WSL ports are **not** reachable from outside; Windows reaches them on `127.0.0.1` (localhost forwarding) |
+| Windows tools | Node.js and Python are installed | A Windows-side reverse proxy can run without admin |
+
+### 20.2 Design
+
+```
+ phone app / browser ──https──► 137-63-190-11.sslip.io :443 / :80
+                                   │  Caddy (Windows, user process, automatic Let's Encrypt certificate)
+                                   ▼
+                              127.0.0.1:8001 (Windows → WSL localhost forwarding)
+                                   │  gunicorn + Django (WSL, ~/guardian-web), WhiteNoise for static files
+                                   ▼
+                              127.0.0.1:8000 guardian-ai (WSL)  ──►  Qwen llama.exe :8081 (Windows)
+```
+
+- **Address:** `https://137-63-190-11.sslip.io` (sslip.io resolves to the IP inside the name, so it needs no DNS
+  setup and Let's Encrypt can issue a real certificate). If certificates fail, fall back to
+  `http://137.63.190.11` (cleartext; Android build allows it only when the URL is http).
+- **Processes** live in WSL tmux sessions, like guardian-ai and Qwen today: `web` (gunicorn) and `proxy`
+  (`caddy.exe` started from WSL through Windows interop). `guardian-ai/scripts/start_all.sh` starts all four.
+- **Database:** SQLite file in `~/guardian-web/data/` (no sudo for PostgreSQL). Current laptop data is copied once
+  with `dumpdata --natural-foreign` / `loaddata`, so existing accounts, topics and evaluations appear.
+- **Settings on the server:** `DEBUG=False`, new `DJANGO_SECRET_KEY`, `SITE_URL` = public address,
+  `ALLOWED_HOST` = host name and IP, `CSRF_TRUSTED_ORIGINS` from `SITE_URL`, `SECURE_PROXY_SSL_HEADER` (Caddy sets
+  `X-Forwarded-Proto`), `GUARDIAN_AI_URL=http://127.0.0.1:8000` (no tunnel). Email and Google secrets are copied
+  from the laptop `.env` by the deploy script, never committed.
+- **Deploy:** `scripts/deploy_gpu.sh` on the laptop: `git archive` of the committed code → WSL `~/guardian-web`,
+  venv + `pip install`, `migrate`, `collectstatic`, restart `web`. Re-running it updates the server.
+- **Google sign-in:** add `https://137-63-190-11.sslip.io/accounts/google/login/callback/` to the Google OAuth
+  client's redirect URIs (console, by the account owner).
+
+### 20.3 Mobile app: fixed, editable address in code
+
+- New committed file `mobile/guardian.server.json` holds `siteUrl` and the route prefixes. It is the one place to
+  edit when the server moves; builds read it through `app.config.js`. `EXPO_PUBLIC_SITE_URL` stays only as a
+  developer override for a laptop on Wi-Fi.
+- Remove from the app: the "Connect to Guardian" screen, the server URL and prefix inputs, the settings button,
+  the "Connection settings" buttons, and the address saved on the phone (old saved addresses are ignored).
+- Android cleartext traffic is allowed only when the built-in address is http; practice, stop and reset links open
+  in the app when it is https.
+- The colleague building the native apps pulls, builds, and never needs the Django link.
+
+### 20.4 Steps
+
+1. Django: `SECURE_PROXY_SSL_HEADER`, `CSRF_TRUSTED_ORIGINS` and `ALLOWED_HOST` from env, WhiteNoise, gunicorn in
+   requirements; tests still pass.
+2. `scripts/deploy_gpu.sh`, server `.env` builder, `Caddyfile`, `start_all.sh` gains `web` and `proxy`.
+3. Deploy, copy data, start; check `https://137-63-190-11.sslip.io` from the laptop and a phone network.
+4. Mobile: `guardian.server.json`, remove the connection UI and saved address, update README and tests.
+5. Commit; the colleague pulls and builds.
+
+### 20.5 What happened on the first deploy (6 Nov)
+
+- Code, settings and the laptop's data (122 records) deployed; Django answers inside WSL on 127.0.0.1:8001.
+- Caddy obtained a **Let's Encrypt certificate for `137-63-190-11.sslip.io`** (ports 80 and 443 are reachable).
+- Windows programs started over SSH are closed when the SSH session ends, and WMI process creation is refused for
+  SSH logons, so Caddy cannot be kept running from the laptop. A scheduled task was not used (it would add
+  persistence on shared Testbed hardware). **Start it at the machine's desktop:** double-click
+  `C:\Users\hackathon\guardian-web\Start Guardian Web.bat`, which runs `start_all.sh` (Qwen, guardian-ai, Django,
+  Caddy). Programs started from the desktop keep running, as the Qwen app already does.
+- `start_all.sh` passes the session's `WSL_INTEROP` into tmux so Windows programs can be launched from a long-lived
+  tmux server.
+
+### 20.6 Risks
+
+- The machine is shared Testbed hardware: if it restarts, run `start_all.sh` again (no admin, so no auto-start
+  service). Uptime is best effort during the hackathon.
+- Port 8081 (Qwen) is also public; it stays protected by its API key.
+- SQLite suits a pilot; move to PostgreSQL on a real VPS later.
+

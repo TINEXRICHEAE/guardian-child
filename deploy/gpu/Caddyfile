@@ -1,0 +1,25 @@
+# Caddy on the GPU machine's Windows side (plan.md §20). Runs as the normal user: no admin needed.
+# It gets an HTTPS certificate automatically and passes requests into WSL, where gunicorn serves Django.
+{
+	storage file_system C:/Users/hackathon/guardian-web/caddy-data
+	log {
+		output file C:/Users/hackathon/guardian-web/caddy.log
+	}
+}
+
+{$GUARDIAN_HOST:137-63-190-11.sslip.io} {
+	encode gzip
+	request_body {
+		max_size 12MB
+	}
+	reverse_proxy 127.0.0.1:8001 {
+		transport http {
+			read_timeout 12m
+		}
+	}
+}
+
+# Plain http on the bare IP sends people to the https address
+http://137.63.190.11 {
+	redir https://{$GUARDIAN_HOST:137-63-190-11.sslip.io}{uri} permanent
+}

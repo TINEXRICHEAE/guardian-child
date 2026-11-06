@@ -1,0 +1,5 @@
+{
+  "about": "The Guardian server this app is built for. Edit siteUrl here (and rebuild) when the server moves. Route prefixes must match the server's Django settings.",
+  "siteUrl": "https://137-63-190-11.sslip.io",
+  "prefixes": { "auth": "a4e2b1c9", "panel": "b2a9e6f1", "parent": "family", "child": "me" }
+}

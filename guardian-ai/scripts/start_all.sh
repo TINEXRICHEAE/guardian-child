@@ -38,7 +38,7 @@ if qwen_up; then
 else
     [ -x "$LLAMA" ] || { echo "Llama app not found at $LLAMA (install LlamaApp on Windows)"; exit 1; }
     tmux kill-session -t qwen 2>/dev/null
-    tmux new-session -d -s qwen "'$LLAMA' serve -m '$WIN_MODELS\\Qwen3VL-2B-Instruct-Q8_0.gguf' \
+    tmux new-session -d -e "WSL_INTEROP=${WSL_INTEROP:-}" -s qwen "'$LLAMA' serve -m '$WIN_MODELS\\Qwen3VL-2B-Instruct-Q8_0.gguf' \
         -mm '$WIN_MODELS\\mmproj-Qwen3VL-2B-Instruct-F16.gguf' --host 0.0.0.0 --port 8081 -ngl 99 -c 8192 \
         --alias qwen3-vl-2b --api-key-file '$WIN_KEY' 2>&1 | tee -a $HOME/llama-server.log"
     printf 'qwen: starting'; for _ in $(seq 60); do qwen_up && break; printf '.'; sleep 2; done; echo
@@ -49,4 +49,12 @@ if [ "${1:-}" != restart ] && ai_up; then
     echo "guardian-ai: already running on :8000"
 else
     bash "$(dirname "$0")/start_testbed.sh"
+fi
+
+# 3. Public web server (Django + Caddy), if it has been deployed (plan.md §20)
+WEB_START=$HOME/guardian-web/app/deploy/gpu/start_web.sh
+if [ -f "$WEB_START" ]; then
+    bash "$WEB_START" ${1:-}
+else
+    echo "web: not deployed yet (run deploy/deploy_gpu.sh on the laptop)"
 fi

@@ -1,39 +1,12 @@
 /**
- * Expo config. The site address comes from the environment, in this order:
- *   1. EXPO_PUBLIC_SITE_URL in mobile/.env (copy .env.example), e.g. http://192.168.1.20:8001
- *   2. SITE_URL in ../pita/.env (the Django settings), so the app follows the web app by default
- * The URL prefixes (auth, analyst panel, parent, child) are read the same way and must match Django.
- * When Guardian is hosted, set EXPO_PUBLIC_SITE_URL to the public https address and rebuild.
+ * Expo config. The server address is built into the app (plan.md §20): nobody types it on the phone.
+ *   - guardian.server.json (committed) holds the address and route prefixes: edit it when the server moves.
+ *   - EXPO_PUBLIC_SITE_URL, if set when building, overrides it (developers testing a laptop on Wi-Fi).
  */
-const fs = require('fs');
-const path = require('path');
+const server = require('./guardian.server.json');
 
-function readDotenv(file) {
-  try {
-    return Object.fromEntries(
-      fs.readFileSync(file, 'utf8').split(/\r?\n/)
-        .map((l) => l.trim())
-        .filter((l) => l && !l.startsWith('#') && l.includes('='))
-        .map((l) => {
-          const i = l.indexOf('=');
-          return [l.slice(0, i).trim(), l.slice(i + 1).trim().replace(/^['"]|['"]$/g, '')];
-        }),
-    );
-  } catch {
-    return {};
-  }
-}
-
-const django = readDotenv(path.join(__dirname, '..', 'pita', '.env'));
-const env = (key, djangoKey, fallback) => process.env[key] || django[djangoKey] || fallback;
-
-const siteUrl = env('EXPO_PUBLIC_SITE_URL', 'SITE_URL', 'http://localhost:8001').replace(/\/+$/, '');
-const prefixes = {
-  auth: env('EXPO_PUBLIC_AUTH_PREFIX', 'AWARENESS_AUTH_PREFIX', 'a4e2b1c9'),
-  panel: env('EXPO_PUBLIC_PANEL_PREFIX', 'AWARENESS_PANEL_PREFIX', 'b2a9e6f1'),
-  parent: env('EXPO_PUBLIC_PARENT_PREFIX', 'GUARDIAN_PARENT_PREFIX', 'family'),
-  child: env('EXPO_PUBLIC_CHILD_PREFIX', 'GUARDIAN_CHILD_PREFIX', 'me'),
-};
+const siteUrl = (process.env.EXPO_PUBLIC_SITE_URL || server.siteUrl).replace(/\/+$/, '');
+const prefixes = { ...server.prefixes };
 const host = (/^https?:\/\/([^/:]+)/i.exec(siteUrl) || [])[1] || 'localhost';
 const https = siteUrl.startsWith('https://');
 
@@ -69,8 +42,8 @@ module.exports = {
     },
     plugins: [
       './plugins/with-short-native-paths',
-      // The server is chosen on device; LAN development connections can use HTTP.
-      ['expo-build-properties', { android: { usesCleartextTraffic: true } }],
+      // Plain http is allowed only when the built-in address is http (a laptop during development).
+      ['expo-build-properties', { android: { usesCleartextTraffic: !https } }],
       ['expo-image-picker', { cameraPermission: 'Take a photo of a message to check whether it is safe.', microphonePermission: false }],
     ],
     extra: { siteUrl, prefixes },

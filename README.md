@@ -125,6 +125,14 @@ python manage.py ai_health
 
 If the service is unreachable, checks still work in rules-only mode. Generating family versions needs the service.
 
+### Public server (Testbed GPU machine)
+
+Guardian is served publicly from the GPU machine at **https://137-63-190-11.sslip.io** (plan.md §20): Django and
+guardian-ai in WSL, Caddy on Windows for HTTPS. Deploy or update from the laptop with
+`bash deploy/deploy_gpu.sh` (add `--with-data` to copy this laptop's database once). After the machine restarts,
+double-click `C:\Users\hackathon\guardian-web\Start Guardian Web.bat` at its desktop. The mobile apps have this
+address built in ([mobile/guardian.server.json](mobile/guardian.server.json)).
+
 ### Tests
 
 ```bash

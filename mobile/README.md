@@ -14,18 +14,15 @@ Send that file to the phone, open it, and allow installation from the app used t
 open the file. This is a sideload build rather than a Play Store release.
 The JavaScript bundle is included; Metro, Expo Go and a USB cable are not required.
 
-On first launch, tap **Connect to Guardian** and enter your running Guardian
-website's base URL. Connection settings are saved on the device. Use HTTPS for a
-shared deployment. The app needs internet access to that backend for accounts,
-family records, lessons and AI checks; those services are not bundled into the APK.
-The welcome and connection screens are available without a server.
+The server address is built into the app: there is no address to type and no connection screen.
+It comes from [`guardian.server.json`](guardian.server.json), currently the Testbed GPU machine at
+`https://137-63-190-11.sslip.io` (plan.md §20). To point the app at another server, edit `siteUrl` there and
+rebuild. Route prefixes in the same file must match the server's Django settings; the defaults match this repo.
+The app needs internet access to that server for accounts, family records, lessons and AI checks.
 
-For local testing, use the computer's Wi-Fi IP and Django port, for example
-`http://192.168.1.20:8001`. The phone must be on the same network, Django must listen
-on all interfaces, and the server must allow that host. Local HTTP also requires
-the backend's development cookie configuration. `localhost` and `10.0.2.2` are
-rejected in phone connection settings because they do not reach a laptop from a
-physical phone. Route prefixes must match the deployment; defaults match this repo.
+For a developer testing against a laptop on the same Wi-Fi, build with an override instead of editing the file:
+`EXPO_PUBLIC_SITE_URL=http://192.168.1.20:8001 npx expo run:android`. Django must listen on all interfaces and allow
+that host, and plain http is enabled only for builds whose address is http.
 
 ## How it connects
 
@@ -37,7 +34,7 @@ than a public mobile JSON API. To keep the backend unchanged:
 - `src/NativePage.js` presents that content using native components and submits
   forms through the client. It never runs server-supplied scripts.
 - `src/NativeAccount.js` uses the existing JSON profile and account endpoints.
-- `App.js` provides server setup, saved connection settings, theme, history,
+- `App.js` uses the built-in server address and provides theme, history,
   native role tabs, external-link confirmation and deep-link handling.
 
 This adapter covers the server-rendered family management/consent, family codes,

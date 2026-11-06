@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 
 
 import os
+import re
 from pathlib import Path
 from dotenv import load_dotenv
 import dj_database_url
@@ -135,6 +136,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',      # serves /static/ itself on the GPU server (plan.md §20)
     'pita.middleware.SecurityHeadersMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'corsheaders.middleware.CorsMiddleware',
@@ -240,6 +242,17 @@ if not DEBUG:
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
 
+# ── Public server behind Caddy on the GPU machine (plan.md §20) ──
+# Caddy terminates HTTPS and sets X-Forwarded-Proto; only trust it when we really are behind that proxy.
+if os.getenv('GUARDIAN_BEHIND_PROXY', 'False') == 'True':
+    SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+    USE_X_FORWARDED_HOST = True
+# The public address and any extra origins (comma-separated) are trusted for CSRF
+_site_origin = re.match(r'^(https?://[^/]+)', os.getenv('SITE_URL', '') or '')
+if _site_origin and _site_origin.group(1) not in CSRF_TRUSTED_ORIGINS:
+    CSRF_TRUSTED_ORIGINS.append(_site_origin.group(1))
+CSRF_TRUSTED_ORIGINS += [o.strip() for o in os.getenv('CSRF_TRUSTED_ORIGINS', '').split(',') if o.strip()]
+
 # Static files (CSS, JavaScript, Images)
 STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
@@ -251,7 +264,8 @@ STATICFILES_DIRS = [
 MEDIA_URL = '/media/'
 # Vercel serverless has a read-only filesystem, use /tmp for transient uploads.
 # For persistence across requests, wire up an S3/Cloudinary storage backend instead.
-MEDIA_ROOT = Path('/tmp') / 'media' if os.getenv('VERCEL') else BASE_DIR / 'media'
+MEDIA_ROOT = Path('/tmp') / 'media' if os.getenv('VERCEL') else Path(os.getenv('GUARDIAN_MEDIA_ROOT', BASE_DIR / 'media'))
+GUARDIAN_SERVE_MEDIA = os.getenv('GUARDIAN_SERVE_MEDIA', 'False') == 'True'
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 

@@ -28,8 +28,8 @@ urlpatterns = [
     path('', include('awarenessapp.urls')),
 ]
 
-# Serve media files in development
-if settings.DEBUG:
+# Serve media files in development, and on the single-machine GPU server where no other server holds uploads
+if settings.DEBUG or getattr(settings, 'GUARDIAN_SERVE_MEDIA', False):
     urlpatterns += static(settings.MEDIA_URL,
                           document_root=settings.MEDIA_ROOT)
     urlpatterns += static(settings.STATIC_URL,
